@@ -1,3 +1,4 @@
+import { localizeButton, localizedLabel } from '../../ui/LocalizedUI';
 import Phaser from 'phaser';
 import { ObjectiveItem } from '../../ui/ObjectiveItem';
 import PlayerDataManager from '../../managers/PlayerDataManager';
@@ -31,6 +32,7 @@ export class WinPopup extends Phaser.Scene {
 
   create() {
     const { width, height } = this.scale;
+    localizedLabel(this, width / 2, 250, 'victory', 240, 48, 6);
 
     // Tạm dừng các scene bên dưới
     if (this.scene.isActive('GameScene')) this.scene.pause('GameScene');
@@ -86,6 +88,7 @@ export class WinPopup extends Phaser.Scene {
       .setScale(0.35)
       .setInteractive({ useHandCursor: true })
       .setDepth(2);
+    localizeButton(this, continueButton, 'continue');
     continueButton.on('pointerdown', () => {
       this.goToMenu();
     });
@@ -95,6 +98,7 @@ export class WinPopup extends Phaser.Scene {
       .setScale(0.35)
       .setInteractive({ useHandCursor: true })
       .setDepth(2);
+    localizeButton(this, replayButton, 'restart');
     replayButton.on('pointerdown', () => {
       if (PlayerDataManager.getLives() > 0) {
         PlayerDataManager.updateLives(-1);

@@ -1,3 +1,4 @@
+import { localizeButton, localizedLabel } from '../../ui/LocalizedUI';
 import Phaser from 'phaser';
 import { ObjectiveItem } from '../../ui/ObjectiveItem';
 import PlayerDataManager from '../../managers/PlayerDataManager';
@@ -23,6 +24,7 @@ export class LosePopup extends Phaser.Scene {
 
   create() {
     const { width, height } = this.scale;
+    localizedLabel(this, width / 2, 250, 'defeat', 240, 48, 6);
 
     // Tạm dừng các scene bên dưới
     if (this.scene.isActive('GameScene')) this.scene.pause('GameScene');
@@ -78,6 +80,7 @@ export class LosePopup extends Phaser.Scene {
       .setScale(0.35)
       .setInteractive({ useHandCursor: true })
       .setDepth(2);
+    localizeButton(this, continueButton, 'continue');
     continueButton.on('pointerdown', () => {
       this.goToMenu();
     });
@@ -89,6 +92,7 @@ export class LosePopup extends Phaser.Scene {
       .setInteractive({ useHandCursor: true })
       .setDepth(2);
 
+    localizeButton(this, replayButton, 'restart');
     replayButton.on('pointerdown', () => {
       // Tắt tương tác ngay để tránh double click / spam
       replayButton.disableInteractive();

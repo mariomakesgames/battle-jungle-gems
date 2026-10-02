@@ -1,3 +1,5 @@
+import LanguageManager from '../../i18n/LanguageManager';
+import { localizeButton } from '../../ui/LocalizedUI';
 // src/scenes/popups/LevelReviewPopup.js
 import Phaser from 'phaser';
 import PlayerDataManager from '../../managers/PlayerDataManager';
@@ -49,7 +51,7 @@ export class LevelReviewPopup extends Phaser.Scene {
         });
 
         // 4.1. Dòng chữ Stage + số level ở giữa, cùng y với nút X
-        this.add.text(width / 2, 250, `Stage ${this.levelId}`, {
+        this.add.text(width / 2, 250, LanguageManager.t('stage', { level: this.levelId }), {
             fontFamily: 'UTMCookies',
             fontSize: '38px',
             color: '#ffffff',
@@ -229,6 +231,8 @@ export class LevelReviewPopup extends Phaser.Scene {
             .setScale(0.5)
             .setInteractive({ useHandCursor: true })
             .setDepth(3);
+
+        localizeButton(this, playButton, 'play');
 
         playButton.on('pointerdown', () => {
             const currentLives = PlayerDataManager.getLives();

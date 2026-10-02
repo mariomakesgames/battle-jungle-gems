@@ -1,3 +1,4 @@
+import LanguageManager from '../../i18n/LanguageManager';
 // src/scenes/popups/ShopPopup.js
 import Phaser from 'phaser';
 import APIManager from '../../managers/APIManager';
@@ -117,7 +118,7 @@ export class ShopPopup extends Phaser.Scene {
         // Chỉ giữ lại đoạn check SAU lệnh await vì lúc đó scene đã RUNNING hoặc đã bị đóng.
 
         const { width, height } = this.scale;
-        const loadingText = this.add.text(width / 2, height / 2, 'Loading Shop...', {
+        const loadingText = this.add.text(width / 2, height / 2, LanguageManager.t('loadingShop'), {
             fontSize: '24px',
             color: '#fff',
             fontFamily: 'NABILA'
@@ -149,7 +150,7 @@ export class ShopPopup extends Phaser.Scene {
             console.error('Failed to load shop:', error);
             // Kiểm tra loadingText còn tồn tại không trước khi setText
             if (loadingText && loadingText.active) {
-                loadingText.setText('Error. Please try again.');
+                loadingText.setText(LanguageManager.t('error'));
             }
             return;
         }
@@ -269,7 +270,7 @@ export class ShopPopup extends Phaser.Scene {
             container.add(priceBg);
 
             // Text giá tiền (Vị trí x: 8 giống với giá giảm)
-            const priceText = this.add.text(8, 56, isPurchased ? 'Sold Out' : `${item.price}`, {
+            const priceText = this.add.text(8, 56, isPurchased ? LanguageManager.t('soldOut') : `${item.price}`, {
                 fontFamily: 'NABILA',
                 fontSize: isPurchased ? '14px' : '24px',
                 color: isPurchased ? '#999999' : '#ffffff',
@@ -426,7 +427,7 @@ export class ShopPopup extends Phaser.Scene {
             
         } catch (error) {
             console.error('Lỗi khi mua item:', error);
-            this.showErrorMessage('Có lỗi xảy ra. Vui lòng thử lại!');
+            this.showErrorMessage(LanguageManager.t('error'));
             
             // Enable lại interaction nếu có lỗi
             this.setShopInteractionEnabled(true);
@@ -508,18 +509,18 @@ export class ShopPopup extends Phaser.Scene {
         let rewardText = '';
         if (reward) {
             if (reward.type === 'ticket') {
-                rewardText = '\n+1 Vé Quay';
+                rewardText = `\n+${reward.quantity} ${LanguageManager.t('tickets')}`;
             } else if (reward.type.startsWith('booster_')) {
                 const boosterName = reward.type.replace('booster_', '').toUpperCase();
                 rewardText = `\n+${reward.quantity} ${boosterName}`;
             } else if (reward.type === 'lives') {
-                rewardText = '\n❤️ Hồi đầy Lives';
+                rewardText = `\n❤️ ${LanguageManager.t('lives')}`;
             } else if (reward.type === 'coins') {
-                rewardText = `\n+${reward.quantity} Coins`;
+                rewardText = `\n+${reward.quantity} ${LanguageManager.t('coins')}`;
             }
         }
         
-        const messageText = this.add.text(width / 2, height / 2, `Mua thành công!${rewardText}`, {
+        const messageText = this.add.text(width / 2, height / 2, `${LanguageManager.t('purchaseSuccess')}${rewardText}`, {
             fontFamily: 'NABILA',
             fontSize: '28px',
             color: '#00ff00',

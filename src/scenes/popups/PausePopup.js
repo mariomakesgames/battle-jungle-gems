@@ -1,3 +1,4 @@
+import { createLanguageSelector, localizedLabel, localizeButton } from '../../ui/LocalizedUI';
 import Phaser from 'phaser';
 import PlayerDataManager from '../../managers/PlayerDataManager';
 import AudioManager from '../../managers/AudioManager';
@@ -18,6 +19,9 @@ export class PausePopup extends Phaser.Scene {
 
     create() {
         const { width, height } = this.scale;
+        createLanguageSelector(this, 935);
+        localizedLabel(this, 288, 248, 'pause', 240, 52);
+        localizedLabel(this, 275, 398, 'level', 60, 24);
 
         // << [AUDIO] Đọc volume từ AudioManager mỗi lần mở popup (đảm bảo lấy giá trị mới nhất) >>
         this.musicVolume = AudioManager.getMusicVolume();
@@ -61,6 +65,8 @@ export class PausePopup extends Phaser.Scene {
 
         // 6. Tạo thanh trượt âm thanh
         this.createSoundSlider(width, height);
+        localizedLabel(this, 288, 465, 'music', 160, 28);
+        localizedLabel(this, 288, 555, 'sound', 160, 28);
 
         // 7. Tạo các nút chức năng
         this.createActionButtons(width, height);
@@ -205,6 +211,8 @@ export class PausePopup extends Phaser.Scene {
             .setInteractive({ useHandCursor: true })
             .setDepth(3); // Giữ depth 3
 
+        localizeButton(this, continueButton, 'continue');
+
         continueButton.on('pointerdown', () => {
             this.closePopup();
         });
@@ -215,6 +223,8 @@ export class PausePopup extends Phaser.Scene {
             .setScale(0.35)
             .setInteractive({ useHandCursor: true })
             .setDepth(3); // Giữ depth 3
+
+        localizeButton(this, restartButton, 'restart');
 
         restartButton.on('pointerdown', () => {
             if (PlayerDataManager.getLives() > 0) {
@@ -240,6 +250,8 @@ export class PausePopup extends Phaser.Scene {
             .setScale(0.35)
             .setInteractive({ useHandCursor: true })
             .setDepth(3); // Giữ depth 3
+
+        localizeButton(this, quitButton, 'quit');
 
         quitButton.on('pointerdown', () => {
             // << [AUDIO] Dừng tất cả scene game trước khi quay về MapScene >>

@@ -1,3 +1,4 @@
+import { bindText, createLanguageSelector } from '../ui/LocalizedUI';
 // src/scenes/TitleScene.js
 import Phaser from 'phaser';
 
@@ -8,6 +9,7 @@ export class TitleScene extends Phaser.Scene {
     }
 
     create() {
+        createLanguageSelector(this, 920);
         const gameWidth = this.scale.gameSize.width;
         const gameHeight = this.scale.gameSize.height;
 
@@ -61,6 +63,7 @@ export class TitleScene extends Phaser.Scene {
                 right: 10
             }
         }).setOrigin(0.5);
+      bindText(startText, 'start', {}, 460);
 
         // Điều chỉnh scale chữ nếu màn hình quá nhỏ (Mobile)
         const maxTextWidth = gameWidth * 0.8;

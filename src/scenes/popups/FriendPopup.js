@@ -1,3 +1,4 @@
+import { localizeButton } from '../../ui/LocalizedUI';
 // src/scenes/popups/FriendPopup.js
 import Phaser from 'phaser';
 import APIManager from '../../managers/APIManager';
@@ -193,6 +194,7 @@ export class FriendPopup extends Phaser.Scene {
         // Text "Select All" (Dùng ảnh bạn cung cấp)
         const selectAllText = this.add.image(bg.x, 735, 'friend_select_all_text')
             .setOrigin(0.5).setDepth(5).setScale(0.4);
+        localizeButton(this, selectAllText, 'selectAll');
 
         // Checkbox logic (Tick xanh)
         // Vị trí tick bên trái chữ Select All
@@ -215,6 +217,7 @@ export class FriendPopup extends Phaser.Scene {
         // 3. Send All Button
         const sendBtn = this.add.image(bg.x, 790, 'friend_send_button')
             .setScale(0.4).setInteractive({ useHandCursor: true }).setDepth(5);
+        localizeButton(this, sendBtn, 'sendAll');
 
         sendBtn.on('pointerdown', () => {
             this.handleSendAll();

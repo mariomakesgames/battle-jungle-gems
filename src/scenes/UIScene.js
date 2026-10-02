@@ -1,3 +1,4 @@
+import { bindText } from '../ui/LocalizedUI';
 // src/scenes/UIScene.js
 import Phaser from 'phaser';
 import { BOOSTER_TYPES } from '../utils/constants';
@@ -54,6 +55,8 @@ export class UIScene extends Phaser.Scene {
       .setOrigin(0.5)
       .setDepth(10);
 
+      bindText(this.movesLabel, 'moves', {}, 130);
+
       this.movesText = this.add.text(moveX, moveValueY, `${levelData.maxMoves}`, {
         fontSize: '24px',
         fontFamily: 'UTMCookies',
@@ -105,6 +108,8 @@ export class UIScene extends Phaser.Scene {
       stroke: '#000000',
       strokeThickness: 6
     }).setOrigin(0.5).setDepth(10);
+
+    bindText(this.scoreLabel, 'score', {}, 130);
 
     this.scoreText = this.add.text(scoreX, scoreValueY, '0', {
       fontSize: '24px',
@@ -459,6 +464,7 @@ export class UIScene extends Phaser.Scene {
       stroke: '#000000',
       strokeThickness: 6
     }).setOrigin(0.5).setDepth(10);
+      bindText(this.objectivesLabel, 'missions', {}, 250);
 
     // Vị trí bắt đầu của grid nhiệm vụ (ví dụ: góc trên bên trái)
     const startX = 90;

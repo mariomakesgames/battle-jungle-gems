@@ -1,3 +1,4 @@
+import { localizeButton } from '../../ui/LocalizedUI';
 // src/scenes/popups/SpinPopup.js
 import Phaser from 'phaser';
 import APIManager from '../../managers/APIManager';
@@ -161,6 +162,7 @@ export class SpinPopup extends Phaser.Scene {
             .setScale(0.4)
             .setInteractive({ useHandCursor: true })
             .setDepth(4.5);
+        localizeButton(this, this.spinButton, 'spin');
 
         this.spinButton.on('pointerdown', () => {
             if (this.isSpinning) return;

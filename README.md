@@ -80,6 +80,12 @@ The project follows four core design principles:
 
 ---
 
+### Language settings
+
+Choose **简体中文**, **English**, or **Tiếng Việt** on the title screen, in Settings on the map, or in the pause menu during a level. The first visit follows the browser language (unsupported languages fall back to English). The choice is saved locally and updates gameplay labels immediately without restarting the level.
+
+Translations live in `src/i18n/LanguageManager.js`; `src/ui/LocalizedUI.js` binds live labels and draws translated labels over the main image-based controls. Decorative artwork is shared across languages. Run `npm test` for language-selection and translation tests.
+
 ## 4. Detailed project structure
 
 ```

@@ -1,3 +1,4 @@
+import LanguageManager from '../i18n/LanguageManager';
 // src/managers/APIManager.js
 import Phaser from 'phaser';
 import { BOOSTER_TYPES } from '../utils/constants';
@@ -179,7 +180,7 @@ class APIManager {
         console.log(`SERVER SIM: Spin reward claimed successfully!`, reward);
         return {
             success: true,
-            message: 'Nhận thưởng thành công!',
+            message: LanguageManager.t('rewardSuccess'),
             reward: reward
         };
     }
@@ -202,7 +203,7 @@ class APIManager {
             console.log("SERVER SIM: Not enough coins!");
             return { 
                 success: false, 
-                message: 'Không đủ coin để mua item này!' 
+                message: LanguageManager.t('notEnoughCoins')
             };
         }
 
@@ -212,7 +213,7 @@ class APIManager {
             console.log("SERVER SIM: Item already purchased!");
             return { 
                 success: false, 
-                message: 'Item này đã được mua rồi!' 
+                message: LanguageManager.t('alreadyPurchased')
             };
         }
 
@@ -221,7 +222,7 @@ class APIManager {
         if (!coinSuccess) {
             return { 
                 success: false, 
-                message: 'Không đủ coin để mua item này!' 
+                message: LanguageManager.t('notEnoughCoins')
             };
         }
 
@@ -260,7 +261,7 @@ class APIManager {
         console.log(`SERVER SIM: Item ${itemId} purchased successfully!`, reward);
         return { 
             success: true, 
-            message: 'Mua thành công!',
+            message: LanguageManager.t('purchaseSuccess'),
             reward: reward
         };
     }

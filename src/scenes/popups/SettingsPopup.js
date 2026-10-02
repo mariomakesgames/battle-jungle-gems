@@ -1,3 +1,4 @@
+import { createLanguageSelector, localizedLabel, localizeButton } from '../../ui/LocalizedUI';
 import Phaser from 'phaser';
 import APIManager from '../../managers/APIManager';
 import AudioManager from '../../managers/AudioManager';
@@ -17,6 +18,9 @@ export class SettingsPopup extends Phaser.Scene {
 
     create() {
         const { width, height } = this.scale;
+        createLanguageSelector(this, 935);
+        localizedLabel(this, 288, 248, 'settings', 240, 52);
+        localizedLabel(this, 275, 398, 'level', 60, 24);
 
         // << [AUDIO] Đọc volume từ AudioManager mỗi lần mở popup (đảm bảo lấy giá trị mới nhất) >>
         this.musicVolume = AudioManager.getMusicVolume();
@@ -63,6 +67,8 @@ export class SettingsPopup extends Phaser.Scene {
 
         // 7. Tạo thanh trượt âm thanh
         this.createSoundSlider(width, height);
+        localizedLabel(this, 288, 465, 'music', 160, 28);
+        localizedLabel(this, 288, 555, 'sound', 160, 28);
 
         // 8. Tạo các nút chức năng
         this.createActionButtons(width, height);
@@ -251,6 +257,8 @@ export class SettingsPopup extends Phaser.Scene {
             .setOrigin(0.5)
             .setInteractive({ useHandCursor: true })
             .setDepth(3);
+
+        localizeButton(this, facebookButton, 'connect');
 
         facebookButton.on('pointerdown', () => {
             // Xử lý kết nối Facebook

@@ -1,3 +1,4 @@
+import LanguageManager from '../i18n/LanguageManager';
 // src/scenes/PreloaderScene.js
 import Phaser from 'phaser';
 import { SOUND_PATHS } from '../utils/SoundAssets';
@@ -100,7 +101,7 @@ export class PreloaderScene extends Phaser.Scene {
         }
 
         if (this.percentText) {
-            this.percentText.setText(`Loading ${Math.floor(this.displayProgress * 100)}%`);
+            this.percentText.setText(LanguageManager.t('loading', { percent: Math.floor(this.displayProgress * 100) }));
         }
 
         // --- Chuyển cảnh ---
