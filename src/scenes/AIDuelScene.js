@@ -11,7 +11,9 @@ import { chooseMove, makeDuelGrid, DUEL_COLORS } from '../ai/ChooseMove';
 import { needsDuelTutorial } from './DuelTutorialScene';
 
 export class AIDuelScene extends Phaser.Scene {
-    constructor() { super('AIDuelScene'); }
+    constructor(key = 'AIDuelScene') { super(key); }
+
+    supportsTutorial() { return true; }
 
     init(data = {}) {
         this.returnScene = data.returnScene || 'TitleScene';
@@ -75,7 +77,7 @@ export class AIDuelScene extends Phaser.Scene {
         this.notice = this.add.text(288, 941, '', { fontFamily: 'Arial, sans-serif', fontSize: '21px', color: '#ffdf82' }).setOrigin(0.5);
         this.button(67, 58, 100, this.returnScene === 'MapScene' ? 'quit' : 'duelBack', () => this.leave(), 'duel-exit');
         this.button(509, 58, 100, 'pause', () => this.showPause(), 'duel-pause');
-        this.button(288, 984, 180, 'duelTutorial', () => this.showTutorial(), 'duel-tutorial');
+        if (this.supportsTutorial()) this.button(288, 984, 180, 'duelTutorial', () => this.showTutorial(), 'duel-tutorial');
 
         this.events.on('swapAccepted', this.onAccepted, this);
         this.game.events.on('addScore', this.onScore, this);
@@ -97,7 +99,7 @@ export class AIDuelScene extends Phaser.Scene {
         this.events.once('shutdown', this.cleanup, this);
         this.events.on('resume', this.onTutorialResume, this);
         this.refresh();
-        if (needsDuelTutorial()) this.time.delayedCall(0, () => this.showTutorial());
+        if (this.supportsTutorial() && needsDuelTutorial()) this.time.delayedCall(0, () => this.showTutorial());
     }
 
     makeLabel(x, y, key, size, params = {}, width = 500) {
@@ -220,17 +222,19 @@ export class AIDuelScene extends Phaser.Scene {
         this.pausePanel = this.add.container(0, 0).setDepth(100);
         this.pausePanel.add(this.add.rectangle(288, 512, 576, 1024, 0x08120d, 0.88).setInteractive());
         this.pausePanel.add(this.makeLabel(288, 405, 'pause', 36));
-        this.button(288, 510, 260, 'continue', () => {
-            this.pausePanel.destroy(true);
-            this.paused = false;
-            this.time.paused = false;
-            this.tweens.resumeAll();
-            this.music?.resume();
-        }, 'duel-resume', this.pausePanel);
+        this.button(288, 510, 260, 'continue', () => this.resumePause(), 'duel-resume', this.pausePanel);
         this.button(288, 590, 260, 'duelBack', () => this.leave(), 'duel-pause-exit', this.pausePanel);
     }
 
     onMusicVolume(volume) { this.music?.setVolume(0.2 * volume); }
+
+    resumePause() {
+        this.pausePanel.destroy(true);
+        this.paused = false;
+        this.time.paused = false;
+        this.tweens.resumeAll();
+        this.music?.resume();
+    }
 
     showTutorial() {
         if (this.paused || this.board.boardBusy || this.duel.finished || this.scene.isPaused()) return;

@@ -16,6 +16,9 @@ test('all languages translate gameplay labels and interpolate level numbers', ()
             assert.notEqual(LanguageManager.t(key), key);
         }
         assert.ok(LanguageManager.t('stage', { level: 12 }).includes('12'));
+        for (const key of ['onlineDuel', 'onlineRules', 'linkCreate', 'linkJoin', 'linkHostSteps', 'linkGuestSteps', 'linkDisconnected']) {
+            assert.notEqual(LanguageManager.t(key), key);
+        }
     }
 });
 

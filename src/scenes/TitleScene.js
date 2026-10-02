@@ -108,6 +108,11 @@ export class TitleScene extends Phaser.Scene {
         bindText(this.add.text(gameWidth / 2, 835, '', { fontSize: '25px', color: '#fff5df' })
             .setOrigin(0.5), 'aiDuel', {}, 280);
         duelButton.on('pointerdown', () => this.scene.start('AIDuelScene'));
+        const onlineButton = this.add.rectangle(gameWidth / 2, 675, 300, 46, 0x243e63)
+            .setStrokeStyle(2, 0xe8bd70).setInteractive({ useHandCursor: true }).setName('online-duel-entry');
+        bindText(this.add.text(gameWidth / 2, 675, '', { fontSize: '25px', color: '#fff5df' })
+            .setOrigin(0.5), 'onlineDuel', {}, 280);
+        onlineButton.on('pointerdown', () => this.scene.start('OnlineLobbyScene'));
         this.events.once('shutdown', () => this.scale.off('resize', this.handleResize, this));
 
         // Lắng nghe sự kiện resize để vẽ lại background nếu xoay màn hình

@@ -18,6 +18,8 @@ import { ShopPopup } from './scenes/popups/ShopPopup';
 import { FriendPopup } from './scenes/popups/FriendPopup';
 import { AIDuelScene } from './scenes/AIDuelScene';
 import { DuelTutorialScene } from './scenes/DuelTutorialScene';
+import { OnlineLobbyScene } from './scenes/OnlineLobbyScene';
+import { OnlineDuelScene } from './scenes/OnlineDuelScene';
 
 const config = {
   type: Phaser.AUTO,
@@ -35,6 +37,8 @@ const config = {
       TitleScene, // <--- Đặt ở đây
       AIDuelScene,
       DuelTutorialScene,
+      OnlineLobbyScene,
+      OnlineDuelScene,
       PreloaderScene, 
       DemoScene, 
       MapScene, 
