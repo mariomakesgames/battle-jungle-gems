@@ -59,6 +59,9 @@ export class AIDuelScene extends Phaser.Scene {
         this.add.rectangle(288, 603, 512, 512, 0x342819, 0.95).setStrokeStyle(4, 0xe8bd70);
         this.gemLayer = this.add.layer().setDepth(4);
         this.vfxLayer = this.add.layer().setDepth(25);
+        // Keep AI moves visible while signaling that the player cannot act.
+        this.boardDimmer = this.add.rectangle(288, 603, 512, 512, 0x08120d, 0.4)
+            .setDepth(28).setVisible(false);
         const mask = this.make.graphics().fillStyle(0xffffff).fillRect(45, 360, 486, 486).createGeometryMask();
         this.gemLayer.setMask(mask);
         this.vfxLayer.setMask(mask);
@@ -184,6 +187,7 @@ export class AIDuelScene extends Phaser.Scene {
     }
 
     refresh() {
+        this.boardDimmer.setVisible(this.duel.actor === 'ai' && !this.duel.finished);
         this.roundLabel.setText(LanguageManager.t('duelRound', { round: this.duel.round, total: this.duel.totalRounds }));
         this.turnLabel.setText(LanguageManager.t(this.duel.actor === 'player' ? 'duelYourTurn' : 'duelAIThinking'));
         this.swapsLabel.setText(LanguageManager.t('duelSwaps', { count: this.duel.swapsLeft }));
