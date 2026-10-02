@@ -849,7 +849,7 @@ export class MapVFXManager {
         this.activeVFX.push(steamDropletTimer); // Lưu timer để có thể dừng sau này
 
         // << [AUDIO] Âm thanh thác nước - chạy liên tục với volume nhỏ >>
-        this.playLoopingSound('stream', 0.08); // stream.mp3 - volume 0.08 (giảm xuống)
+        this.playLoopingSound('stream', 0.08); // volume 0.08 (giảm xuống)
 
         // --- Nhóm VFX Bình rót nước (Decanter) ---
 
@@ -1204,5 +1204,4 @@ export class MapVFXManager {
         this.activeVFX = []; // Reset mảng
     }
 }
-
 

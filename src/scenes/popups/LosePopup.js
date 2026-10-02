@@ -1,3 +1,4 @@
+import { preloadPopupAssets } from '../../ui/PopupLoading';
 import { localizeButton, localizedLabel } from '../../ui/LocalizedUI';
 import Phaser from 'phaser';
 import { ObjectiveItem } from '../../ui/ObjectiveItem';
@@ -20,6 +21,10 @@ export class LosePopup extends Phaser.Scene {
     this.stars = 0;
     this.objectives = data?.objectives ?? null;
     this.results = data?.results ?? null;
+  }
+
+  preload() {
+    preloadPopupAssets(this, 'lose', ['GameScene', 'UIScene']);
   }
 
   create() {

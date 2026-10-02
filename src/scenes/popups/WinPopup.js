@@ -1,3 +1,4 @@
+import { preloadPopupAssets } from '../../ui/PopupLoading';
 import { localizeButton, localizedLabel } from '../../ui/LocalizedUI';
 import Phaser from 'phaser';
 import { ObjectiveItem } from '../../ui/ObjectiveItem';
@@ -28,6 +29,10 @@ export class WinPopup extends Phaser.Scene {
     // Gọi Manager để tính toán mở khóa level tiếp theo và Lưu xuống localStorage ngay lập tức
     console.log(`[WinPopup] Saving progress for Level ${this.levelId} (Type: ${typeof this.levelId}) with ${this.stars} stars`);
     PlayerDataManager.completeLevel(this.levelId, this.stars);
+  }
+
+  preload() {
+    preloadPopupAssets(this, 'win', ['GameScene', 'UIScene']);
   }
 
   create() {

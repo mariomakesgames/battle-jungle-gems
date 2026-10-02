@@ -86,6 +86,25 @@ Choose **简体中文**, **English**, or **Tiếng Việt** on the title screen,
 
 Translations live in `src/i18n/LanguageManager.js`; `src/ui/LocalizedUI.js` binds live labels and draws translated labels over the main image-based controls. Decorative artwork is shared across languages. Run `npm test` for language-selection and translation tests.
 
+### Audio compression
+
+Level music and the waterfall loop use full-length AAC-LC copies at 80 kbps, 44.1 kHz stereo under `public/assets/sounds/optimized/`. This is lossy compression; original audio stays in `public/assets/sounds/maps/` for editing. The already low-bitrate map background and short sound effects retain their original encoding. Music still loads after the board becomes playable and replays from cache. Regenerate the playback files with `python scripts/optimize-music.py` (requires ffmpeg and ffprobe); the script checks duration, channel count and full decoding before replacing each output.
+
+### Loading performance
+
+Loading bars follow Phaser's real queue progress. The map and levels start as soon as their assets are ready, with a short fade; no extra minimum loading time is imposed. Level loading reuses the boot background, avoiding six large loading-only images. Replaying a level reuses cached music and VFX textures.
+
+Resources are loaded in stages through `src/utils/AssetGroups.js`:
+
+- Boot and the first visible map section load first, with shared small icons.
+- After two idle seconds, only the visible section's decoration and ambient sounds load in a separate worker, with at most two parallel downloads. Scrolling into the upper map loads its background first. Opening a popup or leaving the map cancels optional map downloads; required level-JSON loading uses a separate queue.
+- A level loads its core HUD, effects and its own board theme. Music loads independently after the playable board appears; an unavailable or pending track does not block play.
+- Pause and win/lose panels load when opened. Shops, spin, friends and settings also load on first use. Reopening uses cached images and audio.
+
+Map and gameplay backgrounds are resampled to 1152×2049 (about 2× the game canvas), then encoded as lossless WebP to reduce download and texture memory. The map retains its original logical dimensions, keeping level/VFX coordinates fixed. Original PNGs remain available for editing. Regenerate the copies with `python scripts/optimize-loading-images.py` (requires Pillow). Phaser is built as a separate hashed chunk so engine code can stay cached across game-only updates.
+
+With Vite or production preview running, `python tests/loading-smoke.py` validates playable entry with music pending, cached replay, theme selection and bounded music cache. `python tests/deferred-assets-smoke.py` checks first-use popup loading, cached reopening and a complete spin. `python tests/streaming-smoke.py` covers map batches, cancellation, scrolling and first-use pause/result panels. These browser checks require Playwright and Chromium; override `CHROMIUM_EXECUTABLE` or `JUNGLE_GEMS_URL` if needed. `npm test` also checks deferred asset paths and cache behavior. Use `python tests/loading-profile.py` against production preview to report cold loading stages; it rejects the development server so debug-code downloads are not mistaken for production payload.
+
 ## 4. Detailed project structure
 
 ```

@@ -1,3 +1,4 @@
+import { preloadPopupAssets } from '../../ui/PopupLoading';
 import LanguageManager from '../../i18n/LanguageManager';
 // src/scenes/popups/ShopPopup.js
 import Phaser from 'phaser';
@@ -19,6 +20,10 @@ export class ShopPopup extends Phaser.Scene {
         this.pageText = null;
         this.purchasedItems = []; // Danh sách item đã mua
         this.coinDisplay = null; // Hiển thị số coin hiện tại
+    }
+
+    preload() {
+        preloadPopupAssets(this, 'shop', ['MapScene']);
     }
 
     create() {

@@ -1,3 +1,5 @@
+import { startAssetStream } from './AssetStreamScene';
+import LanguageManager from '../i18n/LanguageManager';
 // src/scenes/MapScene.js
 import Phaser from 'phaser';
 import PlayerDataManager from '../managers/PlayerDataManager';
@@ -24,6 +26,11 @@ export class MapScene extends Phaser.Scene {
      */
     init(data) {
         // Ép kiểu parseInt để đảm bảo luôn là số (tránh lỗi String vs Number trên Host)
+        this.readyEffects = new Set();
+        this.mapMusicStarted = false;
+        this.assetStream = null;
+        this.streamingGroup = null;
+        this.effectsReadyAt = 0;
         this.completedLevelId = (data && data.completedLevelId) ? parseInt(data.completedLevelId, 10) : null;
         console.log(`[MapScene Init] CompletedLevelID: ${this.completedLevelId} (Type: ${typeof this.completedLevelId})`);
     }
@@ -105,29 +112,21 @@ export class MapScene extends Phaser.Scene {
         let currentY = 0; // Vị trí Y (world) để đặt map part tiếp theo
 
         mapPartKeys.forEach((key, index) => {
-            const mapImage = this.add.image(width / 2, currentY, key).setOrigin(0.5, 0);
-            mapImage.displayWidth = width;
-            mapImage.scaleY = mapImage.scaleX; // Giữ tỷ lệ
-            
-            // Đặt depth để map_part2 đè lên map_part1
-            if (key === 'map_part2') {
-                mapImage.setDepth(10); // Depth cao để đè lên VFX của map_part1
-            } else if (key === 'map_part1') {
-                mapImage.setDepth(0); // Depth thấp để VFX có thể hiển thị trên nó
-            }
-            
-            // this.mapContainer.add(mapImage); // <-- BỎ DÒNG NÀY
-
-            // Đăng ký thông tin của map part này
-            this.mapRegistry.set(key, {
-                image: mapImage,
-                offsetY: currentY, // Vị trí Y (world) bắt đầu
-                displayHeight: mapImage.displayHeight // Chiều cao thực tế sau khi scale
-            });
-            
+            // Preserve the original logical geometry for all level/VFX coordinates.
+            const displayHeight = key === 'map_part2' ? width * 1067 / 600 : width * 2668 / 1500;
+            const depth = key === 'map_part2' ? 10 : 0;
+            const mapImage = this.textures.exists(key)
+                ? this.add.image(width / 2, currentY, key).setOrigin(0.5, 0).setDisplaySize(width, displayHeight)
+                : this.add.rectangle(width / 2, currentY, width, displayHeight, 0x315031).setOrigin(0.5, 0);
+            mapImage.setDepth(depth);
+            const label = this.textures.exists(key) ? null : this.add.text(width / 2, currentY + displayHeight / 2,
+                LanguageManager.t('loading', { percent: 0 }), {
+                    fontFamily: 'UTMCookies, Arial, sans-serif', fontSize: '24px', color: '#fff5df'
+                }).setOrigin(0.5).setDepth(depth + 1);
+            this.mapRegistry.set(key, { image: mapImage, label, offsetY: currentY, displayHeight });
             console.log(`Map part '${key}' đã được đặt tại Y offset: ${currentY} với depth: ${mapImage.depth}`);
             // Cập nhật Y cho map part tiếp theo
-            currentY += mapImage.displayHeight;
+            currentY += displayHeight;
         });
 
         const totalHeight = currentY; // Tổng chiều cao của toàn bộ map
@@ -281,7 +280,10 @@ export class MapScene extends Phaser.Scene {
         this.vfxManager = new MapVFXManager(this, this.mapRegistry); 
         
         // Khởi tạo VFX cho TẤT CẢ các map (đã tối ưu load từ từ)
-        this.vfxManager.startAllMapVFX();
+        this.effectsReadyAt = this.time.now + 2000;
+        this.lastMapScroll = this.cameras.main.scrollY;
+        this.events.on('pause', this.cancelMapStream, this);
+        this.events.on('resume', this.deferMapEffects, this);
         
         // --- 6. TẠO UI OVERLAY HIỂN THỊ COIN VÀ HEART ---
         
@@ -340,7 +342,10 @@ export class MapScene extends Phaser.Scene {
         });
         
         // Dọn dẹp VFX khi scene shutdown
-        this.events.on('shutdown', () => {
+        this.events.once('shutdown', () => {
+            this.cancelMapStream();
+            this.events.off('pause', this.cancelMapStream, this);
+            this.events.off('resume', this.deferMapEffects, this);
             this.completedLevelId = null;
             this.targetUnlockNode = null;
 
@@ -357,4 +362,66 @@ export class MapScene extends Phaser.Scene {
             }
         });
     }
+
+    deferMapEffects() { this.effectsReadyAt = this.time.now + 2000; }
+
+    cancelMapStream() {
+        this.assetStream?.cancel();
+        this.assetStream = null;
+        this.streamingGroup = null;
+        this.deferMapEffects();
+    }
+
+    update() {
+        const top = this.cameras.main.scrollY;
+        const bottom = top + this.scale.height;
+        if (top !== this.lastMapScroll || this.input.activePointer.isDown) {
+            this.deferMapEffects();
+            this.lastMapScroll = top;
+        }
+        const area2 = this.mapRegistry.get('map_part2');
+        if (area2 && top < area2.offsetY + area2.displayHeight && bottom > area2.offsetY && !this.textures.exists('map_part2')) {
+            if (this.streamingGroup === 'mapArea2') return;
+            this.cancelMapStream();
+            this.streamMapBatch('mapArea2', () => {
+                area2.image.destroy();
+                area2.label?.destroy();
+                area2.label = null;
+                area2.image = this.add.image(this.scale.width / 2, area2.offsetY, 'map_part2')
+                    .setOrigin(0.5, 0).setDisplaySize(this.scale.width, area2.displayHeight).setDepth(10);
+            }, value => area2.label?.setText(LanguageManager.t('loading', { percent: Math.floor(value * 100) })));
+            return;
+        }
+        if (this.assetStream || this.time.now < this.effectsReadyAt) return;
+        for (const [key, area] of this.mapRegistry) {
+            if (top >= area.offsetY + area.displayHeight || bottom <= area.offsetY) continue;
+            if (!this.readyEffects.has(key)) {
+                this.streamMapBatch(key === 'map_part1' ? 'mapEffects1' : 'mapEffects2', () => {
+                    this.readyEffects.add(key);
+                    if (key === 'map_part1') this.vfxManager.startMapPart1VFX();
+                    else this.vfxManager.startMapPart2VFX();
+                });
+                return;
+            }
+        }
+        if (!this.mapMusicStarted) {
+            this.streamMapBatch('mapMusic', () => {
+                this.mapMusicStarted = true;
+                this.vfxManager.playBackgroundMusic('background', 0.5);
+            });
+        }
+    }
+
+    streamMapBatch(group, onComplete, onProgress) {
+        this.streamingGroup = group;
+        this.assetStream = startAssetStream(this, {
+            groups: [group], onProgress,
+            onComplete: () => {
+                this.assetStream = null;
+                this.streamingGroup = null;
+                if (this.scene.isActive()) onComplete();
+            }
+        });
+    }
+
 }

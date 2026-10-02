@@ -1,3 +1,4 @@
+import { preloadPopupAssets } from '../../ui/PopupLoading';
 import { createLanguageSelector, localizedLabel, localizeButton } from '../../ui/LocalizedUI';
 import Phaser from 'phaser';
 import PlayerDataManager from '../../managers/PlayerDataManager';
@@ -15,6 +16,10 @@ export class PausePopup extends Phaser.Scene {
     // Nhận dữ liệu từ GameScene
     init(data) {
         this.levelId = data.levelId;
+    }
+
+    preload() {
+        preloadPopupAssets(this, 'pause', ['GameScene', 'UIScene']);
     }
 
     create() {

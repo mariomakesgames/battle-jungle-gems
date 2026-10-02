@@ -1,3 +1,4 @@
+import { preloadPopupAssets } from '../../ui/PopupLoading';
 import LanguageManager from '../../i18n/LanguageManager';
 import { localizeButton } from '../../ui/LocalizedUI';
 // src/scenes/popups/LevelReviewPopup.js
@@ -19,6 +20,10 @@ export class LevelReviewPopup extends Phaser.Scene {
     init(data) {
         this.levelId = data.levelId;
         this.levelData = data.levelData;
+    }
+
+    preload() {
+        preloadPopupAssets(this, 'levelReview', ['MapScene']);
     }
 
     create() {

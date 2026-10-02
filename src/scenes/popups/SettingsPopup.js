@@ -1,3 +1,4 @@
+import { preloadPopupAssets } from '../../ui/PopupLoading';
 import { createLanguageSelector, localizedLabel, localizeButton } from '../../ui/LocalizedUI';
 import Phaser from 'phaser';
 import APIManager from '../../managers/APIManager';
@@ -14,6 +15,10 @@ export class SettingsPopup extends Phaser.Scene {
     // Nhận dữ liệu từ GameScene
     init(data) {
         this.levelId = data.levelId;
+    }
+
+    preload() {
+        preloadPopupAssets(this, 'settings', ['MapScene', 'GameScene', 'UIScene']);
     }
 
     create() {

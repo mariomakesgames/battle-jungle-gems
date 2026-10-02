@@ -1,3 +1,4 @@
+import { preloadPopupAssets } from '../../ui/PopupLoading';
 import { localizeButton } from '../../ui/LocalizedUI';
 // src/scenes/popups/FriendPopup.js
 import Phaser from 'phaser';
@@ -15,6 +16,10 @@ export class FriendPopup extends Phaser.Scene {
         this.minY = 0;
         this.maxY = 0;
         this.viewportY = 0; // Đỉnh vùng hiển thị list
+    }
+
+    preload() {
+        preloadPopupAssets(this, 'friends', ['MapScene']);
     }
 
     create() {

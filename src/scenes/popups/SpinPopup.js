@@ -1,3 +1,4 @@
+import { preloadPopupAssets } from '../../ui/PopupLoading';
 import { localizeButton } from '../../ui/LocalizedUI';
 // src/scenes/popups/SpinPopup.js
 import Phaser from 'phaser';
@@ -20,6 +21,10 @@ export class SpinPopup extends Phaser.Scene {
 
     init(data) {
         // this.baseRotation = data?.baseRotation ?? 0;
+    }
+
+    preload() {
+        preloadPopupAssets(this, 'spin', ['MapScene']);
     }
 
     create() {

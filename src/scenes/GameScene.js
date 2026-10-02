@@ -1,3 +1,4 @@
+import { startAssetStream } from './AssetStreamScene';
 import Phaser from 'phaser'
 import { Board } from '../objects/Board'
 import { SCENE_KEYS, BOOSTER_TYPES } from '../utils/constants'
@@ -50,6 +51,7 @@ export class GameScene extends Phaser.Scene {
 
     // 1. THÊM BƯỚC NÀY ĐỂ LOAD LEVEL DATA TRƯỚC TIÊN
     this.loadLevelData(data)
+    this.sound.stopAll();
     
     // --- THÊM ĐOẠN NÀY ĐỂ PHÁT NHẠC ---
     // Lấy ID của level hiện tại (mặc định là 1 nếu không có data)
@@ -58,45 +60,26 @@ export class GameScene extends Phaser.Scene {
     const musicKey = `map_${currentLevelId.toString().padStart(2, '0')}`;
     this.currentMusicKey = musicKey; // Lưu lại để giải phóng sau
 
-    // Kiểm tra xem nhạc có tồn tại trong cache không rồi mới phát
-    if (this.sound.get(musicKey) || this.cache.audio.exists(musicKey)) {
-        console.log(`Đang phát nhạc nền: ${musicKey}`);
-        
-        // Dừng các nhạc đang phát (nếu có) để tránh ồn
-        this.sound.stopAll();
-
-        // << [AUDIO] Lấy volume từ AudioManager >>
-        const baseVolume = 0.3; // Âm lượng cơ bản
-        const targetVolume = baseVolume * AudioManager.getMusicVolume(); // Nhân với music volume
-        
-        // Phát nhạc mới với chế độ lặp lại (loop), bắt đầu với volume = 0
-        this.bgMusic = this.sound.add(musicKey, { 
-            loop: true, 
-            volume: 0 // Bắt đầu từ 0 để fade in
-        });
-        this.bgMusic.play();
-        
-        // Lưu baseVolume để tính lại khi volume thay đổi
-        this.bgMusic.baseVolume = baseVolume;
-        
-        // Fade in dần lên âm lượng mong muốn trong 2 giây
-        this.tweens.add({
-            targets: this.bgMusic,
-            volume: targetVolume,
-            duration: 2000,
-            ease: 'Linear',
-            onComplete: () => {
-                console.log(`Nhạc nền đã fade in đến volume ${targetVolume}`);
-            }
-        });
-        
-        // << [AUDIO] Lắng nghe event thay đổi volume >>
-        this.game.events.on('musicVolumeChanged', this.onMusicVolumeChanged, this);
+    this.game.events.on('musicVolumeChanged', this.onMusicVolumeChanged, this);
+    if (this.cache.audio.exists(musicKey)) {
+        this.startLevelMusic(musicKey);
     } else {
-        console.warn(`Không tìm thấy file nhạc: ${musicKey}`);
+        this.time.delayedCall(300, () => {
+            for (const key of this.cache.audio.getKeys()) {
+                if (/^map_\d+$/.test(key) && key !== musicKey) this.cache.audio.remove(key);
+            }
+            this.musicStream = startAssetStream(this, {
+                audio: [{ key: musicKey, path: `assets/sounds/optimized/${musicKey}.m4a` }],
+                onComplete: () => {
+                    this.musicStream = null;
+                    if ((this.scene.isActive() || this.scene.isPaused()) && this.currentMusicKey === musicKey) {
+                        this.startLevelMusic(musicKey);
+                    }
+                }
+            });
+        });
     }
-    // ---------------------------------- 
-    
+
     // --- XỬ LÝ WEBGL CONTEXT LOST/RESTORED ---
     
     // Off listener cũ trước để tránh trùng lặp
@@ -428,7 +411,43 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  startLevelMusic(musicKey) {
+    if (this.sound.get(musicKey) || this.cache.audio.exists(musicKey)) {
+        console.log(`Đang phát nhạc nền: ${musicKey}`);
+
+        this.bgMusic?.destroy();
+
+        // << [AUDIO] Lấy volume từ AudioManager >>
+        const baseVolume = 0.3; // Âm lượng cơ bản
+        const targetVolume = baseVolume * AudioManager.getMusicVolume(); // Nhân với music volume
+
+        // Phát nhạc mới với chế độ lặp lại (loop), bắt đầu với volume = 0
+        this.bgMusic = this.sound.add(musicKey, {
+            loop: true,
+            volume: 0 // Bắt đầu từ 0 để fade in
+        });
+        this.bgMusic.play();
+
+        // Lưu baseVolume để tính lại khi volume thay đổi
+        this.bgMusic.baseVolume = baseVolume;
+
+        // Fade in dần lên âm lượng mong muốn trong 2 giây
+        this.tweens.add({
+            targets: this.bgMusic,
+            volume: targetVolume,
+            duration: 2000,
+            ease: 'Linear',
+            onComplete: () => {
+                console.log(`Nhạc nền đã fade in đến volume ${targetVolume}`);
+            }
+        });
+
+    }
+  }
+
   shutdown() {
+    this.musicStream?.cancel();
+    this.musicStream = null;
     // << [AUDIO] Dọn dẹp event listener >>
     this.game.events.off('musicVolumeChanged', this.onMusicVolumeChanged, this);
     
@@ -443,12 +462,9 @@ export class GameScene extends Phaser.Scene {
         this.bgMusic = null;
     }
     
-    // Giải phóng audio khỏi cache để tiết kiệm bộ nhớ
-    if (this.currentMusicKey && this.cache.audio.exists(this.currentMusicKey)) {
-        console.log(`Giải phóng nhạc khỏi cache: ${this.currentMusicKey}`);
-        this.cache.audio.remove(this.currentMusicKey);
-        this.currentMusicKey = null;
-    }
+    // Keep the decoded current track for replay. LevelLoaderScene evicts it
+    // when a different level is selected, bounding the cache to one track.
+    this.currentMusicKey = null;
     // -------------------------------------------
     
     this.isTimerRunning = false
