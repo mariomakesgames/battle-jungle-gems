@@ -103,6 +103,13 @@ export class TitleScene extends Phaser.Scene {
             this.scene.start('PreloaderScene');
         });
 
+        const duelButton = this.add.rectangle(gameWidth / 2, 835, 300, 46, 0x174b50)
+            .setStrokeStyle(2, 0xe8bd70).setInteractive({ useHandCursor: true }).setName('ai-duel-entry');
+        bindText(this.add.text(gameWidth / 2, 835, '', { fontSize: '25px', color: '#fff5df' })
+            .setOrigin(0.5), 'aiDuel', {}, 280);
+        duelButton.on('pointerdown', () => this.scene.start('AIDuelScene'));
+        this.events.once('shutdown', () => this.scale.off('resize', this.handleResize, this));
+
         // Lắng nghe sự kiện resize để vẽ lại background nếu xoay màn hình
         this.scale.on('resize', this.handleResize, this);
     }
@@ -125,4 +132,3 @@ export class TitleScene extends Phaser.Scene {
         this.background.setScale(scale);
     }
 }
-

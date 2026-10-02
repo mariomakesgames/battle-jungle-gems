@@ -86,6 +86,12 @@ Choose **简体中文**, **English**, or **Tiếng Việt** on the title screen,
 
 Translations live in `src/i18n/LanguageManager.js`; `src/ui/LocalizedUI.js` binds live labels and draws translated labels over the main image-based controls. Decorative artwork is shared across languages. Run `npm test` for language-selection and translation tests.
 
+### AI duel
+
+Choose **Play vs AI** on the title screen or map to share a fresh board with the computer. Each side gets two valid swaps per turn. A swap that directly forms a 4+, T or L match earns one extra swap (at most one reward per swap); invalid swaps return without spending an opportunity. Cascades and power-up scores belong to the side that initiated the swap, and the turn changes only after the board settles. After both sides finish ten rounds, the higher total wins; equal scores are a draw. Results support replay or return, and pause freezes AI thinking. This mode does not spend campaign boosters or change level progress. The local AI evaluates visible legal swaps and prioritizes special matches and estimated clears, without reading future refills or calling an external service. All labels support Chinese, English and Vietnamese.
+
+Run `npm test` for turn, reward, result, match-shape and AI-selection checks. With production preview running, `python tests/duel-smoke.py` plays a complete ten-round match and checks both sides' bonus swaps, tap/swipe input, AI input locking, pause, results, replay, campaign isolation, three languages and both entry points.
+
 ### Audio compression
 
 Level music and the waterfall loop use full-length AAC-LC copies at 80 kbps, 44.1 kHz stereo under `public/assets/sounds/optimized/`. This is lossy compression; original audio stays in `public/assets/sounds/maps/` for editing. The already low-bitrate map background and short sound effects retain their original encoding. Music still loads after the board becomes playable and replays from cache. Regenerate the playback files with `python scripts/optimize-music.py` (requires ffmpeg and ffprobe); the script checks duration, channel count and full decoding before replacing each output.

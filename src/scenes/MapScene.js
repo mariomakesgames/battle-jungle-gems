@@ -1,4 +1,5 @@
 import { startAssetStream } from './AssetStreamScene';
+import { bindText } from '../ui/LocalizedUI';
 import LanguageManager from '../i18n/LanguageManager';
 // src/scenes/MapScene.js
 import Phaser from 'phaser';
@@ -289,6 +290,13 @@ export class MapScene extends Phaser.Scene {
         
         // Tạo ResourceDisplay ở góc trên bên trái màn hình
         this.resourceDisplay = new ResourceDisplay(this, 20, 20, fullPlayerData);
+
+        const duelButton = this.add.rectangle(width - 100, 125, 180, 48, 0x174b50)
+            .setStrokeStyle(2, 0xe8bd70).setDepth(1000).setScrollFactor(0)
+            .setInteractive({ useHandCursor: true }).setName('ai-duel-entry');
+        bindText(this.add.text(width - 100, 125, '', { fontSize: '23px', color: '#fff5df' })
+            .setOrigin(0.5).setDepth(1001).setScrollFactor(0), 'aiDuel', {}, 168);
+        duelButton.on('pointerdown', () => this.scene.start('AIDuelScene', { returnScene: 'MapScene' }));
         
         // --- 7. TẠO NÚT SPIN VÀ STORE ---
         // Vị trí (góc dưới bên trái và dưới bên phải)

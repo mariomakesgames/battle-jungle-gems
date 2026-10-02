@@ -13,7 +13,12 @@ const messages = {
         soldOut: '已售罄', purchaseSuccess: '购买成功！', notEnoughCoins: '金币不足！',
         alreadyPurchased: '已购买此物品！', rewardSuccess: '领取成功！', tickets: '转盘券',
         lives: '生命', coins: '金币', spin: '转一转', selectAll: '全选', sendAll: '全部赠送',
-        victory: '胜利！', defeat: '再试一次', shop: '商店', friends: '好友', level: '等级'
+        victory: '胜利！', defeat: '再试一次', shop: '商店', friends: '好友', level: '等级',
+        aiDuel: 'AI 对战', duelYou: '你', duelAI: 'AI', duelRound: '第 {round} / {total} 轮',
+        duelYourTurn: '你的回合', duelAIThinking: 'AI 正在思考…', duelSwaps: '本回合还可交换 {count} 次',
+        duelRules: '每回合 2 次有效交换，10 轮后比较总分。\n交换形成 4 连、5 连或 T/L 形匹配，奖励 1 次；每次交换最多奖励 1 次。',
+        duelBonus: '特殊匹配！额外奖励 1 次交换', duelWin: '你赢了！', duelLose: 'AI 获胜',
+        duelDraw: '平局！', duelFinalScore: '你 {player} : {ai} AI', duelBack: '返回'
     },
     en: {
         start: 'START', language: 'Language', settings: 'Settings', pause: 'Paused',
@@ -23,7 +28,12 @@ const messages = {
         soldOut: 'Sold out', purchaseSuccess: 'Purchase successful!', notEnoughCoins: 'Not enough coins!',
         alreadyPurchased: 'Already purchased!', rewardSuccess: 'Reward collected!', tickets: 'Spin tickets',
         lives: 'Lives', coins: 'Coins', spin: 'Spin', selectAll: 'Select all', sendAll: 'Send all',
-        victory: 'Victory!', defeat: 'Try again', shop: 'Shop', friends: 'Friends', level: 'Level'
+        victory: 'Victory!', defeat: 'Try again', shop: 'Shop', friends: 'Friends', level: 'Level',
+        aiDuel: 'Play vs AI', duelYou: 'You', duelAI: 'AI', duelRound: 'Round {round} / {total}',
+        duelYourTurn: 'Your turn', duelAIThinking: 'AI is thinking…', duelSwaps: '{count} swaps left this turn',
+        duelRules: '2 valid swaps per turn. Highest score after 10 rounds wins.\nSwap to make 4+, T or L matches: +1 swap, at most once per swap.',
+        duelBonus: 'Special match! +1 swap', duelWin: 'You win!', duelLose: 'AI wins',
+        duelDraw: 'Draw!', duelFinalScore: 'You {player} : {ai} AI', duelBack: 'Back'
     },
     vi: {
         start: 'BẮT ĐẦU', language: 'Ngôn ngữ', settings: 'Cài đặt', pause: 'Tạm dừng',
@@ -33,7 +43,12 @@ const messages = {
         soldOut: 'Đã bán hết', purchaseSuccess: 'Mua thành công!', notEnoughCoins: 'Không đủ coin để mua item này!',
         alreadyPurchased: 'Item này đã được mua rồi!', rewardSuccess: 'Nhận thưởng thành công!', tickets: 'Vé quay',
         lives: 'Mạng', coins: 'Xu', spin: 'Quay', selectAll: 'Chọn tất cả', sendAll: 'Gửi tất cả',
-        victory: 'Chiến thắng!', defeat: 'Thử lại', shop: 'Cửa hàng', friends: 'Bạn bè', level: 'Cấp'
+        victory: 'Chiến thắng!', defeat: 'Thử lại', shop: 'Cửa hàng', friends: 'Bạn bè', level: 'Cấp',
+        aiDuel: 'Đấu với AI', duelYou: 'Bạn', duelAI: 'AI', duelRound: 'Vòng {round} / {total}',
+        duelYourTurn: 'Lượt của bạn', duelAIThinking: 'AI đang suy nghĩ…', duelSwaps: 'Còn {count} lần đổi trong lượt',
+        duelRules: 'Mỗi lượt 2 lần đổi hợp lệ. Sau 10 vòng, điểm cao hơn thắng.\nĐổi tạo chuỗi 4+, chữ T/L: +1 lần đổi, tối đa một lần mỗi nước.',
+        duelBonus: 'Ghép đặc biệt! +1 lần đổi', duelWin: 'Bạn thắng!', duelLose: 'AI thắng',
+        duelDraw: 'Hòa!', duelFinalScore: 'Bạn {player} : {ai} AI', duelBack: 'Quay lại'
     }
 };
 

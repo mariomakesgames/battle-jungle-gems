@@ -531,6 +531,7 @@ export class BoardState {
 
     this.chainLevel = 1;
 
+    this.scene.events.emit('swapAccepted', { special: matchGroups.some(group => group.length >= 4) });
     this.startActionChain(matchGroups, powerupToActivate, otherGem, swapPosition)
   }
 

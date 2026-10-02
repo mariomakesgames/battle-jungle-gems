@@ -12,7 +12,7 @@ test('browser locale mapping and unsupported locale fallback', () => {
 test('all languages translate gameplay labels and interpolate level numbers', () => {
     for (const { code } of LANGUAGES) {
         LanguageManager.setLanguage(code);
-        for (const key of ['start', 'settings', 'language', 'moves', 'score', 'missions', 'restart']) {
+        for (const key of ['start', 'settings', 'language', 'moves', 'score', 'missions', 'restart', 'aiDuel', 'duelRules', 'duelYourTurn', 'duelBonus', 'duelWin']) {
             assert.notEqual(LanguageManager.t(key), key);
         }
         assert.ok(LanguageManager.t('stage', { level: 12 }).includes('12'));

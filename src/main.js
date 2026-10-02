@@ -16,6 +16,7 @@ import { LosePopup } from './scenes/popups/LosePopup';
 import { SpinPopup } from './scenes/popups/SpinPopup';
 import { ShopPopup } from './scenes/popups/ShopPopup';
 import { FriendPopup } from './scenes/popups/FriendPopup';
+import { AIDuelScene } from './scenes/AIDuelScene';
 
 const config = {
   type: Phaser.AUTO,
@@ -31,6 +32,7 @@ const config = {
   scene: [
       BootScene, 
       TitleScene, // <--- Đặt ở đây
+      AIDuelScene,
       PreloaderScene, 
       DemoScene, 
       MapScene, 
