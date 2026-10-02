@@ -8,6 +8,7 @@ import LanguageManager from '../i18n/LanguageManager';
 import AudioManager from '../managers/AudioManager';
 import { DuelRules } from '../ai/DuelRules';
 import { chooseMove, makeDuelGrid, DUEL_COLORS } from '../ai/ChooseMove';
+import { needsDuelTutorial } from './DuelTutorialScene';
 
 export class AIDuelScene extends Phaser.Scene {
     constructor() { super('AIDuelScene'); }
@@ -74,6 +75,7 @@ export class AIDuelScene extends Phaser.Scene {
         this.notice = this.add.text(288, 941, '', { fontFamily: 'Arial, sans-serif', fontSize: '21px', color: '#ffdf82' }).setOrigin(0.5);
         this.button(67, 58, 100, this.returnScene === 'MapScene' ? 'quit' : 'duelBack', () => this.leave(), 'duel-exit');
         this.button(509, 58, 100, 'pause', () => this.showPause(), 'duel-pause');
+        this.button(288, 984, 180, 'duelTutorial', () => this.showTutorial(), 'duel-tutorial');
 
         this.events.on('swapAccepted', this.onAccepted, this);
         this.game.events.on('addScore', this.onScore, this);
@@ -89,11 +91,13 @@ export class AIDuelScene extends Phaser.Scene {
                 this.musicStream = null;
                 this.music = this.sound.add('map_01', { loop: true, volume: 0.2 * AudioManager.getMusicVolume() });
                 this.music.play();
-                if (this.paused) this.music.pause();
+                if (this.paused || this.scene.isPaused()) this.music.pause();
             }
         });
         this.events.once('shutdown', this.cleanup, this);
+        this.events.on('resume', this.onTutorialResume, this);
         this.refresh();
+        if (needsDuelTutorial()) this.time.delayedCall(0, () => this.showTutorial());
     }
 
     makeLabel(x, y, key, size, params = {}, width = 500) {
@@ -227,6 +231,19 @@ export class AIDuelScene extends Phaser.Scene {
     }
 
     onMusicVolume(volume) { this.music?.setVolume(0.2 * volume); }
+
+    showTutorial() {
+        if (this.paused || this.board.boardBusy || this.duel.finished || this.scene.isPaused()) return;
+        this.downCell = null;
+        this.board.clearSelection();
+        this.music?.pause();
+        this.scene.pause();
+        this.scene.launch('DuelTutorialScene');
+    }
+
+    onTutorialResume() {
+        if (!this.paused) this.music?.resume();
+    }
     leave() { this.scene.start(this.returnScene); }
 
     cleanup() {
@@ -239,6 +256,7 @@ export class AIDuelScene extends Phaser.Scene {
         this.game.events.off('levelFailed', this.onShuffleFailed, this);
         this.game.events.off('musicVolumeChanged', this.onMusicVolume, this);
         this.events.off('swapAccepted', this.onAccepted, this);
+        this.events.off('resume', this.onTutorialResume, this);
         this.input.off('pointerdown', this.onDown, this);
         this.input.off('pointerup', this.onUp, this);
         this.time.paused = false;

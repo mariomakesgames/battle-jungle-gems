@@ -16,7 +16,7 @@ with sync_playwright() as p:
     page.on('pageerror', lambda error: errors.append(str(error)))
     page.on('response', lambda response: failures.append((response.status, response.url)) if response.status >= 400 else None)
     page.on('request', lambda request: requests.append(request.url))
-    page.add_init_script("localStorage.setItem('jungle-gems-language', 'zh-CN')")
+    page.add_init_script("localStorage.setItem('jungle-gems-language', 'zh-CN'); localStorage.setItem('jungle-gems-ai-tutorial-v1', 'seen')")
     page.goto(os.environ.get('JUNGLE_GEMS_URL', 'http://127.0.0.1:4173/'))
     page.wait_for_function("window.game?.scene.isActive('TitleScene')")
     page.mouse.click(288, 835)

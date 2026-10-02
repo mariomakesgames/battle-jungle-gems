@@ -92,6 +92,8 @@ Choose **Play vs AI** on the title screen or map to share a fresh board with the
 
 Run `npm test` for turn, reward, result, match-shape and AI-selection checks. With production preview running, `python tests/duel-smoke.py` plays a complete ten-round match and checks both sides' bonus swaps, tap/swipe input, AI input locking, pause, results, replay, campaign isolation, three languages and both entry points.
 
+First-time duel players see a five-step interactive tutorial. Practice a normal swap and a four-match bonus, then watch a dimmed AI turn and learn the score rules. Skip or finish to continue the untouched duel; this preference is saved locally. The **How to play** button reopens practice while pausing the current duel and its AI timer. Tutorial labels support all three languages and do not require additional art or audio downloads. Run `python tests/duel-tutorial-smoke.py` against production preview to check practice, persistence, skipping, AI resume and unavailable preference storage.
+
 ### Audio compression
 
 Level music and the waterfall loop use full-length AAC-LC copies at 80 kbps, 44.1 kHz stereo under `public/assets/sounds/optimized/`. This is lossy compression; original audio stays in `public/assets/sounds/maps/` for editing. The already low-bitrate map background and short sound effects retain their original encoding. Music still loads after the board becomes playable and replays from cache. Regenerate the playback files with `python scripts/optimize-music.py` (requires ffmpeg and ffprobe); the script checks duration, channel count and full decoding before replacing each output.
