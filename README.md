@@ -86,6 +86,33 @@ Choose **简体中文**, **English**, or **Tiếng Việt** on the title screen,
 
 Translations live in `src/i18n/LanguageManager.js`; `src/ui/LocalizedUI.js` binds live labels and draws translated labels over the main image-based controls. Decorative artwork is shared across languages. Run `npm test` for language-selection and translation tests.
 
+### Portrait collection
+
+Choose **Portrait gallery** on the title screen or map. Three original adult
+fashion portraits unlock in order. Each challenge starts with a covered mosaic;
+points from real matches, cascades and powers fade out more tiles. Reach the score
+goal within the valid-swap budget to reveal the full portrait and unlock the next.
+Invalid swaps return without spending a move, and a last-move win is resolved
+after all cascades settle. A free move hint, pause, retry and gallery view are
+available. Collected portraits can be viewed or replayed from the gallery.
+
+Collection progress uses the separate local key `jungle-gems-photo-collection-v1`;
+it never consumes campaign lives, boosters or currency. If local storage is
+unavailable, unlocks still work for the current session. Leaving or retrying an
+unfinished challenge starts that attempt over. Chinese, English and Vietnamese
+labels are included.
+
+Only the selected challenge/view downloads its 640 px WebP portrait (about 62–77
+KB each). The gallery does not fetch locked pictures. Original asset provenance
+and extension instructions are in `public/assets/images/beauty/README.md`; level
+goals, move limits and image IDs are in `src/beauty/PhotoRules.js`.
+
+Run `npm test` for scoring, last-move results, sequential unlocks, persistence and
+asset limits. With production preview running, `python tests/photos-smoke.py`
+plays all three challenges and verifies actual reveals, input, hint/pause, lazy
+requests, gallery/retry, saved unlocks, languages, campaign isolation, both entry
+points and recovery from a failed image request. It requires Playwright/Chromium.
+
 ### Two-player WebRTC
 
 Choose **Play with a friend** on the title screen or map. The host chooses **Create match**, copies the invitation code and sends it to their friend. The friend chooses **Join friend**, pastes the invitation, generates a reply and sends that reply back. The host pastes the reply and connects; both games then enter the same match. Signaling uses this manual exchange, so no room server or account is required.

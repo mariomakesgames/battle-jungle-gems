@@ -303,6 +303,12 @@ export class MapScene extends Phaser.Scene {
         bindText(this.add.text(width - 100, 185, '', { fontSize: '23px', color: '#fff5df' })
             .setOrigin(0.5).setDepth(1001).setScrollFactor(0), 'onlineDuel', {}, 168);
         onlineButton.on('pointerdown', () => this.scene.start('OnlineLobbyScene', { returnScene: 'MapScene' }));
+        const photoButton = this.add.rectangle(width - 100, 245, 180, 48, 0x43304f)
+            .setStrokeStyle(2, 0xe8bd70).setDepth(1000).setScrollFactor(0)
+            .setInteractive({ useHandCursor: true }).setName('beauty-entry');
+        bindText(this.add.text(width - 100, 245, '', { fontSize: '23px', color: '#fff5df' })
+            .setOrigin(0.5).setDepth(1001).setScrollFactor(0), 'beautyMode', {}, 168);
+        photoButton.on('pointerdown', () => this.scene.start('PhotoAlbumScene', { returnScene: 'MapScene' }));
         
         // --- 7. TẠO NÚT SPIN VÀ STORE ---
         // Vị trí (góc dưới bên trái và dưới bên phải)

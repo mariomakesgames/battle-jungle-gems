@@ -19,6 +19,9 @@ test('all languages translate gameplay labels and interpolate level numbers', ()
         for (const key of ['onlineDuel', 'onlineRules', 'linkCreate', 'linkJoin', 'linkHostSteps', 'linkGuestSteps', 'linkDisconnected']) {
             assert.notEqual(LanguageManager.t(key), key);
         }
+        for (const key of ['beautyMode', 'beautyIntro', 'beautyGarden', 'beautySunset', 'beautyCity', 'beautyRules', 'beautyUnlocked', 'beautyImageError']) {
+            assert.notEqual(LanguageManager.t(key), key);
+        }
     }
 });
 

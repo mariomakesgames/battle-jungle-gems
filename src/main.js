@@ -20,6 +20,8 @@ import { AIDuelScene } from './scenes/AIDuelScene';
 import { DuelTutorialScene } from './scenes/DuelTutorialScene';
 import { OnlineLobbyScene } from './scenes/OnlineLobbyScene';
 import { OnlineDuelScene } from './scenes/OnlineDuelScene';
+import { PhotoAlbumScene } from './scenes/PhotoAlbumScene';
+import { PhotoChallengeScene } from './scenes/PhotoChallengeScene';
 
 const config = {
   type: Phaser.AUTO,
@@ -39,6 +41,8 @@ const config = {
       DuelTutorialScene,
       OnlineLobbyScene,
       OnlineDuelScene,
+      PhotoAlbumScene,
+      PhotoChallengeScene,
       PreloaderScene, 
       DemoScene, 
       MapScene, 

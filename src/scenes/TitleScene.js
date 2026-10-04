@@ -113,6 +113,11 @@ export class TitleScene extends Phaser.Scene {
         bindText(this.add.text(gameWidth / 2, 675, '', { fontSize: '25px', color: '#fff5df' })
             .setOrigin(0.5), 'onlineDuel', {}, 280);
         onlineButton.on('pointerdown', () => this.scene.start('OnlineLobbyScene'));
+        const photoButton = this.add.rectangle(gameWidth / 2, 613, 300, 46, 0x43304f)
+            .setStrokeStyle(2, 0xe8bd70).setInteractive({ useHandCursor: true }).setName('beauty-entry');
+        bindText(this.add.text(gameWidth / 2, 613, '', { fontSize: '25px', color: '#fff5df' })
+            .setOrigin(0.5), 'beautyMode', {}, 280);
+        photoButton.on('pointerdown', () => this.scene.start('PhotoAlbumScene'));
         this.events.once('shutdown', () => this.scale.off('resize', this.handleResize, this));
 
         // Lắng nghe sự kiện resize để vẽ lại background nếu xoay màn hình
