@@ -2,6 +2,13 @@ export const PHOTO_LEVELS = [
     { id: 'garden', title: 'beautyGarden', target: 900, moves: 24 },
     { id: 'sunset', title: 'beautySunset', target: 1400, moves: 24 },
     { id: 'city', title: 'beautyCity', target: 1900, moves: 26 },
+    { id: 'coast', title: 'beautyCoast', target: 2200, moves: 27 },
+    { id: 'forest', title: 'beautyForest', target: 2500, moves: 28 },
+    { id: 'meadow', title: 'beautyMeadow', target: 2800, moves: 29 },
+    { id: 'autumn', title: 'beautyAutumn', target: 3100, moves: 30 },
+    { id: 'blossom', title: 'beautyBlossom', target: 3400, moves: 31 },
+    { id: 'snow', title: 'beautySnow', target: 3700, moves: 32 },
+    { id: 'starlight', title: 'beautyStarlight', target: 4000, moves: 34 },
 ];
 export const photoKey = index => `beauty_${PHOTO_LEVELS[index].id}`;
 export const photoPath = index => `assets/images/beauty/${PHOTO_LEVELS[index].id}.webp`;

@@ -102,30 +102,34 @@ selection and the default/saved language behavior.
 
 ### Portrait collection
 
-Choose **Portrait gallery** on the title screen or map. Three original adult
+Choose **Portrait gallery** on the title screen or map. Ten original adult
 fashion portraits unlock in order. Each challenge starts with a covered mosaic;
 points from real matches, cascades and powers fade out more tiles. Reach the score
 goal within the valid-swap budget to reveal the full portrait and unlock the next.
 Invalid swaps return without spending a move, and a last-move win is resolved
 after all cascades settle. A free move hint, pause, retry and gallery view are
-available. Collected portraits can be viewed or replayed from the gallery.
+available. Collected portraits can be viewed or replayed from the four-page
+gallery. Page controls keep every card accessible on phones; entering the gallery
+focuses the next unlocked challenge, and returning from a portrait keeps its page.
 
 Collection progress uses the separate local key `jungle-gems-photo-collection-v1`;
 it never consumes campaign lives, boosters or currency. If local storage is
 unavailable, unlocks still work for the current session. Leaving or retrying an
 unfinished challenge starts that attempt over. Chinese, English and Vietnamese
-labels are included.
+labels are included. Existing three-portrait saves continue at portrait four;
+the collection storage key and the first three image IDs remain stable.
 
-Only the selected challenge/view downloads its 640 px WebP portrait (about 62–77
-KB each). The gallery does not fetch locked pictures. Original asset provenance
-and extension instructions are in `public/assets/images/beauty/README.md`; level
-goals, move limits and image IDs are in `src/beauty/PhotoRules.js`.
+Only the selected challenge/view downloads its 640 px WebP portrait (under 150
+KB each). Browsing gallery pages does not fetch any pictures. Original asset
+provenance and extension instructions are in `public/assets/images/beauty/README.md`;
+level goals, move limits and image IDs are in `src/beauty/PhotoRules.js`.
 
 Run `npm test` for scoring, last-move results, sequential unlocks, persistence and
 asset limits. With production preview running, `python tests/photos-smoke.py`
-plays all three challenges and verifies actual reveals, input, hint/pause, lazy
-requests, gallery/retry, saved unlocks, languages, campaign isolation, both entry
-points and recovery from a failed image request. It requires Playwright/Chromium.
+plays all ten challenges and verifies gallery pagination, actual reveals, input,
+hint/pause, lazy requests, gallery/retry, saved unlocks, languages, campaign
+isolation, both entry points and recovery from a failed image request. It requires
+Playwright/Chromium.
 
 ### Two-player WebRTC
 

@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import LanguageManager, { LANGUAGES, resolveLanguage } from '../src/i18n/LanguageManager.js';
+import { PHOTO_LEVELS } from '../src/beauty/PhotoRules.js';
 
 test('first visit defaults to English regardless of browser locale and preserves explicit choices', async () => {
     const navigatorDescriptor = Object.getOwnPropertyDescriptor(globalThis, 'navigator');
@@ -42,6 +43,9 @@ test('all languages translate gameplay labels and interpolate level numbers', ()
         }
         for (const key of ['beautyMode', 'beautyIntro', 'beautyGarden', 'beautySunset', 'beautyCity', 'beautyRules', 'beautyUnlocked', 'beautyImageError']) {
             assert.notEqual(LanguageManager.t(key), key);
+        }
+        for (const key of [...PHOTO_LEVELS.map(level => level.title), 'beautyPreviousPage', 'beautyNextPage', 'beautyPage']) {
+            assert.notEqual(LanguageManager.t(key, { page: 4, total: 4 }), key);
         }
     }
 });

@@ -42,6 +42,7 @@ with sync_playwright() as p:
         }''', [name, scene])
         assert point, name
         page.mouse.click(point['x'], point['y'])
+        page.wait_for_timeout(70)
 
     def speed():
         page.evaluate(f"{SCENE}.time.timeScale=5; {SCENE}.tweens.timeScale=5")
@@ -53,6 +54,18 @@ with sync_playwright() as p:
             layout[0].splice(0,3,1,2,1); layout[1][1]=1;
             s.board.loadLevel({gridLayout:layout,availableGems:['red','green','blue','purple','yellow','orange']});
         }''')
+        page.wait_for_timeout(60)
+
+    # Every page fits on screen, and browsing locked cards requests no pictures.
+    for expected_page in [1, 2, 3]:
+        click('beauty-page-next', 'PhotoAlbumScene')
+        assert page.evaluate(f"{album}.page") == expected_page
+        assert page.evaluate(f"{album}.pageItems.every(item=>item.getBounds().bottom<=800)")
+    assert page.evaluate(f"!{album}.nextPage.input.enabled")
+    assert page.evaluate(f"{album}.children.list.some(x=>x.text==='10')")
+    assert not any('/images/beauty/' in url for url in requests)
+    for _ in range(3): click('beauty-page-previous', 'PhotoAlbumScene')
+    assert page.evaluate(f"!{album}.previousPage.input.enabled")
 
     def swap(move, valid=True):
         before = page.evaluate(f"{SCENE}.run.movesLeft")
@@ -104,8 +117,9 @@ with sync_playwright() as p:
     assert page.evaluate(f"JSON.stringify({SCENE}.run)") == before
     click('duel-resume')
 
-    for index in range(3):
-        for _ in range(30):
+    total = 10
+    for index in range(total):
+        for _ in range(page.evaluate(f"{SCENE}.level.moves")):
             if page.evaluate(f"{SCENE}.run.finished"):
                 break
             move = best_move()
@@ -114,7 +128,8 @@ with sync_playwright() as p:
         assert page.evaluate(f"{SCENE}.run.won && {SCENE}.run.finished && {SCENE}.resultShown"), 'Portrait goal must be achievable within its move limit'
         assert json.loads(page.evaluate(f"localStorage.getItem('{SAVE}')"))['completed'] == index+1
         assert page.evaluate(f"{SCENE}.children.list.some(x=>x.list?.some(item=>item.name==='beauty-full-photo'))")
-        if index < 2:
+        print(f'PASS: portrait {index+1}/{total} won through real swaps, score goal and full reveal', flush=True)
+        if index < total-1:
             click('beauty-next')
             page.wait_for_function(f"{READY} && {SCENE}.index==={index+1}", timeout=60000)
             speed()
@@ -125,6 +140,9 @@ with sync_playwright() as p:
     click('beauty-result-album')
     page.wait_for_function("window.game.scene.isActive('PhotoAlbumScene')")
     assert page.evaluate("window.game.events.listenerCount('addScore')") == 0
+    assert page.evaluate(f"{album}.page") == 3
+    assert page.evaluate(f"{album}.children.getByName('beauty-photo-9')!==null")
+    for _ in range(3): click('beauty-page-previous', 'PhotoAlbumScene')
     assert all(page.evaluate(f"{album}.children.getByName('beauty-photo-{index}')!==null") for index in range(3))
 
     # Reload persists the collection. Viewing only fetches the selected portrait.
@@ -133,6 +151,8 @@ with sync_playwright() as p:
     page.wait_for_function("window.game?.scene.isActive('TitleScene')")
     page.mouse.click(288, 613)
     page.wait_for_function("window.game.scene.isActive('PhotoAlbumScene')")
+    assert page.evaluate(f"{album}.page") == 3
+    for _ in range(3): click('beauty-page-previous', 'PhotoAlbumScene')
     click('beauty-photo-1', 'PhotoAlbumScene')
     page.wait_for_function(f"window.game.scene.isActive('PhotoChallengeScene') && {SCENE}.viewing && {SCENE}.resultShown")
     assert len(portraits()) == 1 and portraits()[0].endswith('/sunset.webp')
@@ -155,6 +175,7 @@ with sync_playwright() as p:
         page.evaluate(f"window.game.scene.getScene('TitleScene').children.getByName('language-{language}').emit('pointerdown')")
         page.mouse.click(288, 613)
         page.wait_for_function("window.game.scene.isActive('PhotoAlbumScene')")
+        for _ in range(3): click('beauty-page-previous', 'PhotoAlbumScene')
         click('beauty-photo-2', 'PhotoAlbumScene')
         page.wait_for_function(f"{SCENE}.resultShown && window.game.scene.isActive('PhotoChallengeScene')")
         assert page.evaluate(f"{SCENE}.children.list.some(x=>x.list?.some(item=>item.text==={json.dumps(expected)}))")
@@ -185,5 +206,37 @@ with sync_playwright() as p:
     failed.evaluate(f"{SCENE}.children.getByName('beauty-load-retry').emit('pointerdown')")
     failed.wait_for_function(READY, timeout=60000)
     assert failed.evaluate(f"{SCENE}.run.score===0 && {SCENE}.coverTiles.length===48")
-    print('PASS: actual swaps and reveals, invalid move, hint/pause, all three goals, lazy images, collection persistence/view/retry, languages, map/title return, campaign isolation and failed-image recovery')
+
+    # A saved three-picture collection opens portrait four on a phone.
+    mobile = browser.new_page(viewport={'width': 390, 'height': 844}, has_touch=True)
+    mobile_requests = []
+    mobile.on('request', lambda request: mobile_requests.append(request.url))
+    mobile.on('pageerror', lambda error: errors.append(str(error)))
+    mobile.add_init_script(f"localStorage.setItem('{SAVE}',JSON.stringify({{completed:3}}))")
+    mobile.goto(URL)
+    mobile.wait_for_function("window.game?.scene.isActive('TitleScene')")
+
+    def mobile_tap(scene, name):
+        point = mobile.evaluate('''([scene,name])=>{
+            const bounds=window.game.scene.getScene(scene).children.getByName(name).getBounds();
+            const rect=window.game.canvas.getBoundingClientRect();
+            return {x:rect.left+bounds.centerX*rect.width/576,y:rect.top+bounds.centerY*rect.height/1024};
+        }''', [scene, name])
+        mobile.touchscreen.tap(point['x'], point['y'])
+        mobile.wait_for_timeout(100)
+
+    mobile_tap('TitleScene', 'beauty-entry')
+    mobile.wait_for_function("window.game.scene.isActive('PhotoAlbumScene')")
+    assert mobile.evaluate(f"{album}.page===1 && !!{album}.children.getByName('beauty-photo-3') && !{album}.children.getByName('beauty-photo-4')")
+    for _ in range(2): mobile_tap('PhotoAlbumScene', 'beauty-page-next')
+    assert mobile.evaluate(f"{album}.page===3 && {album}.children.list.some(x=>x.text==='10')")
+    assert not any('/images/beauty/' in url for url in mobile_requests)
+    mobile.screenshot(path='/tmp/jungle-beauty-gallery-mobile.png')
+    for _ in range(2): mobile_tap('PhotoAlbumScene', 'beauty-page-previous')
+    mobile_tap('PhotoAlbumScene', 'beauty-photo-3')
+    mobile.wait_for_function(f"{READY} && {SCENE}.index===3", timeout=60000)
+    assert json.loads(mobile.evaluate(f"localStorage.getItem('{SAVE}')"))['completed'] == 3
+    assert [url.rsplit('/',1)[1] for url in mobile_requests if '/images/beauty/' in url] == ['coast.webp']
+    assert not errors, errors
+    print('PASS: all ten goals, four-page gallery, actual swaps and reveals, invalid move, hint/pause, lazy images, collection persistence/view/retry, languages, map/title return, campaign isolation and failed-image recovery')
     browser.close()

@@ -57,6 +57,25 @@ test('collection unlocks sequentially, persists, rejects corrupt saves and works
     } finally { delete globalThis.localStorage; }
 });
 
+test('the three-portrait save continues through all ten portraits without resetting collected art', () => {
+    const values = new Map([[PHOTO_SAVE_KEY, JSON.stringify({ completed: 3 })]]);
+    globalThis.localStorage = { getItem: key => values.get(key), setItem: (key, value) => values.set(key, value) };
+    try {
+        assert.equal(PHOTO_LEVELS.length, 10);
+        assert.equal(new Set(PHOTO_LEVELS.map(level => level.id)).size, 10);
+        const collection = new PhotoCollection();
+        for (let index = 0; index < 3; index++) assert.equal(collection.isCollected(index), true);
+        for (let index = 3; index < 10; index++) {
+            assert.equal(collection.canPlay(index), true);
+            assert.equal(collection.collect(index + 1), false, 'Cannot skip an uncompleted portrait');
+            assert.equal(collection.collect(index), true);
+            assert.equal(new PhotoCollection().completed, index + 1);
+        }
+        assert.equal(collection.canPlay(10), false);
+        assert.equal(collection.isCollected(9), true);
+    } finally { delete globalThis.localStorage; }
+});
+
 test('reveal tiles cover the whole portrait exactly once and assets stay small', () => {
     assert.deepEqual([...REVEAL_ORDER].sort((a, b) => a - b), Array.from({ length: 48 }, (_, index) => index));
     PHOTO_LEVELS.forEach((_, index) => {

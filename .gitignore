@@ -5,6 +5,10 @@ dist/
 .cache/
 coverage/
 
+# Python browser smoke checks
+__pycache__/
+*.pyc
+
 # Env files
 .env
 .env.*

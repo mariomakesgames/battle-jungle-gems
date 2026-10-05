@@ -173,7 +173,7 @@ export class PhotoChallengeScene extends AIDuelScene {
         super.showPause();
     }
 
-    leave() { this.scene.start('PhotoAlbumScene', { returnScene: this.returnScene }); }
+    leave() { this.scene.start('PhotoAlbumScene', { returnScene: this.returnScene, focusIndex: this.index }); }
 
     cleanup() {
         // Scene instances are reused by Phaser; clear references to destroyed HUDs.
