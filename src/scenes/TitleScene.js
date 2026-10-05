@@ -42,7 +42,7 @@ export class TitleScene extends Phaser.Scene {
         // Vị trí: 75% chiều cao màn hình (dưới màn hình)
         const startText = this.add.text(gameWidth / 2, gameHeight * 0.75, 'BẮT ĐẦU', {
             fontFamily: 'UTMCookies', // Font game
-            fontSize: '64px',         // Cỡ chữ
+            fontSize: '48px',         // Fit the classic-mode label beside the other modes.
             color: '#FFFFFF',         // Màu trắng
             stroke: '#4a2c2a',        // Viền nâu
             strokeThickness: 8,       // Độ dày viền
@@ -57,13 +57,14 @@ export class TitleScene extends Phaser.Scene {
             },
             // --- KHẮC PHỤC LỖI MẤT DẤU ---
             padding: {
-                top: 20,    // Thêm khoảng trống phía trên để chứa dấu mũ
-                bottom: 10, // Thêm phía dưới cho cân đối
+                top: 10,
+                bottom: 8,
                 left: 10,
                 right: 10
             }
         }).setOrigin(0.5);
-      bindText(startText, 'start', {}, 460);
+      bindText(startText, 'classicMode', {}, 460);
+      startText.setName('classic-mode-entry');
 
         // Điều chỉnh scale chữ nếu màn hình quá nhỏ (Mobile)
         const maxTextWidth = gameWidth * 0.8;

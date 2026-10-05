@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { bindText } from '../ui/LocalizedUI';
 import { PHOTO_LEVELS, photoCollection } from '../beauty/PhotoRules';
 import LanguageManager from '../i18n/LanguageManager';
+import { photoGoalsText } from '../ui/PhotoGoals';
 
 const PAGE_SIZE = 3;
 const PAGE_COUNT = Math.ceil(PHOTO_LEVELS.length / PAGE_SIZE);
@@ -52,7 +53,8 @@ export class PhotoAlbumScene extends Phaser.Scene {
             this.add.circle(85, y - 35, 29, collected ? 0x785b2b : 0x3b526d);
             this.add.text(85, y - 35, String(index + 1).padStart(2, '0'), { fontSize: '25px', color: '#fff2ab' }).setOrigin(0.5);
             this.label(282, y - 42, level.title, 27, {}, 310);
-            this.label(282, y - 2, 'beautyLevelGoal', 19, { score: level.target, moves: level.moves }, 430);
+            this.label(282, y - 2, level.classicLevel ? 'beautyClassicLevelGoal' : 'beautyLevelGoal', 19,
+                () => ({ score: level.target, moves: level.moves, goals: photoGoalsText(level.objectives || []) }), 430);
             this.label(142, y + 48, collected ? 'beautyCollected' : available ? 'beautyReady' : 'beautyLocked', 19,
                 { level: index }, 195);
             if (available) {

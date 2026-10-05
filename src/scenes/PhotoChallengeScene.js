@@ -5,8 +5,9 @@ import { startAssetStream } from './AssetStreamScene';
 import { DUEL_COLORS } from '../ai/ChooseMove';
 import AudioManager from '../managers/AudioManager';
 import LanguageManager from '../i18n/LanguageManager';
-import { PHOTO_LEVELS, PhotoRun, photoCollection, photoKey, photoPath, REVEAL_ORDER } from '../beauty/PhotoRules';
+import { PHOTO_LEVELS, PhotoRun, photoCollection, photoKey, photoPath, REVEAL_ORDER, classicPhotoKey, copyClassicPhotoBoard } from '../beauty/PhotoRules';
 import { bindPointerLifecycle } from '../input/BoardGesture';
+import { photoGoalsText } from '../ui/PhotoGoals';
 
 const PHOTO = { x: 168, y: 126, width: 240, height: 300 };
 const GRID = { x: 72, y: 478, cell: 48, size: 432 };
@@ -23,10 +24,21 @@ export class PhotoChallengeScene extends AIDuelScene {
         this.level = PHOTO_LEVELS[this.index];
         this.run = new PhotoRun(this.level);
         this.coverTiles = [];
+        this.blockerAssets = [];
     }
 
     preload() {
         if (!this.viewing) super.preload();
+        if (!this.viewing && this.level.classicLevel) {
+            const key = classicPhotoKey(this.level);
+            if (!this.cache.json.exists(key)) this.load.json(key, `assets/levels/level_${this.level.classicLevel}.json`);
+            const types = this.level.objectives.filter(goal => goal.target === 'blocker').map(goal => goal.type);
+            this.blockerAssets = [['blocker_stone_1', 'blocker_stone_2'], ['blocker_stone_2', 'blocker_stone_1'], ['blocker_rope', 'blocker_rope']]
+                .filter(([key]) => types.some(type => key.startsWith(`blocker_${type}`)));
+            for (const [key, file] of this.blockerAssets) {
+                if (!this.textures.exists(key)) this.load.image(key, `assets/images/gameplay/blockers/${file}.png`);
+            }
+        }
         if (!this.textures.exists(photoKey(this.index))) this.load.image(photoKey(this.index), photoPath(this.index));
     }
 
@@ -35,8 +47,10 @@ export class PhotoChallengeScene extends AIDuelScene {
         this.add.image(288, 512, 'preloading_background').setDisplaySize(576, 1024);
         this.add.rectangle(288, 512, 576, 1024, 0x101c30, 0.94);
         this.events.once('shutdown', this.cleanup, this);
-        if (!this.textures.exists(photoKey(this.index))) {
-            this.makeLabel(288, 390, 'beautyImageError', 25);
+        const missingBoard = !this.viewing && this.level.classicLevel &&
+            (!this.cache.json.exists(classicPhotoKey(this.level)) || this.blockerAssets.some(([key]) => !this.textures.exists(key)));
+        if (!this.textures.exists(photoKey(this.index)) || missingBoard) {
+            this.makeLabel(288, 390, missingBoard ? 'beautyLevelError' : 'beautyImageError', 25);
             this.button(288, 505, 260, 'restart', () => this.scene.restart({ index: this.index, viewing: this.viewing, returnScene: this.returnScene }), 'beauty-load-retry');
             this.button(288, 585, 260, 'beautyAlbum', () => this.leave(), 'beauty-load-back');
             return;
@@ -46,7 +60,7 @@ export class PhotoChallengeScene extends AIDuelScene {
         this.makeLabel(288, 58, this.level.title, 30, {}, 290);
         this.button(67, 58, 100, 'duelBack', () => this.leave(), 'beauty-exit');
         this.button(509, 58, 100, 'pause', () => this.showPause(), 'beauty-pause');
-        this.scoreLabel = this.makeLabel(173, 102, 'beautyScore', 21, () => ({ score: this.run.score, target: this.level.target }), 285);
+        this.scoreLabel = this.makeLabel(173, 102, this.level.classicLevel ? 'beautyCurrentScore' : 'beautyScore', 21, () => ({ score: this.run.score, target: this.level.target }), 285);
         this.movesLabel = this.makeLabel(447, 102, 'beautyMoves', 21, () => ({ count: this.run.movesLeft }), 190);
 
         this.add.rectangle(288, 276, 250, 310, 0x0b1323).setStrokeStyle(3, 0xe8bd70);
@@ -71,7 +85,10 @@ export class PhotoChallengeScene extends AIDuelScene {
         this.board = new Board(this, GRID.x, GRID.y, GRID.cell, this.powerupVFXManager, this.gemLayer);
         this.board.maybeEmitLevelCompleted = () => {};
         this.loadBoard();
-        this.makeLabel(288, 944, 'beautyRules', 18, {}, 530);
+        if (this.level.classicLevel) {
+            this.goalsLabel = this.makeLabel(288, 933, 'beautyGoalProgress', 19, () => ({ goals: photoGoalsText(this.run.objectives) }), 530);
+            this.makeLabel(288, 957, 'beautyClassicRules', 16, {}, 530);
+        } else this.makeLabel(288, 944, 'beautyRules', 18, {}, 530);
         this.button(288, 990, 180, 'beautyHint', () => {
             if (this.canPlayerAct()) this.board.showHint();
         }, 'beauty-hint');
@@ -80,6 +97,7 @@ export class PhotoChallengeScene extends AIDuelScene {
         this.game.events.on('addScore', this.onScore, this);
         this.game.events.on('boardBusy', this.onBusy, this);
         this.game.events.on('levelFailed', this.onShuffleFailed, this);
+        this.game.events.on('objectiveUpdated', this.onObjectiveUpdated, this);
         this.input.on('pointerdown', this.onDown, this);
         this.input.on('pointerup', this.onUp, this);
         this.removePointerLifecycle = bindPointerLifecycle(this, this.onUp, this.cancelBoardGesture);
@@ -99,10 +117,21 @@ export class PhotoChallengeScene extends AIDuelScene {
 
     canPlayerAct() { return !this.paused && !this.run.finished && !this.run.pending && !this.board.boardBusy; }
 
+    loadBoard() {
+        if (!this.level.classicLevel) return super.loadBoard();
+        const definition = copyClassicPhotoBoard(this.cache.json.get(classicPhotoKey(this.level)));
+        this.board.loadLevel(definition);
+        this.board.initializeObjectives(definition);
+        // PhotoRun owns the move budget and result; campaign events must not fire.
+        this.board.isMoveBasedLevel = false;
+        this.run = new PhotoRun({ ...this.level, moves: definition.maxMoves, objectives: definition.objectives });
+    }
+
     performMove(move) {
         if (!this.canPlayerAct() || Math.abs(move.r1 - move.r2) + Math.abs(move.c1 - move.c2) !== 1) return false;
         const a = this.board.grid[move.r1]?.[move.c1], b = this.board.grid[move.r2]?.[move.c2];
-        if (!a || !b || !this.run.begin()) return false;
+        if (!a || !b || a.type !== 'gem' || b.type !== 'gem' ||
+            this.board.isCellBlockedForMovement(move.r1, move.c1) || this.board.isCellBlockedForMovement(move.r2, move.c2) || !this.run.begin()) return false;
         this.board.clearHint();
         this.board.clearSelection();
         this.board.swapGems(a, b);
@@ -111,6 +140,22 @@ export class PhotoChallengeScene extends AIDuelScene {
 
     onAccepted() { this.run.accept(); this.refresh(); }
     onScore(points) { if (this.run.addScore(points)) this.refresh(); }
+
+    onObjectiveUpdated({ key, remaining }) {
+        if (this.run.updateObjective(key, remaining)) this.refresh();
+    }
+
+    onShuffleFailed() {
+        if (!this.level.classicLevel) return super.onShuffleFailed();
+        this.cancelBoardGesture();
+        this.input.enabled = true;
+        this.board.boardBusy = false;
+        this.run.settle();
+        this.run.finished = true;
+        this.refresh();
+        if (this.run.won) { photoCollection.collect(this.index); this.showPhoto(false); }
+        else this.showFailure();
+    }
 
     onBusy(busy) {
         if (busy) this.cancelBoardGesture();
@@ -125,7 +170,8 @@ export class PhotoChallengeScene extends AIDuelScene {
 
     refresh() {
         if (!this.scoreLabel) return;
-        this.scoreLabel.setText(LanguageManager.t('beautyScore', { score: this.run.score, target: this.level.target }));
+        this.scoreLabel.setText(LanguageManager.t(this.level.classicLevel ? 'beautyCurrentScore' : 'beautyScore', { score: this.run.score, target: this.level.target }));
+        this.goalsLabel?.setText(LanguageManager.t('beautyGoalProgress', { goals: photoGoalsText(this.run.objectives) }));
         this.movesLabel.setText(LanguageManager.t('beautyMoves', { count: this.run.movesLeft }));
         this.progressLabel.setText(LanguageManager.t('beautyRevealProgress', { percent: Math.floor(this.run.progress * 100) }));
         this.progressBar.width = 260 * this.run.progress;
@@ -178,6 +224,8 @@ export class PhotoChallengeScene extends AIDuelScene {
     cleanup() {
         // Scene instances are reused by Phaser; clear references to destroyed HUDs.
         this.scoreLabel = null;
+        this.goalsLabel = null;
+        this.game.events.off('objectiveUpdated', this.onObjectiveUpdated, this);
         super.cleanup();
     }
 }

@@ -158,6 +158,10 @@ export class AIDuelScene extends Phaser.Scene {
         if (!to || from.r !== to.r || from.c !== to.c) return;
         const selected = this.board.selectedGem;
         const gem = this.board.grid[to.r][to.c];
+        if (!gem || gem.type !== 'gem' || this.board.isCellBlockedForMovement(to.r, to.c)) {
+            this.board.clearSelection();
+            return;
+        }
         if (selected && this.board.areNeighbors(selected, gem)) {
             this.performMove({ r1: selected.sprite.getData('row'), c1: selected.sprite.getData('col'), r2: to.r, c2: to.c }, 'player');
         } else this.board.handleGemClick(to.r, to.c);

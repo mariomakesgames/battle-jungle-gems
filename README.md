@@ -102,34 +102,40 @@ selection and the default/saved language behavior.
 
 ### Portrait collection
 
-Choose **Portrait gallery** on the title screen or map. Ten original adult
-fashion portraits unlock in order. Each challenge starts with a covered mosaic;
-points from real matches, cascades and powers fade out more tiles. Reach the score
-goal within the valid-swap budget to reveal the full portrait and unlock the next.
-Invalid swaps return without spending a move, and a last-move win is resolved
-after all cascades settle. A free move hint, pause, retry and gallery view are
-available. Collected portraits can be viewed or replayed from the four-page
-gallery. Page controls keep every card accessible on phones; entering the gallery
-focuses the next unlocked challenge, and returning from a portrait keeps its page.
+Choose **Portrait gallery** on the title screen or map. Thirty original adult
+fashion portraits unlock in order. Each challenge starts with a covered mosaic.
+The first ten use score goals; the next twenty reuse the nine classic board
+configurations in rotation, including their moves, gem colors, holes, stones and
+ropes. Complete those classic collection/blocker goals to reveal the full portrait
+and unlock the next. Revealed tiles stay revealed if ropes regrow. Invalid swaps
+spend no moves; last-move results wait for all cascades to settle. Hint, pause,
+retry and viewing collected pictures are available.
+
+The ten-page gallery fits on phones. Entering focuses the next unlocked challenge;
+returning from a picture keeps its page. The title's **Play Classic Mode** button
+opens the original campaign map, with Chinese and Vietnamese translations.
 
 Collection progress uses the separate local key `jungle-gems-photo-collection-v1`;
-it never consumes campaign lives, boosters or currency. If local storage is
-unavailable, unlocks still work for the current session. Leaving or retrying an
-unfinished challenge starts that attempt over. Chinese, English and Vietnamese
-labels are included. Existing three-portrait saves continue at portrait four;
-the collection storage key and the first three image IDs remain stable.
+it never consumes campaign lives, boosters or currency. Existing three- and
+ten-picture saves continue from their next challenge. If storage is unavailable,
+unlocks still work for the session. Leaving/retrying an unfinished challenge
+starts that attempt over. Chinese, English and Vietnamese labels are included.
 
-Only the selected challenge/view downloads its 640 px WebP portrait (under 150
-KB each). Browsing gallery pages does not fetch any pictures. Original asset
-provenance and extension instructions are in `public/assets/images/beauty/README.md`;
-level goals, move limits and image IDs are in `src/beauty/PhotoRules.js`.
+Only the selected challenge/view downloads its 640×800 WebP portrait (under 150
+KB each). Playing a classic portrait also loads only its selected JSON and needed
+blocker textures; viewing collected pictures skips board assets. Browsing gallery
+pages downloads no portraits or level JSON. Asset provenance is documented in
+`public/assets/images/beauty/README.md`; catalog metadata lives in
+`src/beauty/PhotoRules.js`. Runtime boards clone the original classic JSON so
+normalization never changes the cached campaign configurations.
 
-Run `npm test` for scoring, last-move results, sequential unlocks, persistence and
-asset limits. With production preview running, `python tests/photos-smoke.py`
-plays all ten challenges and verifies gallery pagination, actual reveals, input,
-hint/pause, lazy requests, gallery/retry, saved unlocks, languages, campaign
-isolation, both entry points and recovery from a failed image request. It requires
-Playwright/Chromium.
+Run `npm test` for score/classic goals, last-move results, sequential unlocks,
+save migration, canonical level metadata, translations and asset limits. With
+production preview running, `python tests/photos-smoke.py` plays the original ten
+score challenges and checks gallery, reveals, input, persistence and image retry.
+`python tests/photo-classic-smoke.py` checks all twenty copied boards, real classic
+swaps and blocker goals, lazy assets, level retry and the title button. These
+checks require Playwright/Chromium.
 
 ### Two-player WebRTC
 

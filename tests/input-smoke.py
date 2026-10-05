@@ -55,6 +55,9 @@ with sync_playwright() as p:
         print('Checking gestures in ' + name, flush=True)
         page.evaluate('''name => {
             const s=window.game.scene.getScene(name);
+            // Controlled gesture fixtures do not play a timed campaign level.
+            // Accelerating animation must not open LosePopup during the checks.
+            if(name==='GameScene') {s.isTimerRunning=false;s.timer?.remove();}
             s.time.timeScale=5;s.tweens.timeScale=5;
             s.inputSwaps=[];
             const swap=s.board.swapGems.bind(s.board);
@@ -184,7 +187,8 @@ with sync_playwright() as p:
             start,end=cell(4,4),cell(4,5)
             page.mouse.move(start['x'],start['y']);page.mouse.down();page.mouse.move(end['x'],end['y']);page.mouse.up();page.wait_for_timeout(150)
             assert page.evaluate(f"{scene}.inputSwaps") == [], 'AI turn must remain locked'
-            page.evaluate("window.game.scene.start('PhotoChallengeScene',{index:0})")
+            # Use the same scene transition as the UI so AI timers/listeners stop.
+            page.evaluate(f"{scene}.scene.start('PhotoChallengeScene',{{index:0}})")
         print('PASS: ' + name + ' short/slow/overshot/gap/outside/touch input, taps, locks and cancellation', flush=True)
 
     assert not errors, errors

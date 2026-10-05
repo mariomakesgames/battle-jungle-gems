@@ -34,7 +34,7 @@ test('browser locale mapping and unsupported locale fallback', () => {
 test('all languages translate gameplay labels and interpolate level numbers', () => {
     for (const { code } of LANGUAGES) {
         LanguageManager.setLanguage(code);
-        for (const key of ['start', 'settings', 'language', 'moves', 'score', 'missions', 'restart', 'aiDuel', 'duelRules', 'duelYourTurn', 'duelBonus', 'duelWin', 'duelTutorial', 'duelTutorialIntroTitle', 'duelTutorialSwapBody', 'duelTutorialBonusBody', 'duelTutorialAIBody', 'duelTutorialFinishBody']) {
+        for (const key of ['start', 'classicMode', 'settings', 'language', 'moves', 'score', 'missions', 'restart', 'aiDuel', 'duelRules', 'duelYourTurn', 'duelBonus', 'duelWin', 'duelTutorial', 'duelTutorialIntroTitle', 'duelTutorialSwapBody', 'duelTutorialBonusBody', 'duelTutorialAIBody', 'duelTutorialFinishBody']) {
             assert.notEqual(LanguageManager.t(key), key);
         }
         assert.ok(LanguageManager.t('stage', { level: 12 }).includes('12'));
@@ -46,6 +46,10 @@ test('all languages translate gameplay labels and interpolate level numbers', ()
         }
         for (const key of [...PHOTO_LEVELS.map(level => level.title), 'beautyPreviousPage', 'beautyNextPage', 'beautyPage']) {
             assert.notEqual(LanguageManager.t(key, { page: 4, total: 4 }), key);
+        }
+        for (const key of ['beautyClassicLevelGoal', 'beautyCurrentScore', 'beautyGoalProgress', 'beautyClassicRules', 'beautyLevelError', 'beautyGoalRemaining',
+            ...['Red', 'Green', 'Blue', 'Purple', 'Yellow', 'Orange', 'Stone', 'Rope'].map(type => `beautyGoal${type}`)]) {
+            assert.notEqual(LanguageManager.t(key), key);
         }
     }
 });

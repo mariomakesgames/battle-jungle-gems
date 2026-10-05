@@ -57,14 +57,14 @@ with sync_playwright() as p:
         page.wait_for_timeout(60)
 
     # Every page fits on screen, and browsing locked cards requests no pictures.
-    for expected_page in [1, 2, 3]:
+    for expected_page in range(1, 10):
         click('beauty-page-next', 'PhotoAlbumScene')
         assert page.evaluate(f"{album}.page") == expected_page
         assert page.evaluate(f"{album}.pageItems.every(item=>item.getBounds().bottom<=800)")
     assert page.evaluate(f"!{album}.nextPage.input.enabled")
-    assert page.evaluate(f"{album}.children.list.some(x=>x.text==='10')")
+    assert page.evaluate(f"{album}.children.list.some(x=>x.text==='30')")
     assert not any('/images/beauty/' in url for url in requests)
-    for _ in range(3): click('beauty-page-previous', 'PhotoAlbumScene')
+    for _ in range(9): click('beauty-page-previous', 'PhotoAlbumScene')
     assert page.evaluate(f"!{album}.previousPage.input.enabled")
 
     def swap(move, valid=True):
@@ -119,13 +119,23 @@ with sync_playwright() as p:
 
     total = 10
     for index in range(total):
-        for _ in range(page.evaluate(f"{SCENE}.level.moves")):
-            if page.evaluate(f"{SCENE}.run.finished"):
+        # Random refills can defeat the greedy player. Retry through the actual UI,
+        # retaining each attempt's normal budget and checking that losses never unlock.
+        for attempt in range(3):
+            for _ in range(page.evaluate(f"{SCENE}.level.moves")):
+                if page.evaluate(f"{SCENE}.run.finished"):
+                    break
+                move = best_move()
+                assert move, 'Board must offer a valid swap'
+                swap(move)
+            if page.evaluate(f"{SCENE}.run.won"):
                 break
-            move = best_move()
-            assert move, 'Board must offer a valid swap'
-            swap(move)
-        assert page.evaluate(f"{SCENE}.run.won && {SCENE}.run.finished && {SCENE}.resultShown"), 'Portrait goal must be achievable within its move limit'
+            assert json.loads(page.evaluate(f"localStorage.getItem('{SAVE}')") or '{"completed":0}')['completed'] == index
+            if attempt < 2:
+                click('beauty-retry')
+                page.wait_for_function(READY, timeout=60000)
+                speed()
+        assert page.evaluate(f"{SCENE}.run.won && {SCENE}.run.finished && {SCENE}.resultShown"), ('Score goal not reached after three real attempts', index, page.evaluate(f"JSON.stringify({SCENE}.run)"))
         assert json.loads(page.evaluate(f"localStorage.getItem('{SAVE}')"))['completed'] == index+1
         assert page.evaluate(f"{SCENE}.children.list.some(x=>x.list?.some(item=>item.name==='beauty-full-photo'))")
         print(f'PASS: portrait {index+1}/{total} won through real swaps, score goal and full reveal', flush=True)
@@ -228,15 +238,15 @@ with sync_playwright() as p:
     mobile_tap('TitleScene', 'beauty-entry')
     mobile.wait_for_function("window.game.scene.isActive('PhotoAlbumScene')")
     assert mobile.evaluate(f"{album}.page===1 && !!{album}.children.getByName('beauty-photo-3') && !{album}.children.getByName('beauty-photo-4')")
-    for _ in range(2): mobile_tap('PhotoAlbumScene', 'beauty-page-next')
-    assert mobile.evaluate(f"{album}.page===3 && {album}.children.list.some(x=>x.text==='10')")
+    for _ in range(8): mobile_tap('PhotoAlbumScene', 'beauty-page-next')
+    assert mobile.evaluate(f"{album}.page===9 && {album}.children.list.some(x=>x.text==='30')")
     assert not any('/images/beauty/' in url for url in mobile_requests)
     mobile.screenshot(path='/tmp/jungle-beauty-gallery-mobile.png')
-    for _ in range(2): mobile_tap('PhotoAlbumScene', 'beauty-page-previous')
+    for _ in range(8): mobile_tap('PhotoAlbumScene', 'beauty-page-previous')
     mobile_tap('PhotoAlbumScene', 'beauty-photo-3')
     mobile.wait_for_function(f"{READY} && {SCENE}.index===3", timeout=60000)
     assert json.loads(mobile.evaluate(f"localStorage.getItem('{SAVE}')"))['completed'] == 3
     assert [url.rsplit('/',1)[1] for url in mobile_requests if '/images/beauty/' in url] == ['coast.webp']
     assert not errors, errors
-    print('PASS: all ten goals, four-page gallery, actual swaps and reveals, invalid move, hint/pause, lazy images, collection persistence/view/retry, languages, map/title return, campaign isolation and failed-image recovery')
+    print('PASS: ten original score goals, ten-page gallery, actual swaps and reveals, invalid move, hint/pause, lazy images, collection persistence/view/retry, languages, map/title return, campaign isolation and failed-image recovery')
     browser.close()

@@ -1,4 +1,5 @@
 import { BaseBlocker } from './BaseBlocker'
+import Phaser from 'phaser'
 
 export class RopeBlocker extends BaseBlocker {
   constructor(scene, x, y, row, col) {
@@ -42,5 +43,4 @@ export class RopeBlocker extends BaseBlocker {
     if (plannedSpawns) plannedSpawns.add(keyOf(target.row, target.col))
   }
 }
-
 
