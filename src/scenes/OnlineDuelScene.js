@@ -133,6 +133,7 @@ export class OnlineDuelScene extends AIDuelScene {
 
     applyState(packet) {
         if (packet.revision <= this.revision) return;
+        this.cancelBoardGesture();
         const newMatch = this.matchId !== packet.matchId;
         this.matchId = packet.matchId;
         this.revision = packet.revision;
@@ -183,6 +184,7 @@ export class OnlineDuelScene extends AIDuelScene {
 
     onPeerState(state) {
         if (['disconnected', 'failed', 'closed'].includes(state)) {
+            this.cancelBoardGesture();
             this.connectionReady = false;
             this.awaiting = false;
             this.refresh();

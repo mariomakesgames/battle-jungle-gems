@@ -24,6 +24,10 @@ export class UIScene extends Phaser.Scene {
 
   create() {
     const { width, height } = this.scale;
+    // Phaser starts a drag immediately by default, which swallows booster taps.
+    this.input.dragDistanceThreshold = 8;
+    // Remove global listeners before another mode starts using the shared board events.
+    this.events.once('shutdown', this.shutdown, this);
 
     // << THÊM 2 DÒNG NÀY ĐỂ RESET TRẠNG THÁI KHI REPLAY >>
     this.levelCompletedShown = false; 

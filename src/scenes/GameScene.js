@@ -1,4 +1,5 @@
 import { startAssetStream } from './AssetStreamScene';
+import { boardCellAt, dragDirection, bindPointerLifecycle } from '../input/BoardGesture';
 import Phaser from 'phaser'
 import { Board } from '../objects/Board'
 import { SCENE_KEYS, BOOSTER_TYPES } from '../utils/constants'
@@ -32,14 +33,11 @@ export class GameScene extends Phaser.Scene {
       isDown: false,
       downX: 0,
       downY: 0,
-      downTime: 0,
+      pointerId: null,
       downObject: null,
       downRow: -1,
       downCol: -1,
     }
-    this.SWIPE_THRESHOLD = 50
-    this.TAP_THRESHOLD = 15
-    this.TAP_MAX_TIME = 300
     // --- HỆ THỐNG GỢI Ý (HINT) ---
     this.idleTime = 0 // Thời gian không có input (ms)
     // --- TIMESTAMP CHẶN SỰ KIỆN DROP/POINTERUP ---
@@ -198,6 +196,8 @@ export class GameScene extends Phaser.Scene {
     this.input.on('pointerdown', this.onPointerDown, this)
     this.input.on('pointermove', this.onPointerMove, this)
     this.input.on('pointerup', this.onPointerUp, this)
+    this.cancelBoardGesture()
+    this.removePointerLifecycle = bindPointerLifecycle(this, this.onPointerUp, this.cancelBoardGesture)
     // Lưới an toàn khi board bận: xóa preview ngay
     this.game.events.on('boardBusy', this.handleBoardBusy, this)
 
@@ -483,6 +483,8 @@ export class GameScene extends Phaser.Scene {
     this.game.events.off('addScore', this.handleAddScore, this)
 
     // 3. Dọn dẹp input listeners
+    this.removePointerLifecycle?.()
+    this.removePointerLifecycle = null
     this.input.off('pointerdown', this.onPointerDown, this)
     this.input.off('pointermove', this.onPointerMove, this)
     this.input.off('pointerup', this.onPointerUp, this)
@@ -502,6 +504,7 @@ export class GameScene extends Phaser.Scene {
 
   // << THÊM CÁC HÀM HANDLER ĐƯỢC ĐẶT TÊN >>
   handleBoardBusy(isBusy) {
+    if (isBusy) this.cancelBoardGesture()
     if (isBusy && this.boosterVFXManager) {
       this.boosterVFXManager.clearPreview()
     }
@@ -724,6 +727,9 @@ export class GameScene extends Phaser.Scene {
   }
 
   onPointerDown(pointer) {
+    if (this.swipeState.isDown && this.swipeState.pointerId !== pointer.id) return
+    this.cancelBoardGesture()
+    if (!this.board || this.board.boardBusy || (!pointer.wasTouch && pointer.button !== 0)) return
     this.isPointerDown = true
     this.idleTime = 0 // Reset bộ đếm vì người chơi đang thao tác
     
@@ -736,7 +742,7 @@ export class GameScene extends Phaser.Scene {
     this.swipeState.isDown = true
     this.swipeState.downX = pointer.x
     this.swipeState.downY = pointer.y
-    this.swipeState.downTime = pointer.time
+    this.swipeState.pointerId = pointer.id
 
     const listToCheck = this.children.list.concat(this.gemLayer.list)
     const clickedObject = this.input.manager.hitTest(pointer, listToCheck, this.cameras.main)
@@ -751,6 +757,13 @@ export class GameScene extends Phaser.Scene {
       this.swipeState.downCol = -1
     }
 
+    // Gem hitboxes are smaller than their cells. A drag can start in the gap.
+    if (!this.activeBooster) {
+      const cell = boardCellAt(this.cameras.main.getWorldPoint(pointer.x, pointer.y), this.board)
+      this.swipeState.downRow = cell?.r ?? -1
+      this.swipeState.downCol = cell?.c ?? -1
+    }
+
     // Logic cũ cho Rocket booster (giữ nguyên)
     if (!this.activeBooster || !this.board || this.board.boardBusy) return
     if (this.activeBooster === BOOSTER_TYPES.ROCKET) {
@@ -760,6 +773,7 @@ export class GameScene extends Phaser.Scene {
 
   onPointerMove(pointer) {
     if (!this.isPointerDown) return
+    if (this.swipeState.pointerId !== pointer.id) return
     if (this.activeBooster !== BOOSTER_TYPES.ROCKET) return
     if (!this.board || this.board.boardBusy) return
 
@@ -789,6 +803,7 @@ export class GameScene extends Phaser.Scene {
    * [HÀM MỚI] Xử lý khi phát hiện một cử chỉ swipe
    */
   handleSwipe(startRow, startCol, direction) {
+    if (this.board.isCellBlockedForMovement(startRow, startCol)) return
     // Dọn mọi selection/tween cũ nếu có trước khi thực hiện swap bằng swipe
     if (this.board && typeof this.board.clearSelection === 'function') {
       this.board.clearSelection()
@@ -820,7 +835,18 @@ export class GameScene extends Phaser.Scene {
     this.board.swapGems(gem1, gem2)
   }
 
+  cancelBoardGesture() {
+    this.isPointerDown = false
+    this.swipeState.isDown = false
+    this.swipeState.downObject = null
+    this.swipeState.downRow = -1
+    this.swipeState.downCol = -1
+    this.swipeState.pointerId = null
+    if (this.activeBooster === BOOSTER_TYPES.ROCKET) this.boosterVFXManager?.clearPreview()
+  }
+
   onPointerUp(pointer) {
+    if (!this.swipeState.isDown || this.swipeState.pointerId !== pointer.id) return
     this.isPointerDown = false
 
     const wasDown = this.swipeState.isDown
@@ -841,10 +867,6 @@ export class GameScene extends Phaser.Scene {
 
     const upX = pointer.x
     const upY = pointer.y
-    const upTime = pointer.time
-    const deltaX = upX - this.swipeState.downX
-    const deltaY = upY - this.swipeState.downY
-    const deltaTime = upTime - this.swipeState.downTime
 
     // HitTest tại vị trí UP (dùng cho Tap và Booster)
     const listToCheck = this.children.list.concat(this.gemLayer.list)
@@ -976,43 +998,19 @@ export class GameScene extends Phaser.Scene {
       return
     }
 
-    // Tap dựa trên vị trí UP
-    const isTap = Math.abs(deltaX) < this.TAP_THRESHOLD && Math.abs(deltaY) < this.TAP_THRESHOLD && deltaTime < this.TAP_MAX_TIME
-    if (isTap) {
-      if (!clickedObjectUp) {
-        this.swipeState.downObject = null
-        return
+    const from = { r: this.swipeState.downRow, c: this.swipeState.downCol,
+      x: this.swipeState.downX, y: this.swipeState.downY }
+    const direction = dragDirection(from, { x: upX, y: upY }, this.board.cellSize)
+    this.cancelBoardGesture()
+    if (from.r < 0 || from.c < 0) return
+    if (direction) {
+      this.handleSwipe(from.r, from.c, direction)
+    } else {
+      const to = boardCellAt(this.cameras.main.getWorldPoint(upX, upY), this.board)
+      if (to && to.r === from.r && to.c === from.c) {
+        this.board.handleInput({ type: 'gem_click', row: to.r, col: to.c })
       }
-      const targetRow = clickedObjectUp.getData('row')
-      const targetCol = clickedObjectUp.getData('col')
-      console.log('Input: Detected TAP')
-      this.board.handleInput({ type: 'gem_click', row: targetRow, col: targetCol })
-      this.swipeState.downObject = null
-      return
     }
-
-    // Swipe dựa trên vị trí DOWN; nếu bắt đầu từ khoảng không thì bỏ qua
-    const isSwipe = Math.max(Math.abs(deltaX), Math.abs(deltaY)) > this.SWIPE_THRESHOLD && deltaTime < 500
-    if (isSwipe) {
-      if (!this.swipeState.downObject) {
-        console.log('Input: Ignored SWIPE (started from empty space or fast click race condition)')
-        this.swipeState.downObject = null
-        return
-      }
-      const startRow = this.swipeState.downRow
-      const startCol = this.swipeState.downCol
-      console.log('Input: Detected SWIPE')
-      let direction = null
-      if (Math.abs(deltaX) > Math.abs(deltaY)) direction = deltaX > 0 ? 'right' : 'left'
-      else direction = deltaY > 0 ? 'down' : 'up'
-      if (direction) this.handleSwipe(startRow, startCol, direction)
-      this.swipeState.downObject = null
-      return
-    }
-
-    // Drag
-    console.log('Input: Ignored (drag, not tap or swipe)')
-    this.swipeState.downObject = null
   }
 
   onGemSelected(data) {

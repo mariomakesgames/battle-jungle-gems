@@ -203,7 +203,7 @@ class LanguageManager {
         let saved;
         try { saved = globalThis.localStorage?.getItem(STORAGE_KEY); } catch { /* Private browsing. */ }
         this.language = LANGUAGES.some(item => item.code === saved)
-            ? saved : resolveLanguage(globalThis.navigator?.language);
+            ? saved : 'en';
         this.listeners = new Set();
         this.updateDocument();
     }

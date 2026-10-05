@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import LanguageManager from '../i18n/LanguageManager';
 import { bindText } from '../ui/LocalizedUI';
+import { bindPointerLifecycle, dragDirection } from '../input/BoardGesture';
 
 export const DUEL_TUTORIAL_KEY = 'jungle-gems-ai-tutorial-v1';
 export function needsDuelTutorial() {
@@ -40,8 +41,10 @@ export class DuelTutorialScene extends Phaser.Scene {
         this.children.bringToTop(this.practice);
         this.input.on('pointerdown', this.onDown, this);
         this.input.on('pointerup', this.onUp, this);
+        const removePointerLifecycle = bindPointerLifecycle(this, this.onUp, this.cancelBoardGesture);
         this.unsubscribe = LanguageManager.subscribe(() => this.refresh());
         this.events.once('shutdown', () => {
+            removePointerLifecycle();
             this.unsubscribe();
             this.input.off('pointerdown', this.onDown, this);
             this.input.off('pointerup', this.onUp, this);
@@ -119,13 +122,26 @@ export class DuelTutorialScene extends Phaser.Scene {
     }
 
     onDown(pointer) {
-        this.downCell = !this.busy && !this.completed && (this.step === 1 || this.step === 2) ? this.cellAt(pointer) : null;
+        if (this.downPoint && this.downPoint.pointerId !== pointer.id) return;
+        this.cancelBoardGesture();
+        if (this.busy || this.completed || (this.step !== 1 && this.step !== 2) || (!pointer.wasTouch && pointer.button !== 0)) return;
+        this.downCell = this.cellAt(pointer);
+        if (this.downCell !== null) this.downPoint = { x: pointer.x, y: pointer.y, pointerId: pointer.id };
     }
 
+    cancelBoardGesture() { this.downCell = null; this.downPoint = null; }
+
     onUp(pointer) {
-        if (this.downCell === null || this.busy || this.completed) return;
-        const from = this.downCell, to = this.cellAt(pointer);
-        this.downCell = null;
+        if (!this.downPoint || this.downPoint.pointerId !== pointer.id) return;
+        const from = this.downCell, start = this.downPoint;
+        this.cancelBoardGesture();
+        if (this.busy || this.completed) return;
+        const direction = dragDirection(start, pointer, 80);
+        if (direction) {
+            if ((from === 0 && direction === 'down') || (from === 1 && direction === 'up')) this.demoSwap();
+            return;
+        }
+        const to = this.cellAt(pointer);
         if (to === null) return;
         if (to !== from || (this.selected !== null && this.selected !== to)) this.demoSwap();
         else {

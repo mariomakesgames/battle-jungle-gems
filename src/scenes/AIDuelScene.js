@@ -9,6 +9,7 @@ import AudioManager from '../managers/AudioManager';
 import { DuelRules } from '../ai/DuelRules';
 import { chooseMove, makeDuelGrid, DUEL_COLORS } from '../ai/ChooseMove';
 import { needsDuelTutorial } from './DuelTutorialScene';
+import { boardCellAt, dragDirection, bindPointerLifecycle } from '../input/BoardGesture';
 
 export class AIDuelScene extends Phaser.Scene {
     constructor(key = 'AIDuelScene') { super(key); }
@@ -85,6 +86,7 @@ export class AIDuelScene extends Phaser.Scene {
         this.game.events.on('levelFailed', this.onShuffleFailed, this);
         this.input.on('pointerdown', this.onDown, this);
         this.input.on('pointerup', this.onUp, this);
+        this.removePointerLifecycle = bindPointerLifecycle(this, this.onUp, this.cancelBoardGesture);
         this.unsubscribe = LanguageManager.subscribe(() => this.refresh());
         this.game.events.on('musicVolumeChanged', this.onMusicVolume, this);
         this.musicStream = startAssetStream(this, {
@@ -128,22 +130,32 @@ export class AIDuelScene extends Phaser.Scene {
     canPlayerAct() { return !this.paused && !this.duel.finished && !this.duel.pending && this.duel.actor === 'player' && !this.board.boardBusy; }
 
     cellAt(pointer) {
-        const r = Math.floor((pointer.y - 360) / 54), c = Math.floor((pointer.x - 45) / 54);
-        return this.board.isValidCell(r, c) ? { r, c } : null;
+        return boardCellAt(this.cameras.main.getWorldPoint(pointer.x, pointer.y), this.board);
     }
 
-    onDown(pointer) { this.downCell = this.canPlayerAct() ? this.cellAt(pointer) : null; }
+    cancelBoardGesture() { this.downCell = null; }
+
+    onDown(pointer) {
+        if (this.downCell && this.downCell.pointerId !== pointer.id) return;
+        this.cancelBoardGesture();
+        if (!this.canPlayerAct() || (!pointer.wasTouch && pointer.button !== 0)) return;
+        const cell = this.cellAt(pointer);
+        if (cell) this.downCell = { ...cell, x: pointer.x, y: pointer.y, pointerId: pointer.id };
+    }
 
     onUp(pointer) {
-        if (!this.canPlayerAct() || !this.downCell) return;
-        const from = this.downCell, to = this.cellAt(pointer);
-        this.downCell = null;
-        if (!to) return;
-        if (Math.abs(from.r - to.r) + Math.abs(from.c - to.c) === 1) {
-            this.performMove({ r1: from.r, c1: from.c, r2: to.r, c2: to.c }, 'player');
+        const from = this.downCell;
+        if (!from || from.pointerId !== pointer.id) return;
+        this.cancelBoardGesture();
+        if (!this.canPlayerAct()) return;
+        const direction = dragDirection(from, pointer, this.board.cellSize);
+        if (direction) {
+            const to = this.board.getNeighborCell(from.r, from.c, direction);
+            if (to) this.performMove({ r1: from.r, c1: from.c, r2: to.row, c2: to.col }, 'player');
             return;
         }
-        if (from.r !== to.r || from.c !== to.c) return;
+        const to = this.cellAt(pointer);
+        if (!to || from.r !== to.r || from.c !== to.c) return;
         const selected = this.board.selectedGem;
         const gem = this.board.grid[to.r][to.c];
         if (selected && this.board.areNeighbors(selected, gem)) {
@@ -169,6 +181,7 @@ export class AIDuelScene extends Phaser.Scene {
     onScore(points) { this.duel.addScore(points); this.refresh(); }
 
     onBusy(busy) {
+        if (busy) this.cancelBoardGesture();
         if (busy || this.board.consecutiveShuffleFailures >= 3) return;
         this.duel.settle();
         this.refresh();
@@ -251,6 +264,8 @@ export class AIDuelScene extends Phaser.Scene {
     leave() { this.scene.start(this.returnScene); }
 
     cleanup() {
+        this.removePointerLifecycle?.();
+        this.removePointerLifecycle = null;
         this.aiTimer?.remove();
         this.musicStream?.cancel();
         this.music?.destroy();

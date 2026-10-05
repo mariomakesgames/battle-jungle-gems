@@ -67,11 +67,14 @@ with sync_playwright() as p:
             }''',special)
             synced()
 
-        def swap(page,move):
+        def swap(page,move,distance=1,hold_ms=0):
             previous=host.evaluate(f"{SCENE}.revision")
             r1,c1,r2,c2=move
             page.mouse.move(45+c1*54+27,360+r1*54+27)
-            page.mouse.down();page.mouse.move(45+c2*54+27,360+r2*54+27,steps=3);page.mouse.up()
+            page.mouse.down()
+            if hold_ms:page.wait_for_timeout(hold_ms)
+            page.mouse.move(45+c1*54+27+(c2-c1)*54*distance,360+r1*54+27+(r2-r1)*54*distance,steps=3)
+            page.mouse.up()
             host.wait_for_function(f"{SCENE}.revision>{previous}",timeout=10000)
             synced()
 
@@ -86,13 +89,14 @@ with sync_playwright() as p:
         swap(host,[8,7,8,8])
         assert host.evaluate(SNAPSHOT)==before,'Invalid swap spent an opportunity'
         fixture(True)
-        swap(host,[0,2,1,2])
+        swap(host,[0,2,1,2],distance=0.4)
         assert host.evaluate(f"{SCENE}.duel.swapsLeft") == 2
-        for _ in range(2):fixture();swap(host,[0,1,1,1])
+        fixture();swap(host,[0,1,1,1],hold_ms=700)
+        fixture();swap(host,[0,1,1,1],distance=2.8)
         assert host.evaluate(f"{SCENE}.duel.actor")=='ai'
         assert guest.evaluate(f"{SCENE}.canPlayerAct()") and host.evaluate(f"{SCENE}.boardDimmer.visible")
         fixture(True)
-        swap(guest,[0,2,1,2])
+        swap(guest,[0,2,1,2],distance=0.4)
         assert host.evaluate(f"{SCENE}.duel.swapsLeft") == 2
         assert host.evaluate(f"{SCENE}.duel.scores.ai")>0
 
@@ -145,7 +149,7 @@ with sync_playwright() as p:
         assert host.evaluate("window.game.events.listenerCount('addScore')") == 0
         assert not errors,errors
         assert not failures,failures
-        print('PASS: real WebRTC link, invitation recovery, shared board, invalid/bonus swaps for both players, guest turn, pause/resume, stale-request rejection, 10 rounds, mutual rematch and disconnect lock')
+        print('PASS: real WebRTC link, short/slow/overshot drags, shared board, invalid/bonus swaps for both players, guest turn, pause/resume, stale-request rejection, 10 rounds, mutual rematch and disconnect lock')
     except Exception:
         for page in [host,guest]:
             print(json.dumps(page.evaluate('''() => {

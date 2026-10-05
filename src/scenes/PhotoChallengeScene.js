@@ -6,6 +6,7 @@ import { DUEL_COLORS } from '../ai/ChooseMove';
 import AudioManager from '../managers/AudioManager';
 import LanguageManager from '../i18n/LanguageManager';
 import { PHOTO_LEVELS, PhotoRun, photoCollection, photoKey, photoPath, REVEAL_ORDER } from '../beauty/PhotoRules';
+import { bindPointerLifecycle } from '../input/BoardGesture';
 
 const PHOTO = { x: 168, y: 126, width: 240, height: 300 };
 const GRID = { x: 72, y: 478, cell: 48, size: 432 };
@@ -81,6 +82,7 @@ export class PhotoChallengeScene extends AIDuelScene {
         this.game.events.on('levelFailed', this.onShuffleFailed, this);
         this.input.on('pointerdown', this.onDown, this);
         this.input.on('pointerup', this.onUp, this);
+        this.removePointerLifecycle = bindPointerLifecycle(this, this.onUp, this.cancelBoardGesture);
         this.unsubscribe = LanguageManager.subscribe(() => this.refresh());
         this.game.events.on('musicVolumeChanged', this.onMusicVolume, this);
         this.musicStream = startAssetStream(this, {
@@ -93,11 +95,6 @@ export class PhotoChallengeScene extends AIDuelScene {
             },
         });
         this.refresh();
-    }
-
-    cellAt(pointer) {
-        const r = Math.floor((pointer.y - GRID.y) / GRID.cell), c = Math.floor((pointer.x - GRID.x) / GRID.cell);
-        return this.board.isValidCell(r, c) ? { r, c } : null;
     }
 
     canPlayerAct() { return !this.paused && !this.run.finished && !this.run.pending && !this.board.boardBusy; }
@@ -116,6 +113,7 @@ export class PhotoChallengeScene extends AIDuelScene {
     onScore(points) { if (this.run.addScore(points)) this.refresh(); }
 
     onBusy(busy) {
+        if (busy) this.cancelBoardGesture();
         if (busy || this.board.consecutiveShuffleFailures >= 3 || this.run.finished) return;
         this.run.settle();
         this.refresh();

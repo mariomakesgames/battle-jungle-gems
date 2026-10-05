@@ -82,9 +82,23 @@ The project follows four core design principles:
 
 ### Language settings
 
-Choose **简体中文**, **English**, or **Tiếng Việt** on the title screen, in Settings on the map, or in the pause menu during a level. The first visit follows the browser language (unsupported languages fall back to English). The choice is saved locally and updates gameplay labels immediately without restarting the level.
+Choose **简体中文**, **English**, or **Tiếng Việt** on the title screen, in Settings on the map, or in the pause menu during a level. The first visit defaults to English regardless of browser language. A manually selected language is saved locally and updates gameplay labels immediately without restarting the level.
 
 Translations live in `src/i18n/LanguageManager.js`; `src/ui/LocalizedUI.js` binds live labels and draws translated labels over the main image-based controls. Decorative artwork is shared across languages. Run `npm test` for language-selection and translation tests.
+
+### Board controls
+
+Tap two neighboring gems, or drag a gem in the direction of its neighbor. Drags
+use one quarter of a cell as their threshold, have no time limit and exchange
+exactly one neighbor even when released several cells away. The same controls
+apply to campaign, AI duel, portrait and online duel boards. Small pointer jitter
+stays a tap. A release outside the canvas completes a directional drag; losing
+focus, cancelling a touch, pausing or a board update discards an unfinished gesture.
+Busy animations, blocked cells and the other player's turn still lock swaps.
+
+Run `python tests/input-smoke.py` against production preview to check slow/short
+drags, overshoot, gaps, click pairs, cancellation, scaled canvas input, booster
+selection and the default/saved language behavior.
 
 ### Portrait collection
 
