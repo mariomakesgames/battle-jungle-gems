@@ -19,6 +19,9 @@ export class PhotoChallengeScene extends AIDuelScene {
 
     init(data = {}) {
         super.init(data);
+        this.selectionScene = data.selectionScene || 'PhotoAlbumScene';
+        this.selectionLabel = this.selectionScene === 'BaddieMapScene' ? 'baddieLevels' : 'beautyAlbum';
+        this.mapReturnScene = data.mapReturnScene || 'TitleScene';
         this.index = photoCollection.canPlay(data.index) ? data.index : Math.min(photoCollection.completed, PHOTO_LEVELS.length - 1);
         this.viewing = !!data.viewing && photoCollection.isCollected(this.index);
         this.level = PHOTO_LEVELS[this.index];
@@ -51,8 +54,8 @@ export class PhotoChallengeScene extends AIDuelScene {
             (!this.cache.json.exists(classicPhotoKey(this.level)) || this.blockerAssets.some(([key]) => !this.textures.exists(key)));
         if (!this.textures.exists(photoKey(this.index)) || missingBoard) {
             this.makeLabel(288, 390, missingBoard ? 'beautyLevelError' : 'beautyImageError', 25);
-            this.button(288, 505, 260, 'restart', () => this.scene.restart({ index: this.index, viewing: this.viewing, returnScene: this.returnScene }), 'beauty-load-retry');
-            this.button(288, 585, 260, 'beautyAlbum', () => this.leave(), 'beauty-load-back');
+            this.button(288, 505, 260, 'restart', () => this.scene.restart({ index: this.index, viewing: this.viewing, ...this.navigationData() }), 'beauty-load-retry');
+            this.button(288, 585, 260, this.selectionLabel, () => this.leave(), 'beauty-load-back');
             return;
         }
         if (this.viewing) { this.showPhoto(true); return; }
@@ -196,11 +199,11 @@ export class PhotoChallengeScene extends AIDuelScene {
         const hasNext = this.index + 1 < PHOTO_LEVELS.length;
         const label = viewing ? 'beautyReplay' : hasNext ? 'beautyNext' : 'beautyAllCollected';
         this.button(288, 744, 320, label, () => {
-            if (viewing) this.scene.restart({ index: this.index, returnScene: this.returnScene });
-            else if (hasNext) this.scene.restart({ index: this.index + 1, returnScene: this.returnScene });
+            if (viewing) this.scene.restart({ index: this.index, ...this.navigationData() });
+            else if (hasNext) this.scene.restart({ index: this.index + 1, ...this.navigationData() });
             else this.leave();
         }, 'beauty-next', panel);
-        this.button(288, 822, 260, 'beautyAlbum', () => this.leave(), 'beauty-result-album', panel);
+        this.button(288, 822, 260, this.selectionLabel, () => this.leave(), 'beauty-result-album', panel);
         panel.add(this.makeLabel(288, 916, 'beautySaveHint', 18));
     }
 
@@ -210,8 +213,8 @@ export class PhotoChallengeScene extends AIDuelScene {
         panel.add(this.add.rectangle(288, 512, 576, 1024, 0x101c30, 0.88).setInteractive());
         panel.add(this.makeLabel(288, 380, 'beautyFailed', 34));
         panel.add(this.makeLabel(288, 455, 'beautyTryAgain', 22));
-        this.button(288, 555, 260, 'beautyReplay', () => this.scene.restart({ index: this.index, returnScene: this.returnScene }), 'beauty-retry', panel);
-        this.button(288, 635, 260, 'beautyAlbum', () => this.leave(), 'beauty-result-album', panel);
+        this.button(288, 555, 260, 'beautyReplay', () => this.scene.restart({ index: this.index, ...this.navigationData() }), 'beauty-retry', panel);
+        this.button(288, 635, 260, this.selectionLabel, () => this.leave(), 'beauty-result-album', panel);
     }
 
     showPause() {
@@ -219,7 +222,9 @@ export class PhotoChallengeScene extends AIDuelScene {
         super.showPause();
     }
 
-    leave() { this.scene.start('PhotoAlbumScene', { returnScene: this.returnScene, focusIndex: this.index }); }
+    navigationData() { return { returnScene: this.returnScene, selectionScene: this.selectionScene, mapReturnScene: this.mapReturnScene }; }
+
+    leave() { this.scene.start(this.selectionScene, { ...this.navigationData(), focusIndex: this.index }); }
 
     cleanup() {
         // Scene instances are reused by Phaser; clear references to destroyed HUDs.

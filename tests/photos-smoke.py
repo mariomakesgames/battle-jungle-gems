@@ -11,6 +11,18 @@ SCENE = "window.game.scene.getScene('PhotoChallengeScene')"
 READY = f"window.game.scene.isActive('PhotoChallengeScene') && {SCENE}.board && !{SCENE}.board.boardBusy && !{SCENE}.run.pending"
 SAVE = 'jungle-gems-photo-collection-v1'
 
+def open_album(page):
+    page.wait_for_function("window.game.scene.isActive('BaddieMapScene') || window.game.scene.isActive('PhotoAlbumScene')")
+    if page.evaluate("window.game.scene.isActive('BaddieMapScene')"):
+        page.evaluate("window.game.scene.getScene('BaddieMapScene').children.getByName('baddie-gallery').emit('pointerdown')")
+    page.wait_for_function("window.game.scene.isActive('PhotoAlbumScene')")
+
+def return_to(page, target):
+    page.wait_for_function("target=>window.game?.scene.isActive(target)||window.game?.scene.isActive('BaddieMapScene')", arg=target)
+    if page.evaluate("window.game.scene.isActive('BaddieMapScene')"):
+        page.evaluate("window.game.scene.getScene('BaddieMapScene').children.getByName('baddie-map-back').emit('pointerdown')")
+    page.wait_for_function("target=>window.game.scene.isActive(target)", arg=target, timeout=60000)
+
 with sync_playwright() as p:
     browser = p.chromium.launch(executable_path=os.environ.get('CHROMIUM_EXECUTABLE', '/usr/bin/chromium'),
         headless=True, args=['--no-sandbox', '--disable-dev-shm-usage'])
@@ -25,8 +37,9 @@ with sync_playwright() as p:
     campaign = "JSON.stringify(Object.fromEntries(Object.entries(localStorage).filter(([key]) => key.startsWith('phaser_game_'))))"
     original_campaign = page.evaluate(campaign)
     page.mouse.click(288, 613)
-    page.wait_for_function("window.game.scene.isActive('PhotoAlbumScene')")
+    open_album(page)
     assert not any('/images/beauty/' in url for url in requests), 'Album must not download locked portraits'
+    requests.clear()  # Exclude the Baddie entry map from challenge-only requests.
     album = "window.game.scene.getScene('PhotoAlbumScene')"
     assert page.evaluate(f"{album}.children.getByName('beauty-photo-1') === null")
 
@@ -148,7 +161,7 @@ with sync_playwright() as p:
     page.screenshot(path='/tmp/jungle-beauty-collected.png')
     assert page.evaluate(campaign) == original_campaign
     click('beauty-result-album')
-    page.wait_for_function("window.game.scene.isActive('PhotoAlbumScene')")
+    open_album(page)
     assert page.evaluate("window.game.events.listenerCount('addScore')") == 0
     assert page.evaluate(f"{album}.page") == 3
     assert page.evaluate(f"{album}.children.getByName('beauty-photo-9')!==null")
@@ -160,7 +173,7 @@ with sync_playwright() as p:
     page.reload()
     page.wait_for_function("window.game?.scene.isActive('TitleScene')")
     page.mouse.click(288, 613)
-    page.wait_for_function("window.game.scene.isActive('PhotoAlbumScene')")
+    open_album(page)
     assert page.evaluate(f"{album}.page") == 3
     for _ in range(3): click('beauty-page-previous', 'PhotoAlbumScene')
     click('beauty-photo-1', 'PhotoAlbumScene')
@@ -178,27 +191,27 @@ with sync_playwright() as p:
     page.wait_for_function(READY)
     assert page.evaluate(f"{SCENE}.run.score===0 && {SCENE}.run.movesLeft===24 && !{SCENE}.run.finished")
     click('beauty-exit')
-    page.wait_for_function("window.game.scene.isActive('PhotoAlbumScene')")
+    open_album(page)
     click('beauty-album-back', 'PhotoAlbumScene')
-    page.wait_for_function("window.game.scene.isActive('TitleScene')")
+    return_to(page, 'TitleScene')
     for language, expected in [('en', 'City at twilight'), ('vi', 'Thành phố về đêm')]:
         page.evaluate(f"window.game.scene.getScene('TitleScene').children.getByName('language-{language}').emit('pointerdown')")
         page.mouse.click(288, 613)
-        page.wait_for_function("window.game.scene.isActive('PhotoAlbumScene')")
+        open_album(page)
         for _ in range(3): click('beauty-page-previous', 'PhotoAlbumScene')
         click('beauty-photo-2', 'PhotoAlbumScene')
         page.wait_for_function(f"{SCENE}.resultShown && window.game.scene.isActive('PhotoChallengeScene')")
         assert page.evaluate(f"{SCENE}.children.list.some(x=>x.list?.some(item=>item.text==={json.dumps(expected)}))")
         click('beauty-result-album')
-        page.wait_for_function("window.game.scene.isActive('PhotoAlbumScene')")
+        open_album(page)
         click('beauty-album-back', 'PhotoAlbumScene')
-        page.wait_for_function("window.game.scene.isActive('TitleScene')")
+        return_to(page, 'TitleScene')
     page.mouse.click(288, 768)
     page.wait_for_function("window.game.scene.isActive('MapScene')", timeout=60000)
     page.evaluate("window.game.scene.getScene('MapScene').children.getByName('beauty-entry').emit('pointerdown')")
-    page.wait_for_function("window.game.scene.isActive('PhotoAlbumScene')")
+    open_album(page)
     click('beauty-album-back', 'PhotoAlbumScene')
-    page.wait_for_function("window.game.scene.isActive('MapScene')")
+    return_to(page, 'MapScene')
     assert not errors, errors
     assert not failures, failures
 
@@ -208,7 +221,7 @@ with sync_playwright() as p:
     failed.goto(URL)
     failed.wait_for_function("window.game?.scene.isActive('TitleScene')")
     failed.evaluate("window.game.scene.getScene('TitleScene').children.getByName('beauty-entry').emit('pointerdown')")
-    failed.wait_for_function("window.game.scene.isActive('PhotoAlbumScene')")
+    open_album(failed)
     failed.evaluate("window.game.scene.getScene('PhotoAlbumScene').children.getByName('beauty-photo-0').emit('pointerdown')")
     failed.wait_for_function(f"window.game.scene.isActive('PhotoChallengeScene') && {SCENE}.children.getByName('beauty-load-retry')", timeout=60000)
     assert failed.evaluate(f"localStorage.getItem('{SAVE}')") is None
@@ -236,7 +249,7 @@ with sync_playwright() as p:
         mobile.wait_for_timeout(100)
 
     mobile_tap('TitleScene', 'beauty-entry')
-    mobile.wait_for_function("window.game.scene.isActive('PhotoAlbumScene')")
+    open_album(mobile)
     assert mobile.evaluate(f"{album}.page===1 && !!{album}.children.getByName('beauty-photo-3') && !{album}.children.getByName('beauty-photo-4')")
     for _ in range(8): mobile_tap('PhotoAlbumScene', 'beauty-page-next')
     assert mobile.evaluate(f"{album}.page===9 && {album}.children.list.some(x=>x.text==='30')")

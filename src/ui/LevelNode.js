@@ -17,9 +17,10 @@ const NUMBER_OFFSETS = {
 };
 
 export class LevelNode extends Phaser.GameObjects.Container {
-    constructor(scene, x, y, levelId, isLocked = false, stars = 0) {
+    constructor(scene, x, y, levelId, isLocked = false, stars = 0, onSelect = null) {
         super(scene, x, y);
         
+        this.onSelect = onSelect;
         this.levelId = levelId;
         this.isLocked = isLocked;
         this.stars = stars;
@@ -97,6 +98,11 @@ export class LevelNode extends Phaser.GameObjects.Container {
             this.button.setScale(0.4);
         });
         
+        if (this.onSelect) {
+            this.button.on('pointerup', this.onSelect);
+            return;
+        }
+
         this.button.on('pointerdown', () => {
             // Load level data và mở Level Review Popup
             this.scene.load.json(`level_${this.levelId}`, `assets/levels/level_${this.levelId}.json`);

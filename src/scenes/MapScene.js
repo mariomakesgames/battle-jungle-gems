@@ -1,3 +1,4 @@
+import { CLASSIC_MAP_NODES } from '../ui/MapLayout';
 import { startAssetStream } from './AssetStreamScene';
 import { bindText } from '../ui/LocalizedUI';
 import LanguageManager from '../i18n/LanguageManager';
@@ -149,20 +150,8 @@ export class MapScene extends Phaser.Scene {
         console.log(`Map part 'map_part2' bắt đầu tại Y: ${map2Offset}, Height: ${this.mapRegistry.get('map_part2').displayHeight}`);
         console.log(`=== LEVEL NODES ===`);
         
-        const localLevelPositions = [
-            // Map Part 1 - Level 1 đến 4
-            { id: 1, mapKey: 'map_part1', x: 223, y: (1990 - map1Offset) },
-            { id: 2, mapKey: 'map_part1', x: 297, y: (1752 - map1Offset) },
-            { id: 3, mapKey: 'map_part1', x: 296, y: (1563 - map1Offset) },
-            { id: 4, mapKey: 'map_part1', x: 286, y: (1164 - map1Offset) }, // Level 4 lên vị trí cũ của level 5
-            
-            // Map Part 2 - Level 5 đến 9
-            { id: 5, mapKey: 'map_part2', x: 215, y: (900 - map2Offset) },
-            { id: 6, mapKey: 'map_part2', x: 310, y: (730 - map2Offset) },
-            { id: 7, mapKey: 'map_part2', x: 295, y: (520 - map2Offset) },
-            { id: 8, mapKey: 'map_part2', x: 320, y: (350 - map2Offset) },
-            { id: 9, mapKey: 'map_part2', x: 362, y: (180 - map2Offset) }
-        ];
+        const localLevelPositions = CLASSIC_MAP_NODES.map(node => ({ ...node,
+            y: node.y - this.getMapOffsetY(node.mapKey) }));
 
         // Reset biến lưu node cần animate
         this.targetUnlockNode = null;
@@ -308,7 +297,7 @@ export class MapScene extends Phaser.Scene {
             .setInteractive({ useHandCursor: true }).setName('beauty-entry');
         bindText(this.add.text(width - 100, 245, '', { fontSize: '23px', color: '#fff5df' })
             .setOrigin(0.5).setDepth(1001).setScrollFactor(0), 'beautyMode', {}, 168);
-        photoButton.on('pointerdown', () => this.scene.start('PhotoAlbumScene', { returnScene: 'MapScene' }));
+        photoButton.on('pointerdown', () => this.scene.start('BaddieMapScene', { returnScene: 'MapScene' }));
         
         // --- 7. TẠO NÚT SPIN VÀ STORE ---
         // Vị trí (góc dưới bên trái và dưới bên phải)

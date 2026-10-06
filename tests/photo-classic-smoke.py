@@ -14,6 +14,18 @@ SAVE = 'jungle-gems-photo-collection-v1'
 ROOT = Path(__file__).resolve().parents[1]
 IDS = 'lake lavender desert harbor cafe orchard waterfall library rainbow terrace bamboo rose countryside marina moonlight festival cliff bridge island spring'.split()
 
+def open_album(page):
+    page.wait_for_function("window.game.scene.isActive('BaddieMapScene') || window.game.scene.isActive('PhotoAlbumScene')")
+    if page.evaluate("window.game.scene.isActive('BaddieMapScene')"):
+        page.evaluate("window.game.scene.getScene('BaddieMapScene').children.getByName('baddie-gallery').emit('pointerdown')")
+    page.wait_for_function("window.game.scene.isActive('PhotoAlbumScene')")
+
+def return_to(page, target):
+    page.wait_for_function("target=>window.game?.scene.isActive(target)||window.game?.scene.isActive('BaddieMapScene')", arg=target)
+    if page.evaluate("window.game.scene.isActive('BaddieMapScene')"):
+        page.evaluate("window.game.scene.getScene('BaddieMapScene').children.getByName('baddie-map-back').emit('pointerdown')")
+    page.wait_for_function("target=>window.game.scene.isActive(target)", arg=target, timeout=60000)
+
 with sync_playwright() as p:
     browser = p.chromium.launch(executable_path=os.environ.get('CHROMIUM_EXECUTABLE', '/usr/bin/chromium'),
         headless=True, args=['--no-sandbox', '--disable-dev-shm-usage'])
@@ -66,7 +78,7 @@ with sync_playwright() as p:
     for language, label in [('en','Play Classic Mode'), ('zh-CN','玩经典模式'), ('vi','Chơi chế độ cổ điển')]:
         title.evaluate("lang=>window.game.scene.getScene('TitleScene').children.getByName('language-'+lang).emit('pointerdown')", language)
         bounds = title.evaluate('''()=>{
-            const s=window.game.scene.getScene('TitleScene'), item=s.children.getByName('classic-mode-entry'), b=item.getBounds();
+            const s=window.game.scene.getScene('TitleScene'), item=s.children.getByName('classic-mode-entry-label'), b=item.getBounds();
             return {text:item.text,left:b.left,right:b.right,top:b.top,bottom:b.bottom};
         }''')
         assert bounds['text'] == label, bounds
@@ -81,8 +93,9 @@ with sync_playwright() as p:
     original_campaign = page.evaluate(campaign)
     requests.clear()
     click(page, 'TitleScene', 'beauty-entry')
-    page.wait_for_function("window.game.scene.isActive('PhotoAlbumScene')")
+    open_album(page)
     assert not any('/beauty/' in url or '/levels/' in url for url in requests)
+    requests.clear()  # The entry map has its own assets; challenges load independently.
     for index in range(10, 30):
         start(page, index)
         classic = (index-10) % 9 + 1
@@ -195,7 +208,7 @@ with sync_playwright() as p:
     viewed = new_page(29)
     requests.clear()
     click(viewed, 'TitleScene', 'beauty-entry')
-    viewed.wait_for_function("window.game.scene.isActive('PhotoAlbumScene')")
+    open_album(viewed)
     click(viewed, 'PhotoAlbumScene', 'beauty-photo-28')
     viewed.wait_for_function(f"window.game.scene.isActive('PhotoChallengeScene') && {S}.viewing && {S}.resultShown")
     assert [url.rsplit('/',1)[1] for url in requests if '/images/beauty/' in url] == ['island.webp']
@@ -206,7 +219,7 @@ with sync_playwright() as p:
     failed = new_page(10)
     failed.route('**/levels/level_1.json', lambda route: route.abort())
     click(failed, 'TitleScene', 'beauty-entry')
-    failed.wait_for_function("window.game.scene.isActive('PhotoAlbumScene')")
+    open_album(failed)
     click(failed, 'PhotoAlbumScene', 'beauty-photo-10')
     failed.wait_for_function(f"window.game.scene.isActive('PhotoChallengeScene') && {S}.children.getByName('beauty-load-retry')", timeout=60000)
     assert json.loads(failed.evaluate(f"localStorage.getItem('{SAVE}')"))['completed'] == 10

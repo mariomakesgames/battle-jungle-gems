@@ -102,7 +102,11 @@ selection and the default/saved language behavior.
 
 ### Portrait collection
 
-Choose **Portrait gallery** on the title screen or map. Thirty original adult
+Choose **Baddie Mode** on the title screen or campaign map. Its scrolling level
+map shares the classic backgrounds, path and level buttons, with thirty numbered
+levels and separate unlock progress. Drag or scroll to explore, or choose Play
+level to continue. Completed nodes show a check mark. Open **Gallery** to view
+collected pictures. Thirty original adult
 fashion portraits unlock in order. Each challenge starts with a covered mosaic.
 The first ten use score goals; the next twenty reuse the nine classic board
 configurations in rotation, including their moves, gem colors, holes, stones and
@@ -133,6 +137,8 @@ Run `npm test` for score/classic goals, last-move results, sequential unlocks,
 save migration, canonical level metadata, translations and asset limits. With
 production preview running, `python tests/photos-smoke.py` plays the original ten
 score challenges and checks gallery, reveals, input, persistence and image retry.
+`python tests/baddie-map-smoke.py` checks the mode buttons, mobile map scrolling,
+unlocks, gallery navigation and both entry points.
 `python tests/photo-classic-smoke.py` checks all twenty copied boards, real classic
 swaps and blocker goals, lazy assets, level retry and the title button. These
 checks require Playwright/Chromium.

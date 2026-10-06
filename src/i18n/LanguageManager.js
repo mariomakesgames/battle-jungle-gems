@@ -7,7 +7,7 @@ export const LANGUAGES = [
 const messages = {
     'zh-CN': {
         start: '开始游戏', classicMode: '玩经典模式', language: '语言', settings: '设置', pause: '暂停',
-        beautyMode: '美女图鉴', beautyIntro: '消除宝石，逐步揭开写真。\n过关后收藏完整图片，再挑战下一张。',
+        beautyMode: 'Baddie 模式', baddieGallery: '图鉴', baddieLevels: '选关', baddieContinue: '继续第 {level} 关', baddieMapError: '地图加载失败，请重试。', beautyIntro: '消除宝石，逐步揭开写真。\n过关后收藏完整图片，再挑战下一张。',
         beautyGarden: '林间晨光', beautySunset: '落日花园', beautyCity: '都市夜色',
         beautyCoast: '海岸微风', beautyForest: '绿林漫步', beautyMeadow: '花田午后', beautyAutumn: '金色秋日',
         beautyBlossom: '樱花时节', beautySnow: '冬日雪景', beautyStarlight: '星空之夜',
@@ -80,7 +80,7 @@ const messages = {
     },
     en: {
         start: 'START', classicMode: 'Play Classic Mode', language: 'Language', settings: 'Settings', pause: 'Paused',
-        beautyMode: 'Portrait gallery', beautyIntro: 'Match gems to reveal each portrait.\nClear its goal to collect it and unlock the next.',
+        beautyMode: 'Baddie Mode', baddieGallery: 'Gallery', baddieLevels: 'Levels', baddieContinue: 'Play level {level}', baddieMapError: 'Map failed to load. Please retry.', beautyIntro: 'Match gems to reveal each portrait.\nClear its goal to collect it and unlock the next.',
         beautyGarden: 'Morning in the garden', beautySunset: 'Golden-hour garden', beautyCity: 'City at twilight',
         beautyCoast: 'Ocean breeze', beautyForest: 'Woodland stroll', beautyMeadow: 'Wildflower afternoon', beautyAutumn: 'Golden autumn',
         beautyBlossom: 'Cherry blossom season', beautySnow: 'Winter wonderland', beautyStarlight: 'Under the stars',
@@ -153,7 +153,7 @@ const messages = {
     },
     vi: {
         start: 'BẮT ĐẦU', classicMode: 'Chơi chế độ cổ điển', language: 'Ngôn ngữ', settings: 'Cài đặt', pause: 'Tạm dừng',
-        beautyMode: 'Bộ sưu tập mỹ nhân', beautyIntro: 'Ghép ngọc để dần mở ảnh.\nĐạt mục tiêu để sưu tập và mở ảnh tiếp theo.',
+        beautyMode: 'Chế độ Baddie', baddieGallery: 'Bộ sưu tập', baddieLevels: 'Màn chơi', baddieContinue: 'Chơi màn {level}', baddieMapError: 'Không tải được bản đồ. Hãy thử lại.', beautyIntro: 'Ghép ngọc để dần mở ảnh.\nĐạt mục tiêu để sưu tập và mở ảnh tiếp theo.',
         beautyGarden: 'Nắng sớm trong vườn', beautySunset: 'Khu vườn hoàng hôn', beautyCity: 'Thành phố về đêm',
         beautyCoast: 'Gió biển', beautyForest: 'Dạo bước trong rừng', beautyMeadow: 'Chiều bên đồng hoa', beautyAutumn: 'Mùa thu vàng',
         beautyBlossom: 'Mùa hoa anh đào', beautySnow: 'Khung cảnh mùa đông', beautyStarlight: 'Dưới trời sao',

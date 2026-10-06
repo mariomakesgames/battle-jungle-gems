@@ -20,6 +20,7 @@ import { AIDuelScene } from './scenes/AIDuelScene';
 import { DuelTutorialScene } from './scenes/DuelTutorialScene';
 import { OnlineLobbyScene } from './scenes/OnlineLobbyScene';
 import { OnlineDuelScene } from './scenes/OnlineDuelScene';
+import { BaddieMapScene } from './scenes/BaddieMapScene';
 import { PhotoAlbumScene } from './scenes/PhotoAlbumScene';
 import { PhotoChallengeScene } from './scenes/PhotoChallengeScene';
 
@@ -41,6 +42,7 @@ const config = {
       DuelTutorialScene,
       OnlineLobbyScene,
       OnlineDuelScene,
+      BaddieMapScene,
       PhotoAlbumScene,
       PhotoChallengeScene,
       PreloaderScene, 

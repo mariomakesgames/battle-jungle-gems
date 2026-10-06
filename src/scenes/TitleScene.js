@@ -38,87 +38,20 @@ export class TitleScene extends Phaser.Scene {
             repeat: -1
         });
 
-        // 3. Nút "BẮT ĐẦU" (Text Button)
-        // Vị trí: 75% chiều cao màn hình (dưới màn hình)
-        const startText = this.add.text(gameWidth / 2, gameHeight * 0.75, 'BẮT ĐẦU', {
-            fontFamily: 'UTMCookies', // Font game
-            fontSize: '48px',         // Fit the classic-mode label beside the other modes.
-            color: '#FFFFFF',         // Màu trắng
-            stroke: '#4a2c2a',        // Viền nâu
-            strokeThickness: 8,       // Độ dày viền
-            align: 'center',
-            shadow: {
-                offsetX: 3,
-                offsetY: 3,
-                color: '#000000',
-                blur: 5,
-                stroke: true,
-                fill: true
-            },
-            // --- KHẮC PHỤC LỖI MẤT DẤU ---
-            padding: {
-                top: 10,
-                bottom: 8,
-                left: 10,
-                right: 10
-            }
-        }).setOrigin(0.5);
-      bindText(startText, 'classicMode', {}, 460);
-      startText.setName('classic-mode-entry');
-
-        // Điều chỉnh scale chữ nếu màn hình quá nhỏ (Mobile)
-        const maxTextWidth = gameWidth * 0.8;
-        if (startText.width > maxTextWidth) {
-             startText.setScale(maxTextWidth / startText.width);
-        }
-
-        // Làm cho chữ bấm được
-        startText.setInteractive({ useHandCursor: true });
-
-        // Hiệu ứng "Thở" cho nút Bắt đầu
-        this.tweens.add({
-            targets: startText,
-            scaleX: startText.scaleX * 1.1,
-            scaleY: startText.scaleY * 1.1,
-            duration: 800,
-            yoyo: true,
-            repeat: -1
-        });
-
-        // Sự kiện click
-        startText.on('pointerdown', () => {
-            startText.setTint(0xaaaaaa); // Tối đi chút khi bấm
-            // Thu nhỏ nhẹ bằng cách giảm scale hiện tại đi một chút
-            startText.setScale(startText.scaleX * 0.9); 
-        });
-
-        startText.on('pointerup', () => {
-            startText.clearTint();
-            
-            // Trigger Fullscreen (Logic giống main.js cũ nhưng đưa vào đây)
-            if (!this.scale.isFullscreen && this.scale.fullscreen.available) {
-                this.scale.startFullscreen();
-            }
-
-            // Chuyển sang màn hình PreloaderScene để tải assets thật
+        const modeButton = (y, color, key, name, action) => {
+            const button = this.add.rectangle(gameWidth / 2, y, 300, 46, color)
+                .setStrokeStyle(2, 0xe8bd70).setInteractive({ useHandCursor: true }).setName(name);
+            bindText(this.add.text(gameWidth / 2, y, '', { fontSize: '25px', color: '#fff5df' })
+                .setOrigin(0.5).setName(`${name}-label`), key, {}, 280);
+            button.on('pointerdown', action);
+        };
+        modeButton(768, 0x713719, 'classicMode', 'classic-mode-entry', () => {
+            if (!this.scale.isFullscreen && this.scale.fullscreen.available) this.scale.startFullscreen();
             this.scene.start('PreloaderScene');
         });
-
-        const duelButton = this.add.rectangle(gameWidth / 2, 835, 300, 46, 0x174b50)
-            .setStrokeStyle(2, 0xe8bd70).setInteractive({ useHandCursor: true }).setName('ai-duel-entry');
-        bindText(this.add.text(gameWidth / 2, 835, '', { fontSize: '25px', color: '#fff5df' })
-            .setOrigin(0.5), 'aiDuel', {}, 280);
-        duelButton.on('pointerdown', () => this.scene.start('AIDuelScene'));
-        const onlineButton = this.add.rectangle(gameWidth / 2, 675, 300, 46, 0x243e63)
-            .setStrokeStyle(2, 0xe8bd70).setInteractive({ useHandCursor: true }).setName('online-duel-entry');
-        bindText(this.add.text(gameWidth / 2, 675, '', { fontSize: '25px', color: '#fff5df' })
-            .setOrigin(0.5), 'onlineDuel', {}, 280);
-        onlineButton.on('pointerdown', () => this.scene.start('OnlineLobbyScene'));
-        const photoButton = this.add.rectangle(gameWidth / 2, 613, 300, 46, 0x43304f)
-            .setStrokeStyle(2, 0xe8bd70).setInteractive({ useHandCursor: true }).setName('beauty-entry');
-        bindText(this.add.text(gameWidth / 2, 613, '', { fontSize: '25px', color: '#fff5df' })
-            .setOrigin(0.5), 'beautyMode', {}, 280);
-        photoButton.on('pointerdown', () => this.scene.start('PhotoAlbumScene'));
+        modeButton(835, 0x174b50, 'aiDuel', 'ai-duel-entry', () => this.scene.start('AIDuelScene'));
+        modeButton(675, 0x243e63, 'onlineDuel', 'online-duel-entry', () => this.scene.start('OnlineLobbyScene'));
+        modeButton(613, 0x43304f, 'beautyMode', 'beauty-entry', () => this.scene.start('BaddieMapScene'));
         this.events.once('shutdown', () => this.scale.off('resize', this.handleResize, this));
 
         // Lắng nghe sự kiện resize để vẽ lại background nếu xoay màn hình

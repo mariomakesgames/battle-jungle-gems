@@ -2,6 +2,7 @@ import { SOUND_PATHS, SOUND_KEYS } from './SoundAssets.js';
 
 // Assets are queued only when their screen is first opened. Shared keys use Phaser's cache.
 export const ASSET_GROUPS = {
+    mapArea1: { images: [['map_part1', 'assets/images/map/map.webp']] },
     theme1: {
         images: [
             ['playground1_border', 'assets/images/map/playground-border.png'],
