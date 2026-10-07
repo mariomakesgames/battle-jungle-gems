@@ -19,7 +19,7 @@ with sync_playwright() as playwright:
     page.route('**/assets/images/ui/shop/background.png', lambda route: pending.append(route))
     page.goto(os.environ.get('JUNGLE_GEMS_URL', 'http://127.0.0.1:5173/'))
     page.wait_for_function("window.game?.scene.isActive('TitleScene')")
-    page.mouse.click(288, 768)
+    page.mouse.click(288, 613)
     page.wait_for_function("window.game.scene.isActive('MapScene')", timeout=60000)
     # Entry to the map must not wait for unused popup or gameplay assets.
     deferred = ['map1_background', 'shop_background', 'spin_background', 'setting_ui', 'friend_ui_bg', 'level_review_ui']

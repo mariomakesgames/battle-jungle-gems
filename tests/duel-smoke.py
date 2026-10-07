@@ -135,7 +135,7 @@ with sync_playwright() as p:
         click('duel-exit')
         page.wait_for_function("window.game.scene.isActive('TitleScene')")
     # Campaign still works after leaving the duel; map entry returns to the map.
-    page.mouse.click(288,768)
+    page.mouse.click(288,613)
     page.wait_for_function("window.game.scene.isActive('MapScene')", timeout=60000)
     page.evaluate("window.game.scene.getScene('MapScene').children.getByName('ai-duel-entry').emit('pointerdown')")
     page.wait_for_function(READY, timeout=60000)

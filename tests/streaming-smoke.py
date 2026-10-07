@@ -15,7 +15,7 @@ with sync_playwright() as p:
     page.on('response', lambda response: failures.append((response.status, response.url)) if response.status >= 400 else None)
     page.goto(os.environ.get('JUNGLE_GEMS_URL', 'http://127.0.0.1:4173/'))
     page.wait_for_function("window.game?.scene.isActive('TitleScene')")
-    page.mouse.click(288, 768)
+    page.mouse.click(288, 613)
     page.wait_for_function("window.game.scene.isActive('MapScene')", timeout=60000)
     assert page.evaluate("!window.game.textures.exists('map_part2') && !window.game.textures.exists('vfx_steam_1_1_bot_nuoc') && !window.game.cache.audio.exists('background')")
 

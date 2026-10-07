@@ -17,7 +17,7 @@ with sync_playwright() as p:
     page.route('**/map_01.m4a', lambda route: pending.append(route))
     page.goto(os.environ.get('JUNGLE_GEMS_URL', 'http://127.0.0.1:5173/'))
     page.wait_for_function("window.game?.scene.isActive('TitleScene')")
-    page.mouse.click(288, 768)
+    page.mouse.click(288, 613)
     page.wait_for_function("window.game.scene.isActive('MapScene')", timeout=60000)
     page.evaluate("window.game.scene.getScene('MapScene').children.list.find(x => x.levelId === 1).button.emit('pointerdown')")
     page.wait_for_function("window.game.scene.isActive('LevelReviewPopup')")

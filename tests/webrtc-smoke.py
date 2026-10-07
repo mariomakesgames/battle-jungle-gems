@@ -31,7 +31,7 @@ with sync_playwright() as p:
                     };'''.replace('ICE_SERVERS',json.dumps(servers)))
             page.goto(URL)
             page.wait_for_function("window.game?.scene.isActive('TitleScene')")
-            page.mouse.click(288,675)
+            page.mouse.click(288,768)
             page.wait_for_selector('[data-action=host]')
         host.click('[data-action=host]')
         host.wait_for_function("document.querySelector('#webrtc-output').value.length>20",timeout=30000)

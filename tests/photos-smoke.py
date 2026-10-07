@@ -23,7 +23,7 @@ with sync_playwright() as p:
     page.wait_for_function("window.game?.scene.isActive('TitleScene')")
     campaign="JSON.stringify(Object.fromEntries(Object.entries(localStorage).filter(([key])=>key.startsWith('phaser_game_'))))"
     original_campaign=page.evaluate(campaign)
-    page.mouse.click(288,613)
+    page.mouse.click(288,675)
     page.wait_for_function("window.game.scene.isActive('BaddieMapScene') && window.game.scene.getScene('BaddieMapScene').ready")
     assert not any('/images/beauty/' in url for url in requests)
     requests.clear()

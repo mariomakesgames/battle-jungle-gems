@@ -45,13 +45,13 @@ export class TitleScene extends Phaser.Scene {
                 .setOrigin(0.5).setName(`${name}-label`), key, {}, 280);
             button.on('pointerdown', action);
         };
-        modeButton(768, 0x713719, 'classicMode', 'classic-mode-entry', () => {
+        modeButton(613, 0x713719, 'classicMode', 'classic-mode-entry', () => {
             if (!this.scale.isFullscreen && this.scale.fullscreen.available) this.scale.startFullscreen();
             this.scene.start('PreloaderScene');
         });
+        modeButton(675, 0x43304f, 'beautyMode', 'beauty-entry', () => this.scene.start('BaddieMapScene'));
+        modeButton(768, 0x243e63, 'onlineDuel', 'online-duel-entry', () => this.scene.start('OnlineLobbyScene'));
         modeButton(835, 0x174b50, 'aiDuel', 'ai-duel-entry', () => this.scene.start('AIDuelScene'));
-        modeButton(675, 0x243e63, 'onlineDuel', 'online-duel-entry', () => this.scene.start('OnlineLobbyScene'));
-        modeButton(613, 0x43304f, 'beautyMode', 'beauty-entry', () => this.scene.start('BaddieMapScene'));
         this.events.once('shutdown', () => this.scale.off('resize', this.handleResize, this));
 
         // Lắng nghe sự kiện resize để vẽ lại background nếu xoay màn hình

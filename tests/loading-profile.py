@@ -22,7 +22,7 @@ with sync_playwright() as p:
         stages.append({'stage': name, 'cumulative_MiB': round(sum(r['bytes'] for r in rows) / 1048576, 3), 'largest_resources': rows[:5]})
     page.wait_for_function("window.game?.scene.isActive('TitleScene')")
     record('title_ready')
-    page.mouse.click(288, 768)
+    page.mouse.click(288, 613)
     page.wait_for_function("window.game.scene.isActive('MapScene')", timeout=60000)
     record('map_interactive')
     page.evaluate("window.game.scene.getScene('MapScene').children.list.find(x => x.levelId === 1).button.emit('pointerdown')")
