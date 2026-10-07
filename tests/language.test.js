@@ -41,7 +41,7 @@ test('all languages translate gameplay labels and interpolate level numbers', ()
         for (const key of ['onlineDuel', 'onlineRules', 'linkCreate', 'linkJoin', 'linkHostSteps', 'linkGuestSteps', 'linkDisconnected']) {
             assert.notEqual(LanguageManager.t(key), key);
         }
-        for (const key of ['baddieGallery', 'baddieContinue', 'baddieMapError', 'baddieLevels', 'beautyMode', 'beautyIntro', 'beautyGarden', 'beautySunset', 'beautyCity', 'beautyRules', 'beautyUnlocked', 'beautyImageError']) {
+        for (const key of ['baddieGalleryEmpty', 'baddieGallery', 'baddieContinue', 'baddieMapError', 'baddieLevels', 'beautyMode', 'beautyIntro', 'beautyGarden', 'beautySunset', 'beautyCity', 'beautyRules', 'beautyUnlocked', 'beautyImageError']) {
             assert.notEqual(LanguageManager.t(key), key);
         }
         for (const key of [...PHOTO_LEVELS.map(level => level.title), 'beautyPreviousPage', 'beautyNextPage', 'beautyPage']) {

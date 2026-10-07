@@ -115,9 +115,12 @@ and unlock the next. Revealed tiles stay revealed if ropes regrow. Invalid swaps
 spend no moves; last-move results wait for all cascades to settle. Hint, pause,
 retry and viewing collected pictures are available.
 
-The ten-page gallery fits on phones. Entering focuses the next unlocked challenge;
-returning from a picture keeps its page. The title's **Play Classic Mode** button
-opens the original campaign map, with Chinese and Vietnamese translations.
+The gallery is a picture viewer, with no playable/locked level cards or score goals.
+It shows only collected portraits, one at a time, and downloads only the selected
+picture. Previous/Next browse the collected pictures; Back returns to the map.
+An empty collection offers a return to level selection. Entering Baddie Mode
+always opens its map. The title's **Play Classic Mode** button opens the original
+campaign map, with Chinese and Vietnamese translations.
 
 Collection progress uses the separate local key `jungle-gems-photo-collection-v1`;
 it never consumes campaign lives, boosters or currency. Existing three- and
@@ -136,7 +139,9 @@ normalization never changes the cached campaign configurations.
 Run `npm test` for score/classic goals, last-move results, sequential unlocks,
 save migration, canonical level metadata, translations and asset limits. With
 production preview running, `python tests/photos-smoke.py` plays the original ten
-score challenges and checks gallery, reveals, input, persistence and image retry.
+score challenges and checks reveals, input, map unlocks and the collection viewer.
+`python tests/gallery-smoke.py` checks collected-only browsing, empty collections,
+image retries, languages and the absence of the old level-selection UI.
 `python tests/baddie-map-smoke.py` checks the mode buttons, mobile map scrolling,
 unlocks, gallery navigation and both entry points.
 `python tests/photo-classic-smoke.py` checks all twenty copied boards, real classic

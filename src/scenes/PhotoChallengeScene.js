@@ -19,7 +19,7 @@ export class PhotoChallengeScene extends AIDuelScene {
 
     init(data = {}) {
         super.init(data);
-        this.selectionScene = data.selectionScene || 'PhotoAlbumScene';
+        this.selectionScene = data.selectionScene || 'BaddieMapScene';
         this.selectionLabel = this.selectionScene === 'BaddieMapScene' ? 'baddieLevels' : 'beautyAlbum';
         this.mapReturnScene = data.mapReturnScene || 'TitleScene';
         this.index = photoCollection.canPlay(data.index) ? data.index : Math.min(photoCollection.completed, PHOTO_LEVELS.length - 1);

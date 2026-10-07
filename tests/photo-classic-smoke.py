@@ -93,7 +93,7 @@ with sync_playwright() as p:
     original_campaign = page.evaluate(campaign)
     requests.clear()
     click(page, 'TitleScene', 'beauty-entry')
-    open_album(page)
+    page.wait_for_function("window.game.scene.isActive('BaddieMapScene') && window.game.scene.getScene('BaddieMapScene').ready")
     assert not any('/beauty/' in url or '/levels/' in url for url in requests)
     requests.clear()  # The entry map has its own assets; challenges load independently.
     for index in range(10, 30):
@@ -209,8 +209,8 @@ with sync_playwright() as p:
     requests.clear()
     click(viewed, 'TitleScene', 'beauty-entry')
     open_album(viewed)
-    click(viewed, 'PhotoAlbumScene', 'beauty-photo-28')
-    viewed.wait_for_function(f"window.game.scene.isActive('PhotoChallengeScene') && {S}.viewing && {S}.resultShown")
+    viewed.wait_for_function("window.game.scene.getScene('PhotoAlbumScene').ready")
+    assert viewed.evaluate("window.game.scene.getScene('PhotoAlbumScene').index===28")
     assert [url.rsplit('/',1)[1] for url in requests if '/images/beauty/' in url] == ['island.webp']
     assert not any('/levels/' in url or '/blockers/' in url for url in requests)
     print('PASS: viewing a collected classic portrait downloads its image without board JSON or blockers', flush=True)
@@ -219,8 +219,8 @@ with sync_playwright() as p:
     failed = new_page(10)
     failed.route('**/levels/level_1.json', lambda route: route.abort())
     click(failed, 'TitleScene', 'beauty-entry')
-    open_album(failed)
-    click(failed, 'PhotoAlbumScene', 'beauty-photo-10')
+    failed.wait_for_function("window.game.scene.isActive('BaddieMapScene') && window.game.scene.getScene('BaddieMapScene').ready")
+    click(failed, 'BaddieMapScene', 'baddie-continue')
     failed.wait_for_function(f"window.game.scene.isActive('PhotoChallengeScene') && {S}.children.getByName('beauty-load-retry')", timeout=60000)
     assert json.loads(failed.evaluate(f"localStorage.getItem('{SAVE}')"))['completed'] == 10
     failed.unroute('**/levels/level_1.json')
