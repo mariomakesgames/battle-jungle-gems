@@ -1,3 +1,6 @@
+import { IMPORTED_PHOTO_LEVELS } from './ImportedPhotoLevels.js';
+import { isDebugMode } from '../utils/DebugMode.js';
+
 // Small gallery metadata; the actual board JSON is loaded only when played.
 export const CLASSIC_PHOTO_TEMPLATES = [
     { moves: 20, objectives: [{ target: 'gem', type: 'red', count: 15 }] },
@@ -26,20 +29,25 @@ export const NEW_PORTRAITS = [
 export const PORTRAITS = [...ORIGINAL_PORTRAITS, ...NEW_PORTRAITS];
 
 // Preserve the first 54 levels' art so existing collections stay consistent.
-// Each additional level unlocks a different new portrait and reuses a classic board.
+// The first 20 challenges use imported layouts; later challenges retain classic boards.
 export const PHOTO_LEVELS = Array.from({ length: 54 + NEW_PORTRAITS.length }, (_, index) => ({
-    ...structuredClone(CLASSIC_PHOTO_TEMPLATES[index % CLASSIC_PHOTO_TEMPLATES.length]),
+    ...(IMPORTED_PHOTO_LEVELS[index] || {
+        ...structuredClone(CLASSIC_PHOTO_TEMPLATES[index % CLASSIC_PHOTO_TEMPLATES.length]),
+        classicLevel: index % CLASSIC_PHOTO_TEMPLATES.length + 1,
+    }),
     id: `portrait-${index + 1}`,
     portrait: index < 54 ? ORIGINAL_PORTRAITS[index % ORIGINAL_PORTRAITS.length] : NEW_PORTRAITS[index - 54],
     title: 'beautyPortraitLevel',
     titleParams: { level: index + 1 },
-    classicLevel: index % CLASSIC_PHOTO_TEMPLATES.length + 1,
 }));
-export const classicPhotoKey = level => `photo_classic_${level.classicLevel}`;
+export const classicPhotoKey = level => level.importedLevel ? `photo_imported_${level.importedLevel}` : `photo_classic_${level.classicLevel}`;
+export const photoBoardPath = level => level.importedLevel
+    ? `assets/levels/imported/level_${level.importedLevel}.json`
+    : `assets/levels/level_${level.classicLevel}.json`;
 export function copyClassicPhotoBoard(source) {
     // Board loading normalizes blocker counts; never mutate campaign/cache data.
-    const { gridLayout, blockerLayout, availableGems, objectives, maxMoves } = source;
-    return structuredClone({ gridLayout, blockerLayout, availableGems, objectives, maxMoves });
+    const { gridLayout, blockerLayout, availableGems, objectives, maxMoves, gridSize, stoneHealthLayout, initialPowerups } = source;
+    return structuredClone({ gridLayout, blockerLayout, availableGems, objectives, maxMoves, gridSize, stoneHealthLayout, initialPowerups });
 }
 export const photoKey = index => `beauty_pixabay_${PHOTO_LEVELS[index].portrait}`;
 export const photoPath = index => `assets/images/beauty/portraits/${PHOTO_LEVELS[index].portrait}.webp`;
@@ -73,6 +81,11 @@ export class PhotoCollection {
 }
 
 export const photoCollection = new PhotoCollection();
+
+export function canEnterPhotoLevel(index, collection = photoCollection, debug = isDebugMode()) {
+    return Number.isInteger(index) && index >= 0 && index < PHOTO_LEVELS.length &&
+        (debug || collection.canPlay(index));
+}
 
 export class PhotoRun {
     constructor(level) {

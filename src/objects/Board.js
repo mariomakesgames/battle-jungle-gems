@@ -7,11 +7,12 @@ import { BoardPowerups } from './board/BoardPowerups'
 import { BoardState } from './board/BoardState'
 
 export class Board {
-  constructor(scene, offsetX, offsetY, cellSize, powerupVFXManager, gemLayer) {
+  constructor(scene, offsetX, offsetY, cellSize, powerupVFXManager, gemLayer, gridSize = 9) {
     this.scene = scene
     this.offsetX = offsetX
     this.offsetY = offsetY
     this.cellSize = cellSize
+    this.gridSize = gridSize
     this.powerupVFXManager = powerupVFXManager // Lưu lại tham chiếu
     this.gemLayer = gemLayer // << LƯU LẠI THAM CHIẾU ĐẾN LAYER
 
@@ -78,13 +79,13 @@ export class Board {
 
   // Kích thước board (width, height)
   getBoardDimensions() {
-    const gridSize = 9
+    const gridSize = this.gridSize
     return { width: gridSize * this.cellSize, height: gridSize * this.cellSize }
   }
 
   // Kiểm tra cell hợp lệ
   isValidCell(row, col) {
-    const gridSize = 9
+    const gridSize = this.gridSize
     return row >= 0 && row < gridSize && col >= 0 && col < gridSize
   }
 
@@ -95,6 +96,7 @@ export class Board {
       return
     }
 
+    this.gridSize = levelData.gridSize || 9
     this.clearBoard()
     // XÓA: this.createAllCells() 
 
@@ -128,8 +130,8 @@ export class Board {
           if (blockerValue === 1) {
             this.createRopeBlocker(row, col)
           } else if (blockerValue === 2 || blockerValue === 3) {
-            // Thiết kế mới: tất cả stone có 2 máu
-            this.createStoneBlocker(row, col, 2)
+            // Authored layouts may specify one-hit obstacles; campaign defaults to two.
+            this.createStoneBlocker(row, col, levelData.stoneHealthLayout?.[row]?.[col] || 2)
           }
         }
       }

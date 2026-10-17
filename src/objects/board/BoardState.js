@@ -1,6 +1,6 @@
 // src/objects/board/BoardState.js
 import Phaser from 'phaser'
-import { GEM_TYPES, GRID_SIZE, SCORE_VALUES } from '../../utils/constants'
+import { GEM_TYPES, SCORE_VALUES } from '../../utils/constants'
 import AudioManager from '../../managers/AudioManager'
 import { SOUND_KEYS } from '../../utils/SoundAssets'
 
@@ -24,10 +24,10 @@ export class BoardState {
     // << THÊM MỚI: Hàng đợi power-up chain reaction >>
     this.powerupChainQueue = []; // Lưu các power-up cần kích hoạt sau
     this.isProcessingPowerupChain = false; // Cờ đang xử lý chain
-    for (let row = 0; row < GRID_SIZE; row++) {
+    for (let row = 0; row < this.gridSize; row++) {
       this.grid[row] = []
       this.blockerGrid[row] = []
-      for (let col = 0; col < GRID_SIZE; col++) {
+      for (let col = 0; col < this.gridSize; col++) {
         this.grid[row][col] = null
         this.blockerGrid[row][col] = null
       }
@@ -196,8 +196,8 @@ export class BoardState {
   shuffleGridLogic() {
     const allGems = []
 
-    for (let r = 0; r < GRID_SIZE; r++) {
-      for (let c = 0; c < GRID_SIZE; c++) {
+    for (let r = 0; r < this.gridSize; r++) {
+      for (let c = 0; c < this.gridSize; c++) {
         const gem = this.grid[r][c]
         const blocker = this.blockerGrid?.[r]?.[c]
         const isSolidStone = blocker && blocker.type === 'stone' && blocker.health === 2
@@ -219,8 +219,8 @@ export class BoardState {
       Phaser.Utils.Array.Shuffle(allGems)
       let idx = 0
 
-      for (let r = 0; r < GRID_SIZE; r++) {
-        for (let c = 0; c < GRID_SIZE; c++) {
+      for (let r = 0; r < this.gridSize; r++) {
+        for (let c = 0; c < this.gridSize; c++) {
           const blocker = this.blockerGrid?.[r]?.[c]
           const isSolidStone = blocker && blocker.type === 'stone' && blocker.health === 2
           const currentObj = this.grid[r][c]
@@ -261,8 +261,8 @@ export class BoardState {
    * Đồng bộ vị trí sprite thật theo dữ liệu lưới sau khi shuffle.
    */
   applyShuffleResultsToSprites() {
-    for (let r = 0; r < GRID_SIZE; r++) {
-      for (let c = 0; c < GRID_SIZE; c++) {
+    for (let r = 0; r < this.gridSize; r++) {
+      for (let c = 0; c < this.gridSize; c++) {
         const gem = this.grid[r][c]
         if (gem && gem.sprite) {
           const targetX = this.offsetX + c * this.cellSize + this.cellSize / 2
@@ -299,8 +299,8 @@ export class BoardState {
     const allGemSprites = []
     const allBlockerSprites = []
 
-    for (let r = 0; r < GRID_SIZE; r++) {
-      for (let c = 0; c < GRID_SIZE; c++) {
+    for (let r = 0; r < this.gridSize; r++) {
+      for (let c = 0; c < this.gridSize; c++) {
         const gem = this.grid[r]?.[c]
         if (gem && gem.sprite) {
           allGemSprites.push(gem.sprite)
@@ -406,8 +406,8 @@ export class BoardState {
 
   fillEmptyCells() {
     const availableGems = this.levelData.availableGems || Object.values(GEM_TYPES)
-    for (let row = 0; row < GRID_SIZE; row++) {
-      for (let col = 0; col < GRID_SIZE; col++) {
+    for (let row = 0; row < this.gridSize; row++) {
+      for (let col = 0; col < this.gridSize; col++) {
         if (this.grid[row][col] && this.grid[row][col].type === 'empty') {
           const randomGemType = availableGems[Math.floor(Math.random() * availableGems.length)]
           this.createGem(row, col, randomGemType)
@@ -590,11 +590,11 @@ export class BoardState {
         switch (area.type) {
           case 'stripe_stripe': {
             const { row, col } = area
-            for (let c = 0; c < GRID_SIZE; c++) {
+            for (let c = 0; c < this.gridSize; c++) {
               const destroyedGem = this.damageCell(row, c)
               if (destroyedGem) finalGemsToRemove.add(destroyedGem)
             }
-            for (let r = 0; r < GRID_SIZE; r++) {
+            for (let r = 0; r < this.gridSize; r++) {
               if (r === row) continue
               const destroyedGem = this.damageCell(r, col)
               if (destroyedGem) finalGemsToRemove.add(destroyedGem)
@@ -605,16 +605,16 @@ export class BoardState {
             const { row, col, direction } = area
             if (direction === 'horizontal') {
               for (let r = row - 1; r <= row + 1; r++) {
-                if (r < 0 || r >= GRID_SIZE) continue
-                for (let c = 0; c < GRID_SIZE; c++) {
+                if (r < 0 || r >= this.gridSize) continue
+                for (let c = 0; c < this.gridSize; c++) {
                   const destroyedGem = this.damageCell(r, c)
                   if (destroyedGem) finalGemsToRemove.add(destroyedGem)
                 }
               }
             } else {
               for (let c = col - 1; c <= col + 1; c++) {
-                if (c < 0 || c >= GRID_SIZE) continue
-                for (let r = 0; r < GRID_SIZE; r++) {
+                if (c < 0 || c >= this.gridSize) continue
+                for (let r = 0; r < this.gridSize; r++) {
                   const destroyedGem = this.damageCell(r, c)
                   if (destroyedGem) finalGemsToRemove.add(destroyedGem)
                 }
@@ -629,12 +629,12 @@ export class BoardState {
               const col = gem.sprite.getData('col')
               const isHorizontal = directions.get(gem)
               if (isHorizontal) {
-                for (let c = 0; c < GRID_SIZE; c++) {
+                for (let c = 0; c < this.gridSize; c++) {
                   const destroyedGem = this.damageCell(row, c)
                   if (destroyedGem) finalGemsToRemove.add(destroyedGem)
                 }
               } else {
-                for (let r = 0; r < GRID_SIZE; r++) {
+                for (let r = 0; r < this.gridSize; r++) {
                   const destroyedGem = this.damageCell(r, col)
                   if (destroyedGem) finalGemsToRemove.add(destroyedGem)
                 }
@@ -669,8 +669,8 @@ export class BoardState {
           }
           case 'colorbomb_single': {
             const { targetColor, otherGem } = area
-            for (let r = 0; r < GRID_SIZE; r++) {
-              for (let c = 0; c < GRID_SIZE; c++) {
+            for (let r = 0; r < this.gridSize; r++) {
+              for (let c = 0; c < this.gridSize; c++) {
                 const gem = this.grid[r][c]
                 if (gem && gem.type === 'gem' && !this.isPowerup(gem) && gem.value === targetColor) {
                   const destroyedGem = this.damageCellIgnoreBlocker(r, c)
@@ -691,13 +691,13 @@ export class BoardState {
           case 'stripe_single': {
             const { row, col, isHorizontal } = area
             if (isHorizontal) {
-              for (let c = 0; c < GRID_SIZE; c++) {
+              for (let c = 0; c < this.gridSize; c++) {
                 if (c === col) continue
                 const destroyedGem = this.damageCell(row, c)
                 if (destroyedGem) finalGemsToRemove.add(destroyedGem)
               }
             } else {
-              for (let r = 0; r < GRID_SIZE; r++) {
+              for (let r = 0; r < this.gridSize; r++) {
                 if (r === row) continue
                 const destroyedGem = this.damageCell(r, col)
                 if (destroyedGem) finalGemsToRemove.add(destroyedGem)
@@ -1147,12 +1147,12 @@ export class BoardState {
 
 applyGravityAndRefill() {
   // BƯỚC 1: TÁI CẤU TRÚC LƯỚI LOGIC (ĐÃ SỬA LỖI GEM CHỒNG GEM)
-  const newGrid = Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(null));
-  const newBlockerGrid = Array.from({ length: GRID_SIZE }, () => Array(GRID_SIZE).fill(null));
+  const newGrid = Array.from({ length: this.gridSize }, () => Array(this.gridSize).fill(null));
+  const newBlockerGrid = Array.from({ length: this.gridSize }, () => Array(this.gridSize).fill(null));
 
-  for (let col = 0; col < GRID_SIZE; col++) {
-      let writeRow = GRID_SIZE - 1;
-      for (let readRow = GRID_SIZE - 1; readRow >= 0; readRow--) {
+  for (let col = 0; col < this.gridSize; col++) {
+      let writeRow = this.gridSize - 1;
+      for (let readRow = this.gridSize - 1; readRow >= 0; readRow--) {
           // Bỏ qua các ô không thể chứa item (lỗ hổng)
           if (this.levelData.gridLayout[readRow][col] === null) continue;   
 
@@ -1221,10 +1221,10 @@ applyGravityAndRefill() {
     };
 
   // Tạo gem mới theo từng cột để tạo "cột giả" nối đuôi nhau
-  for (let col = 0; col < GRID_SIZE; col++) {
+  for (let col = 0; col < this.gridSize; col++) {
       // Thu thập tất cả các ô trống cần refill trong cột này
       const emptySlots = [];
-      for (let row = 0; row < GRID_SIZE; row++) {
+      for (let row = 0; row < this.gridSize; row++) {
         if (this.levelData.gridLayout[row][col] === null) continue;
 
         const gem = this.grid[row][col];
@@ -1258,8 +1258,8 @@ applyGravityAndRefill() {
   }
 
   // BƯỚC 3: CẬP NHẬT DATA CHO TẤT CẢ GEM (bao gồm cả gem mới và gem cũ)
-  for (let row = 0; row < GRID_SIZE; row++) {
-      for (let col = 0; col < GRID_SIZE; col++) {
+  for (let row = 0; row < this.gridSize; row++) {
+      for (let col = 0; col < this.gridSize; col++) {
           const gem = this.grid[row][col];
           if (gem && gem.sprite) {
               const targetY = this.offsetY + row * this.cellSize + this.cellSize / 2;
@@ -1291,8 +1291,8 @@ applyGravityAndRefill() {
    */
   captureCurrentPositions() {
     const positions = []
-    for (let row = 0; row < GRID_SIZE; row++) {
-      for (let col = 0; col < GRID_SIZE; col++) {
+    for (let row = 0; row < this.gridSize; row++) {
+      for (let col = 0; col < this.gridSize; col++) {
         const gem = this.grid[row][col]
         if (gem && gem.sprite) {
           positions.push({
@@ -1313,8 +1313,8 @@ applyGravityAndRefill() {
    * và đặt chúng vào đúng vị trí cuối cùng
    */
   revealRealGems() {
-    for (let row = 0; row < GRID_SIZE; row++) {
-      for (let col = 0; col < GRID_SIZE; col++) {
+    for (let row = 0; row < this.gridSize; row++) {
+      for (let col = 0; col < this.gridSize; col++) {
         const gem = this.grid[row][col]
         if (gem && gem.sprite) {
           // Đặt sprite vào vị trí cuối cùng (nếu có targetX/Y)
@@ -1348,8 +1348,8 @@ applyGravityAndRefill() {
     maskGraphics.fillStyle(0xffffff)
     
     // CHỈ vẽ mask cho khu vực board thật (không bao gồm vùng phía trên)
-    for (let row = 0; row < GRID_SIZE; row++) {
-      for (let col = 0; col < GRID_SIZE; col++) {
+    for (let row = 0; row < this.gridSize; row++) {
+      for (let col = 0; col < this.gridSize; col++) {
         // Chỉ vẽ các ô không null trong gridLayout
         if (this.levelData.gridLayout[row][col] !== null) {
           const x = this.offsetX + col * this.cellSize
@@ -1384,8 +1384,8 @@ applyGravityAndRefill() {
     // BƯỚC 2: Vẽ vùng XANH = Vùng gem HIỂN THỊ (CHỈ gridLayout !== null)
     debugGraphics.fillStyle(0x00ff00, 0.3) // Xanh lá, 30% opacity
     
-    for (let row = 0; row < GRID_SIZE; row++) {
-      for (let col = 0; col < GRID_SIZE; col++) {
+    for (let row = 0; row < this.gridSize; row++) {
+      for (let col = 0; col < this.gridSize; col++) {
         // Chỉ vẽ các ô không null trong gridLayout
         if (this.levelData.gridLayout[row][col] !== null) {
           const x = this.offsetX + col * this.cellSize
@@ -1467,8 +1467,8 @@ applyGravityAndRefill() {
     const fakeGems = []
 
     // BƯỚC 1: Clone tất cả gem, đưa vào gemLayer, và ẩn gem thật (CHỈ 1 LẦN)
-    for (let row = 0; row < GRID_SIZE; row++) {
-      for (let col = 0; col < GRID_SIZE; col++) {
+    for (let row = 0; row < this.gridSize; row++) {
+      for (let col = 0; col < this.gridSize; col++) {
         // KIỂM TRA: Chỉ xử lý gem ở ô HỢP LỆ (không null trong gridLayout)
         if (this.levelData.gridLayout[row][col] === null) continue
         
@@ -1581,8 +1581,8 @@ applyGravityAndRefill() {
     // Nếu trong lượt không phá rope nào, cho MỖI rope lây lan 1 lần (theo snapshot)
     if (!this.ropeDestroyedThisTurn) {
       const ropesSnapshot = []
-      for (let r = 0; r < GRID_SIZE; r++) {
-        for (let c = 0; c < GRID_SIZE; c++) {
+      for (let r = 0; r < this.gridSize; r++) {
+        for (let c = 0; c < this.gridSize; c++) {
           const b = this.blockerGrid[r]?.[c]
           if (b && b.type === 'rope' && b.spread) ropesSnapshot.push(b)
         }
@@ -1639,8 +1639,8 @@ applyGravityAndRefill() {
       const type1 = powerupGem.value
       const type2 = otherGem.value
       if (type1 === GEM_TYPES.COLOR_BOMB && type2 === GEM_TYPES.COLOR_BOMB) {
-        for (let r = 0; r < GRID_SIZE; r++) {
-          for (let c = 0; c < GRID_SIZE; c++) {
+        for (let r = 0; r < this.gridSize; r++) {
+          for (let c = 0; c < this.gridSize; c++) {
             if (this.grid[r][c]) resultSet.add(this.grid[r][c])
           }
         }
@@ -1651,7 +1651,7 @@ applyGravityAndRefill() {
         this.bombComboCenter = { row: centerRow, col: centerCol }
         for (let r = centerRow - 2; r <= centerRow + 2; r++) {
           for (let c = centerCol - 2; c <= centerCol + 2; c++) {
-            if (r >= 0 && r < GRID_SIZE && c >= 0 && c < GRID_SIZE) {
+            if (r >= 0 && r < this.gridSize && c >= 0 && c < this.gridSize) {
               const gem = this.grid[r]?.[c]
               if (gem && gem.type === 'gem') { resultSet.add(gem) }
             }
@@ -1668,11 +1668,11 @@ applyGravityAndRefill() {
         // Lưu vùng damage để thực hiện sau VFX
         this.damageAreasAfterVFX = { type: 'stripe_stripe', row: r, col: c }
         // Tạm thời thêm tất cả gem trong vùng (VFX cần biết)
-        for (let col = 0; col < GRID_SIZE; col++) {
+        for (let col = 0; col < this.gridSize; col++) {
           const gem = this.grid[r]?.[col]
           if (gem && gem.type === 'gem') resultSet.add(gem)
         }
-        for (let row = 0; row < GRID_SIZE; row++) {
+        for (let row = 0; row < this.gridSize; row++) {
           if (row === r) continue
           const gem = this.grid[row]?.[c]
           if (gem && gem.type === 'gem') resultSet.add(gem)
@@ -1692,16 +1692,16 @@ applyGravityAndRefill() {
         // Tạm thời thêm tất cả gem trong vùng (VFX cần biết)
         if (isHorizontalSwap) {
           for (let r = r2 - 1; r <= r2 + 1; r++) {
-            if (r < 0 || r >= GRID_SIZE) continue
-            for (let c = 0; c < GRID_SIZE; c++) {
+            if (r < 0 || r >= this.gridSize) continue
+            for (let c = 0; c < this.gridSize; c++) {
               const gem = this.grid[r]?.[c]
               if (gem && gem.type === 'gem') resultSet.add(gem)
             }
           }
         } else {
           for (let c = c2 - 1; c <= c2 + 1; c++) {
-            if (c < 0 || c >= GRID_SIZE) continue
-            for (let r = 0; r < GRID_SIZE; r++) {
+            if (c < 0 || c >= this.gridSize) continue
+            for (let r = 0; r < this.gridSize; r++) {
               const gem = this.grid[r]?.[c]
               if (gem && gem.type === 'gem') resultSet.add(gem)
             }
@@ -1723,8 +1723,8 @@ applyGravityAndRefill() {
 
           // Tìm tất cả gem có màu đó
           const gemsToActivate = []
-          for (let r = 0; r < GRID_SIZE; r++) {
-            for (let c = 0; c < GRID_SIZE; c++) {
+          for (let r = 0; r < this.gridSize; r++) {
+            for (let c = 0; c < this.gridSize; c++) {
               const gem = this.grid[r][c]
               if (gem && gem.type === 'gem' && gem.value === targetColor) {
                 gemsToActivate.push(gem)
@@ -1748,12 +1748,12 @@ applyGravityAndRefill() {
             const col = gem.sprite.getData('col')
             const isHorizontal = stripeDirections.get(gem)
             if (isHorizontal) {
-              for (let c = 0; c < GRID_SIZE; c++) {
+              for (let c = 0; c < this.gridSize; c++) {
                 const g = this.grid[row]?.[c]
                 if (g && g.type === 'gem') resultSet.add(g)
               }
             } else {
-              for (let r = 0; r < GRID_SIZE; r++) {
+              for (let r = 0; r < this.gridSize; r++) {
                 const g = this.grid[r]?.[col]
                 if (g && g.type === 'gem') resultSet.add(g)
               }
@@ -1777,8 +1777,8 @@ applyGravityAndRefill() {
         const targetColor = Phaser.Math.RND.pick(availableGems)
 
         const gemsToActivate = []
-        for (let r = 0; r < GRID_SIZE; r++) {
-          for (let c = 0; c < GRID_SIZE; c++) {
+        for (let r = 0; r < this.gridSize; r++) {
+          for (let c = 0; c < this.gridSize; c++) {
             const gem = this.grid[r][c]
             if (gem && gem.type === 'gem' && gem.value === targetColor) {
               gemsToActivate.push(gem)
@@ -1811,14 +1811,14 @@ applyGravityAndRefill() {
         const bomb = (colorBomb === powerupGem) ? otherGem : powerupGem
         const colorBombRow = colorBomb.sprite.getData('row')
         const colorBombCol = colorBomb.sprite.getData('col')
-        for (let c = Math.max(0, colorBombCol - 1); c <= Math.min(GRID_SIZE - 1, colorBombCol + 1); c++) {
-          for (let r = 0; r < GRID_SIZE; r++) {
+        for (let c = Math.max(0, colorBombCol - 1); c <= Math.min(this.gridSize - 1, colorBombCol + 1); c++) {
+          for (let r = 0; r < this.gridSize; r++) {
             const gem = this.grid[r][c]
             if (gem && gem.type === 'gem') { resultSet.add(gem) }
           }
         }
-        for (let r = Math.max(0, colorBombRow - 1); r <= Math.min(GRID_SIZE - 1, colorBombRow + 1); r++) {
-          for (let c = 0; c < GRID_SIZE; c++) {
+        for (let r = Math.max(0, colorBombRow - 1); r <= Math.min(this.gridSize - 1, colorBombRow + 1); r++) {
+          for (let c = 0; c < this.gridSize; c++) {
             const gem = this.grid[r][c]
             if (gem && gem.type === 'gem') { resultSet.add(gem) }
           }
@@ -1853,8 +1853,8 @@ applyGravityAndRefill() {
           } else {
             // << CHAIN REACTION >> Không có otherGem: chọn màu ngẫu nhiên đang có trên board
             const availableColors = []
-            for (let r = 0; r < GRID_SIZE; r++) {
-              for (let c = 0; c < GRID_SIZE; c++) {
+            for (let r = 0; r < this.gridSize; r++) {
+              for (let c = 0; c < this.gridSize; c++) {
                 const gem = this.grid[r][c]
                 if (gem && gem.type === 'gem' && !this.isPowerup(gem)) {
                   if (!availableColors.includes(gem.value)) {
@@ -1874,8 +1874,8 @@ applyGravityAndRefill() {
             // Lưu vùng damage để thực hiện sau VFX
             this.damageAreasAfterVFX = { type: 'colorbomb_single', targetColor, otherGem }
             // Tạm thời thêm tất cả gem cùng màu (VFX cần biết)
-            for (let r = 0; r < GRID_SIZE; r++) {
-              for (let c = 0; c < GRID_SIZE; c++) {
+            for (let r = 0; r < this.gridSize; r++) {
+              for (let c = 0; c < this.gridSize; c++) {
                 const gem = this.grid[r][c]
                 if (gem && gem.type === 'gem' && !this.isPowerup(gem) && gem.value === targetColor) {
                   resultSet.add(gem)
@@ -1909,13 +1909,13 @@ applyGravityAndRefill() {
           
           // Tạm thời thêm tất cả gem trong hàng/cột (VFX cần biết)
           if (isHorizontal) {
-            for (let c = 0; c < GRID_SIZE; c++) {
+            for (let c = 0; c < this.gridSize; c++) {
               if (c === stripeCol) continue
               const gem = this.grid[stripeRow]?.[c]
               if (gem && gem.type === 'gem') resultSet.add(gem)
             }
           } else {
-            for (let r = 0; r < GRID_SIZE; r++) {
+            for (let r = 0; r < this.gridSize; r++) {
               if (r === stripeRow) continue
               const gem = this.grid[r]?.[stripeCol]
               if (gem && gem.type === 'gem') resultSet.add(gem)
@@ -2060,13 +2060,13 @@ applyGravityAndRefill() {
           case 'stripe_single': {
             const { row, col, isHorizontal } = area
             if (isHorizontal) {
-              for (let c = 0; c < GRID_SIZE; c++) {
+              for (let c = 0; c < this.gridSize; c++) {
                 if (c === col) continue
                 const destroyedGem = this.damageCell(row, c)
                 if (destroyedGem) finalGemsToRemove.add(destroyedGem)
               }
             } else {
-              for (let r = 0; r < GRID_SIZE; r++) {
+              for (let r = 0; r < this.gridSize; r++) {
                 if (r === row) continue
                 const destroyedGem = this.damageCell(r, col)
                 if (destroyedGem) finalGemsToRemove.add(destroyedGem)
@@ -2076,8 +2076,8 @@ applyGravityAndRefill() {
           }
           case 'colorbomb_single': {
             const { targetColor, otherGem } = area
-            for (let r = 0; r < GRID_SIZE; r++) {
-              for (let c = 0; c < GRID_SIZE; c++) {
+            for (let r = 0; r < this.gridSize; r++) {
+              for (let c = 0; c < this.gridSize; c++) {
                 const gem = this.grid[r][c]
                 if (gem && gem.type === 'gem' && !this.isPowerup(gem) && gem.value === targetColor) {
                   const destroyedGem = this.damageCellIgnoreBlocker(r, c)

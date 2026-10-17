@@ -65,6 +65,12 @@ The project follows four core design principles:
     ```
     Default URL: `http://localhost:5173`
 
+    Local development and loopback previews (`localhost`, `127.0.0.1`, `::1`)
+    enable DEBUG mode by default: every classic and Portrait level can be opened.
+    Add `?debug=0` to test normal sequential unlocking locally. This bypass opens
+    level entrances without marking unplayed levels as completed. Production hosts
+    keep normal unlocking, and `?debug=1` does not enable debug there.
+
 3. **Build for production:**
     ```bash
     npm run build

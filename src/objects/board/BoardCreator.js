@@ -1,6 +1,6 @@
 // src/objects/board/BoardCreator.js
 import Phaser from 'phaser'
-import { GEM_TYPES, BLOCKER_TYPES, GRID_SIZE } from '../../utils/constants'
+import { GEM_TYPES, BLOCKER_TYPES } from '../../utils/constants'
 import { StoneBlocker } from '../blockers/StoneBlocker'
 import { RopeBlocker } from '../blockers/RopeBlocker'
 

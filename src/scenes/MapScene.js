@@ -1,4 +1,5 @@
 import { CLASSIC_MAP_NODES } from '../ui/MapLayout';
+import { isDebugMode } from '../utils/DebugMode';
 import { startAssetStream } from './AssetStreamScene';
 import { bindText } from '../ui/LocalizedUI';
 import LanguageManager from '../i18n/LanguageManager';
@@ -78,7 +79,7 @@ export class MapScene extends Phaser.Scene {
         // Tính toán level cần mở khóa hiệu ứng
         let nextLevelIdToAnimate = -1;
         
-        if (this.completedLevelId) {
+        if (this.completedLevelId && !isDebugMode()) {
             // Ép kiểu số cho chắc chắn (đề phòng)
             const completedId = parseInt(this.completedLevelId, 10);
             const potentialNextLevel = completedId + 1;
@@ -158,7 +159,7 @@ export class MapScene extends Phaser.Scene {
 
         localLevelPositions.forEach(level => {
             // Logic kiểm tra khóa gốc
-            let isLocked = level.id > playerData.highestLevelUnlocked;
+            let isLocked = !isDebugMode() && level.id > playerData.highestLevelUnlocked;
             const stars = playerData.levelStars[level.id] || 0;
             
             // === LOGIC MỚI: XỬ LÝ HIỆU ỨNG UNLOCK ===

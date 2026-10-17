@@ -11,7 +11,7 @@ const ready = () => window.game?.scene.isActive('PhotoChallengeScene') &&
     !window.game.scene.getScene('PhotoChallengeScene').run.pending;
 
 (async () => {
-    const { PHOTO_LEVELS, PORTRAITS } = await import('../src/beauty/PhotoRules.js');
+    const { PHOTO_LEVELS, PORTRAITS, photoBoardPath, classicPhotoKey } = await import('../src/beauty/PhotoRules.js');
     const browser = await chromium.launch({ channel: 'chrome', headless: true });
     const errors = [], failures = [];
     try {
@@ -49,16 +49,17 @@ const ready = () => window.game?.scene.isActive('PhotoChallengeScene') &&
                 window.game.scene.start('PhotoChallengeScene', { index });
             }, index);
             await page.waitForFunction(ready);
-            const classic = index % 9 + 1;
-            const expected = JSON.parse(fs.readFileSync(path.join(__dirname, `../public/assets/levels/level_${classic}.json`)));
-            const actual = await page.evaluate(classic => {
+            const expected = JSON.parse(fs.readFileSync(path.join(__dirname, `../public/${photoBoardPath(PHOTO_LEVELS[index])}`)));
+            const actual = await page.evaluate(key => {
                 const s = window.game.scene.getScene('PhotoChallengeScene');
-                return { index: s.index, cache: s.cache.json.get(`photo_classic_${classic}`),
+                return { index: s.index, cache: s.cache.json.get(key), gridSize: s.board.gridSize,
+                    cells: s.board.grid.flat().filter(Boolean).length,
+                    powerups: s.board.grid.flat().filter(g => s.board.isPowerup(g)).length,
                     moves: s.run.movesLeft, objectives: s.run.objectives.map(({ remaining, ...goal }) => goal),
                     blockers: s.board.blockerGrid.flat().filter(Boolean).map(b => b.type),
                     texture: s.portrait.texture.key, width: s.portrait.texture.source[0].width,
                     height: s.portrait.texture.source[0].height, covered: s.coverTiles.every(t => !t.revealed) };
-            }, classic);
+            }, classicPhotoKey(PHOTO_LEVELS[index]));
             assert.equal(actual.index, index);
             assert.deepEqual(actual.cache, expected);
             assert.equal(actual.moves, expected.maxMoves);
@@ -67,10 +68,13 @@ const ready = () => window.game?.scene.isActive('PhotoChallengeScene') &&
             assert.equal(actual.texture, `beauty_pixabay_${PHOTO_LEVELS[index].portrait}`);
             assert.equal(actual.width, 640); assert.equal(actual.height, 800);
             assert.equal(actual.covered, true);
+            assert.equal(actual.gridSize, expected.gridSize || 9);
+            assert.equal(actual.cells, expected.gridLayout.flat().filter(cell => cell !== null).length);
+            if (expected.initialPowerups) assert.equal(actual.powerups, expected.initialPowerups.length);
         }
         assert.equal(requests.filter(url => url.includes('/beauty/')).length, PORTRAITS.length);
-        assert.equal(requests.filter(url => /\/levels\/level_/.test(url)).length, 9);
-        console.log('PASS: 84 boards, classic budgets/goals, 41 cached portraits and 9 cached level JSONs');
+        assert.equal(requests.filter(url => /\/levels\/(?:imported\/)?level_/.test(url)).length, 29);
+        console.log('PASS: 84 boards include 20 imported layouts with full dimensions, obstacles and preplaced powerups; 41 cached portraits');
 
         // Continue a completed 54-level collection and win a new level with real drag input.
         await page.evaluate(() => { window.game.scene.getScene('PhotoChallengeScene').scene.start('BaddieMapScene'); });

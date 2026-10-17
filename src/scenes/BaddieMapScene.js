@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { bindText } from '../ui/LocalizedUI';
 import { LevelNode } from '../ui/LevelNode';
 import { CLASSIC_MAP_NODES, MAP_PART1_HEIGHT, MAP_PART2_HEIGHT, MAP_CHAPTER_HEIGHT } from '../ui/MapLayout';
-import { PHOTO_LEVELS, photoCollection } from '../beauty/PhotoRules';
+import { PHOTO_LEVELS, photoCollection, canEnterPhotoLevel } from '../beauty/PhotoRules';
 import { queueAssetGroup } from '../utils/AssetGroups';
 import { startAssetStream } from './AssetStreamScene';
 
@@ -55,7 +55,7 @@ export class BaddieMapScene extends Phaser.Scene {
                 const index = chapter * 9 + position.id - 1;
                 if (index >= PHOTO_LEVELS.length) break;
                 const node = new LevelNode(this, position.x, offset + position.y, index + 1,
-                    !photoCollection.canPlay(index), 0, () => {
+                    !canEnterPhotoLevel(index), 0, () => {
                         if (!this.dragMoved) this.openLevel(index);
                     });
                 node.setDepth(20).setName(`baddie-level-${index + 1}`);
@@ -124,7 +124,7 @@ export class BaddieMapScene extends Phaser.Scene {
     }
     focusLevel(index) { this.scrollTo(this.nodes[index].y - 560); }
     openLevel(index) {
-        if (!photoCollection.canPlay(index)) return;
+        if (!canEnterPhotoLevel(index)) return;
         this.scene.start('PhotoChallengeScene', { index, selectionScene: 'BaddieMapScene', returnScene: this.returnScene });
     }
     openGallery() {

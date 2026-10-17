@@ -1,5 +1,5 @@
 // src/objects/board/BoardPowerups.js
-import { GEM_TYPES, GRID_SIZE } from '../../utils/constants'
+import { GEM_TYPES } from '../../utils/constants'
 import { SOUND_KEYS } from '../../utils/SoundAssets' // <--- Import Sound Assets
 import AudioManager from '../../managers/AudioManager' // <--- Import Audio Manager
 
@@ -57,8 +57,8 @@ export class BoardPowerups {
     } else if (type1 === GEM_TYPES.COLOR_BOMB && type2 === GEM_TYPES.COLOR_BOMB) {
       // Case: CB + CB
       this.playSound(SOUND_KEYS.BOMB, 1.2) // <--- Âm thanh to hơn
-      for (let r = 0; r < GRID_SIZE; r++) {
-        for (let c = 0; c < GRID_SIZE; c++) {
+      for (let r = 0; r < this.gridSize; r++) {
+        for (let c = 0; c < this.gridSize; c++) {
           if (this.grid[r][c] && this.grid[r][c].type === 'gem') {
             allGemsToExplode.add(this.grid[r][c])
           }
@@ -71,8 +71,8 @@ export class BoardPowerups {
       const bomb = (colorBomb === powerup1) ? powerup2 : powerup1
       const targetColor = this.levelData.availableGems[0] || GEM_TYPES.RED
       const bombsToActivate = [bomb]
-      for (let r = 0; r < GRID_SIZE; r++) {
-        for (let c = 0; c < GRID_SIZE; c++) {
+      for (let r = 0; r < this.gridSize; r++) {
+        for (let c = 0; c < this.gridSize; c++) {
           const gem = this.grid[r][c]
           if (gem && gem.type === 'gem' && gem.value === targetColor) {
             this.transformIntoPowerup(gem, GEM_TYPES.BOMB)
@@ -187,8 +187,8 @@ export class BoardPowerups {
     if (swappedObjectType === GEM_TYPES.COLOR_BOMB) {
       this.playSound(SOUND_KEYS.BOMB, 1.5) // Âm thanh lớn
       
-      for (let r = 0; r < GRID_SIZE; r++) {
-        for (let c = 0; c < GRID_SIZE; c++) {
+      for (let r = 0; r < this.gridSize; r++) {
+        for (let c = 0; c < this.gridSize; c++) {
           const destroyedGem = this.damageCell(r, c)
           if (destroyedGem) {
             gemsToRemove.add(destroyedGem)
@@ -212,8 +212,8 @@ export class BoardPowerups {
       // [FIX] Tách bước: Tìm gem -> VFX -> Biến hình & Nổ
       const gemsToTransform = new Set()
       
-      for (let r = 0; r < GRID_SIZE; r++) {
-        for (let c = 0; c < GRID_SIZE; c++) {
+      for (let r = 0; r < this.gridSize; r++) {
+        for (let c = 0; c < this.gridSize; c++) {
           const gem = this.grid[r][c]
           if (gem && gem.type === 'gem' && gem.value === targetColor) {
             // Thay vì biến hình ngay, ta đưa vào danh sách để VFX xử lý (bay về)
@@ -257,8 +257,8 @@ export class BoardPowerups {
       // [FIX] Tách bước: Tìm gem -> VFX -> Xóa
       const affectedGems = new Set()
 
-      for (let r = 0; r < GRID_SIZE; r++) {
-        for (let c = 0; c < GRID_SIZE; c++) {
+      for (let r = 0; r < this.gridSize; r++) {
+        for (let c = 0; c < this.gridSize; c++) {
           const gem = this.grid[r][c]
           if (gem && gem.type === 'gem' && (gem.value === targetColor || gem === swappedObject)) {
              // Thu thập gem bị ảnh hưởng
@@ -420,10 +420,10 @@ export class BoardPowerups {
     this.turnStats = { gemCounts: {}, powerups: [] };
     const affectedColumns = [col]; 
     if (col > 0) affectedColumns.push(col - 1);
-    if (col < GRID_SIZE - 1) affectedColumns.push(col + 1);
+    if (col < this.gridSize - 1) affectedColumns.push(col + 1);
     const gemsToRemove = new Set();
     affectedColumns.forEach(currentCol => {
-      for (let r = 0; r < GRID_SIZE; r++) {
+      for (let r = 0; r < this.gridSize; r++) {
         const destroyedGem = this.damageCell(r, currentCol);
         if (destroyedGem) {
           gemsToRemove.add(destroyedGem);
@@ -463,8 +463,8 @@ export class BoardPowerups {
     this.boardBusy = true
     this.scene.input.enabled = false
     const allGems = []
-    for (let r = 0; r < GRID_SIZE; r++) {
-      for (let c = 0; c < GRID_SIZE; c++) {
+    for (let r = 0; r < this.gridSize; r++) {
+      for (let c = 0; c < this.gridSize; c++) {
         if (this.grid[r][c] && this.grid[r][c].type === 'gem') {
           allGems.push(this.grid[r][c])
         }
@@ -472,8 +472,8 @@ export class BoardPowerups {
     }
     Phaser.Utils.Array.Shuffle(allGems)
     let idx = 0
-    for (let r = 0; r < GRID_SIZE; r++) {
-      for (let c = 0; c < GRID_SIZE; c++) {
+    for (let r = 0; r < this.gridSize; r++) {
+      for (let c = 0; c < this.gridSize; c++) {
         if (this.grid[r][c] && this.grid[r][c].type === 'gem') {
           const g = allGems[idx++]
           this.grid[r][c] = g
@@ -504,7 +504,7 @@ export class BoardPowerups {
     const gemsInArea = []
     for (let r = centerRow - radius; r <= centerRow + radius; r++) {
       for (let c = centerCol - radius; c <= centerCol + radius; c++) {
-        if (r >= 0 && r < GRID_SIZE && c >= 0 && c < GRID_SIZE) {
+        if (r >= 0 && r < this.gridSize && c >= 0 && c < this.gridSize) {
           const gem = this.grid[r][c]
           if (gem) gemsInArea.push(gem)
         }

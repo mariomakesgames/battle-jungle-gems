@@ -1,0 +1,20 @@
+{
+  "repository": "https://github.com/ShaistaShabbir-prog/candy-crush-match3",
+  "commit": "0ba0fcd4af6c041669ba67dd7f7bb6d9d268e4ec",
+  "license": "MIT",
+  "downloaded_on": "2026-10-17",
+  "files": [
+    {
+      "path": "levels.json",
+      "sha256": "c601695eb02582c976a6cb9659dc5cf24571b65d91736ccd113c3527b12b0a5d"
+    },
+    {
+      "path": "LICENSE",
+      "sha256": "fd14b1bcb52223facb9605c0c21926d4b183bebf591ac9b76305dbfb01b091c2"
+    },
+    {
+      "path": "original-levels.js",
+      "sha256": "89e59bc7b08bdc50272a3e2f800023d4ac9eeb9e7bc559fddf31fc3e186bbc3b"
+    }
+  ]
+}

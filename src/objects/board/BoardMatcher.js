@@ -1,5 +1,5 @@
 // src/objects/board/BoardMatcher.js
-import { GEM_TYPES, GRID_SIZE } from '../../utils/constants'
+import { GEM_TYPES } from '../../utils/constants'
 
 export class BoardMatcher {
   
@@ -45,15 +45,15 @@ export class BoardMatcher {
     let horizontalMatches = []
     let verticalMatches = []
 
-    for (let row = 0; row < GRID_SIZE; row++) {
-      for (let col = 0; col < GRID_SIZE - 2; ) {
+    for (let row = 0; row < this.gridSize; row++) {
+      for (let col = 0; col < this.gridSize - 2; ) {
         const gem = this.grid[row][col]
         const isPowerUp = gem && (gem.value === GEM_TYPES.BOMB || gem.value === GEM_TYPES.COLOR_BOMB)
         
         // Logic Match: Vẫn dùng canMatchAt (vì gem trong Rope vẫn ăn được nếu xếp đúng)
         if (gem && gem.type === 'gem' && !isPowerUp && this.canMatchAt(row, col)) {
           let match = [gem]
-          for (let i = col + 1; i < GRID_SIZE; i++) {
+          for (let i = col + 1; i < this.gridSize; i++) {
             const nextGem = this.grid[row][i]
             if (nextGem && nextGem.type === 'gem' && nextGem.value === gem.value && this.canMatchAt(row, i)) {
               match.push(nextGem)
@@ -69,15 +69,15 @@ export class BoardMatcher {
       }
     }
 
-    for (let col = 0; col < GRID_SIZE; col++) {
-      for (let row = 0; row < GRID_SIZE - 2; ) {
+    for (let col = 0; col < this.gridSize; col++) {
+      for (let row = 0; row < this.gridSize - 2; ) {
         const gem = this.grid[row][col]
         const isPowerUp = gem && (gem.value === GEM_TYPES.BOMB || gem.value === GEM_TYPES.COLOR_BOMB)
         
         // Logic Match: Vẫn dùng canMatchAt
         if (gem && gem.type === 'gem' && !isPowerUp && this.canMatchAt(row, col)) {
           let match = [gem]
-          for (let i = row + 1; i < GRID_SIZE; i++) {
+          for (let i = row + 1; i < this.gridSize; i++) {
             const nextGem = this.grid[i][col]
             if (nextGem && nextGem.type === 'gem' && nextGem.value === gem.value && this.canMatchAt(i, col)) {
               match.push(nextGem)
@@ -148,8 +148,8 @@ export class BoardMatcher {
       return hasMatch
     }
 
-    for (let r = 0; r < GRID_SIZE; r++) {
-      for (let c = 0; c < GRID_SIZE; c++) {
+    for (let r = 0; r < this.gridSize; r++) {
+      for (let c = 0; c < this.gridSize; c++) {
         if (isValidSwap(r, c, r, c + 1)) return true
         if (isValidSwap(r, c, r + 1, c)) return true
 
@@ -189,7 +189,7 @@ export class BoardMatcher {
     }
 
     let right = col + 1
-    while (right < GRID_SIZE && tempGrid[row]?.[right] && tempGrid[row][right].type === 'gem' && tempGrid[row][right].value === type) {
+    while (right < this.gridSize && tempGrid[row]?.[right] && tempGrid[row][right].type === 'gem' && tempGrid[row][right].value === type) {
       countH++
       right++
     }
@@ -203,7 +203,7 @@ export class BoardMatcher {
     }
 
     let down = row + 1
-    while (down < GRID_SIZE && tempGrid[down]?.[col] && tempGrid[down][col].type === 'gem' && tempGrid[down][col].value === type) {
+    while (down < this.gridSize && tempGrid[down]?.[col] && tempGrid[down][col].type === 'gem' && tempGrid[down][col].value === type) {
       countV++
       down++
     }
@@ -245,8 +245,8 @@ export class BoardMatcher {
     }
 
     // Duyệt qua lưới để tìm nước đi đầu tiên thấy
-    for (let r = 0; r < GRID_SIZE; r++) {
-      for (let c = 0; c < GRID_SIZE; c++) {
+    for (let r = 0; r < this.gridSize; r++) {
+      for (let c = 0; c < this.gridSize; c++) {
         // Kiểm tra swap ngang
         if (isValidSwap(r, c, r, c + 1)) return { r1: r, c1: c, r2: r, c2: c + 1 }
         // Kiểm tra swap dọc

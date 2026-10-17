@@ -1,0 +1,92 @@
+{
+  "repository": "https://github.com/AlperenGarip/Match3",
+  "commit": "d83c68675796f75749c5867d2d0cf24a2d460e1a",
+  "license": "MIT",
+  "downloaded_on": "2026-10-17",
+  "files": [
+    {
+      "path": "LICENSE",
+      "sha256": "92195faca7540ebef7f3654f950a0e04e7e6f58370c647516afb64dbd32a61c1"
+    },
+    {
+      "path": "original/level_01.json",
+      "sha256": "6f90e0cd3693bb464ad967922ff145c45f049c9209cbb5930d2d70c3d1f23d9a"
+    },
+    {
+      "path": "original/level_02.json",
+      "sha256": "00946493741e3e51ae725624ebe9083c93ce57a1d10d7c76bddcde2304097ce4"
+    },
+    {
+      "path": "original/level_03.json",
+      "sha256": "6c01688ddcfa33f7e294c67f9a21f7141c59ae879781c4ab701f362edacd6215"
+    },
+    {
+      "path": "original/level_04.json",
+      "sha256": "46672f26caa4272881124aa1ef635cc12abdb6f9be08257c0de6c3aca369027e"
+    },
+    {
+      "path": "original/level_05.json",
+      "sha256": "db2040e43d3ee614b7b638a3b30ad0e5105a23064dfc94b72df354fdf84b7943"
+    },
+    {
+      "path": "original/level_06.json",
+      "sha256": "8b220d16b7b2193b6f44f439c5dc5963bd92d89e787d97e8fc73301dd7ae09f0"
+    },
+    {
+      "path": "original/level_07.json",
+      "sha256": "64150e672bf4c5e094ad506b704cbf6d45a4b09227db416d2c05a75541579e05"
+    },
+    {
+      "path": "original/level_08.json",
+      "sha256": "00ec1d279a952767aaa26e2db0ec278cd2b53ab9ee12a92e49e6215849a12408"
+    },
+    {
+      "path": "original/level_09.json",
+      "sha256": "3a02952744b5ffe4c6c32d14559683ff9e41a516f4f067a7664c856238c03e47"
+    },
+    {
+      "path": "original/level_10.json",
+      "sha256": "416f958302302048d2855c1f362b9ed414bb8eb05029f79df04fe022328d4285"
+    },
+    {
+      "path": "original/level_11.json",
+      "sha256": "27420d15750c92ce5053439e5817e5e2a6482b7ada08e2c6a2b6e513ec038448"
+    },
+    {
+      "path": "original/level_12.json",
+      "sha256": "230b0fc541a8f80942e6a7f71dfedadc58498f02666fb66ec4d3249b1b54db8f"
+    },
+    {
+      "path": "original/level_13.json",
+      "sha256": "049d499a17f26e31199d46d864c91a4738a6b6be02e5d146c9d7370d60df52d5"
+    },
+    {
+      "path": "original/level_14.json",
+      "sha256": "e2403ede7e9aac245d5bec3b77ef180b3a458327795eec2ac581720eb9bebc7c"
+    },
+    {
+      "path": "original/level_15.json",
+      "sha256": "dc5861baf505507ad6560ce61fcb43e48a3f669c3c3d800a18c0c75c8918442c"
+    },
+    {
+      "path": "original/level_16.json",
+      "sha256": "b160aa96e966bb36b40f9dabe7668f28df025ea7dedd1ebe6a2cacb08d3bc1c6"
+    },
+    {
+      "path": "original/level_17.json",
+      "sha256": "24ad40b7503d3d81b1fe97f40652fe991ec4dde8409b7e72a6260b874b4f01b8"
+    },
+    {
+      "path": "original/level_18.json",
+      "sha256": "4e841b7d686e9309a4b22acfcfb30f63802cb535ec35c9b30fbd24b4bd4ae10d"
+    },
+    {
+      "path": "original/level_19.json",
+      "sha256": "222132508759d9fb390609070d921cc3e8e17b0b8faf291b170ed6b93e304536"
+    },
+    {
+      "path": "original/level_20.json",
+      "sha256": "0c795db01a450f60bc9043dc5f761b5d230c9c28d9a533590627fc5f2f41f8f4"
+    }
+  ]
+}

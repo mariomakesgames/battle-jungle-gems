@@ -1,0 +1,422 @@
+{
+  "gridSize": 9,
+  "maxMoves": 23,
+  "objectives": [
+    {
+      "target": "blocker",
+      "type": "stone",
+      "count": 30
+    }
+  ],
+  "gridLayout": [
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  ],
+  "blockerLayout": [
+    [
+      0,
+      0,
+      0,
+      2,
+      0,
+      2,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      2,
+      2,
+      2,
+      2,
+      2,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      2,
+      0,
+      2,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      2,
+      2,
+      2,
+      2,
+      2,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      2,
+      0,
+      2,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      2,
+      2,
+      2,
+      2,
+      2,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      2,
+      0,
+      2,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      2,
+      2,
+      2,
+      2,
+      2,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      2,
+      0,
+      2,
+      0,
+      0,
+      0
+    ]
+  ],
+  "stoneHealthLayout": [
+    [
+      0,
+      0,
+      0,
+      2,
+      0,
+      2,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      2,
+      2,
+      2,
+      2,
+      2,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      2,
+      0,
+      2,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      2,
+      2,
+      2,
+      2,
+      2,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      2,
+      0,
+      2,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      2,
+      2,
+      2,
+      2,
+      2,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      2,
+      0,
+      2,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      2,
+      2,
+      2,
+      2,
+      2,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      2,
+      0,
+      2,
+      0,
+      0,
+      0
+    ]
+  ],
+  "availableGems": [
+    "red",
+    "green",
+    "blue",
+    "yellow"
+  ],
+  "initialPowerups": [
+    {
+      "row": 0,
+      "col": 2,
+      "type": "stripe",
+      "sourceType": "hro"
+    },
+    {
+      "row": 0,
+      "col": 4,
+      "type": "stripe",
+      "sourceType": "vro"
+    },
+    {
+      "row": 0,
+      "col": 6,
+      "type": "stripe",
+      "sourceType": "hro"
+    },
+    {
+      "row": 2,
+      "col": 2,
+      "type": "stripe",
+      "sourceType": "vro"
+    },
+    {
+      "row": 2,
+      "col": 4,
+      "type": "stripe",
+      "sourceType": "hro"
+    },
+    {
+      "row": 2,
+      "col": 6,
+      "type": "stripe",
+      "sourceType": "vro"
+    },
+    {
+      "row": 4,
+      "col": 2,
+      "type": "stripe",
+      "sourceType": "hro"
+    },
+    {
+      "row": 4,
+      "col": 4,
+      "type": "stripe",
+      "sourceType": "vro"
+    },
+    {
+      "row": 4,
+      "col": 6,
+      "type": "stripe",
+      "sourceType": "hro"
+    },
+    {
+      "row": 6,
+      "col": 2,
+      "type": "stripe",
+      "sourceType": "vro"
+    },
+    {
+      "row": 6,
+      "col": 4,
+      "type": "stripe",
+      "sourceType": "hro"
+    },
+    {
+      "row": 6,
+      "col": 6,
+      "type": "stripe",
+      "sourceType": "vro"
+    },
+    {
+      "row": 8,
+      "col": 2,
+      "type": "stripe",
+      "sourceType": "hro"
+    },
+    {
+      "row": 8,
+      "col": 4,
+      "type": "stripe",
+      "sourceType": "vro"
+    },
+    {
+      "row": 8,
+      "col": 6,
+      "type": "stripe",
+      "sourceType": "hro"
+    }
+  ],
+  "source": {
+    "repository": "https://github.com/AlperenGarip/Match3",
+    "commit": "d83c68675796f75749c5867d2d0cf24a2d460e1a",
+    "level": 5,
+    "width": 9,
+    "height": 9,
+    "left": 0,
+    "top": 0,
+    "license": "MIT"
+  }
+}

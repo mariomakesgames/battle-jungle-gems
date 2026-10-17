@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, statSync, readFileSync } from 'node:fs';
-import { PHOTO_LEVELS, PORTRAITS, NEW_PORTRAITS, PhotoRun, PhotoCollection, PHOTO_SAVE_KEY, REVEAL_ORDER, photoPath, photoKey, copyClassicPhotoBoard } from '../src/beauty/PhotoRules.js';
+import { PHOTO_LEVELS, PORTRAITS, NEW_PORTRAITS, PhotoRun, PhotoCollection, PHOTO_SAVE_KEY, REVEAL_ORDER, photoPath, photoKey, photoBoardPath, classicPhotoKey, copyClassicPhotoBoard } from '../src/beauty/PhotoRules.js';
 
 test('invalid swaps cost no moves; cascades add score but spend only one move', () => {
     const run = new PhotoRun({ target: 900, moves: 24 });
@@ -79,12 +79,12 @@ test('existing portrait saves continue through all 84 levels without resetting p
     } finally { delete globalThis.localStorage; }
 });
 
-test('all 84 challenges reuse actual classic goals, budgets and independently cloned layouts', () => {
+test('all 84 challenges use authored goals, budgets and independently cloned layouts', () => {
     const additions = PHOTO_LEVELS;
     assert.equal(additions.length, 84);
-    assert.deepEqual([...new Set(additions.map(level => level.classicLevel))].sort(), [1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    assert.deepEqual([...new Set(additions.filter(level => level.classicLevel).map(level => level.classicLevel))].sort(), [1, 2, 3, 4, 5, 6, 7, 8, 9]);
     for (const level of additions) {
-        const source = JSON.parse(readFileSync(new URL(`../public/assets/levels/level_${level.classicLevel}.json`, import.meta.url)));
+        const source = JSON.parse(readFileSync(new URL(`../public/${photoBoardPath(level)}`, import.meta.url)));
         assert.equal(level.moves, source.maxMoves);
         assert.deepEqual(level.objectives, source.objectives);
         const board = copyClassicPhotoBoard(source);
@@ -104,9 +104,46 @@ test('new photos replace the old collection and repeated art shares a texture ca
     assert.equal(new Set(PHOTO_LEVELS.map((_, index) => photoPath(index))).size, 41);
     assert.equal(photoKey(0), photoKey(11));
     assert.equal(photoPath(0), photoPath(11));
-    assert.notEqual(PHOTO_LEVELS[0].classicLevel, PHOTO_LEVELS[11].classicLevel);
+    assert.notEqual(classicPhotoKey(PHOTO_LEVELS[0]), classicPhotoKey(PHOTO_LEVELS[11]));
     const manifest = JSON.parse(readFileSync(new URL('../public/assets/images/beauty/portraits/sources.json', import.meta.url)));
     for (const id of PORTRAITS) assert.ok(manifest.assets.some(asset => asset.runtime_file === `${id}.webp` && asset.source.startsWith('https://pixabay.com/')));
+});
+
+test('20 imported layouts preserve every source cell, obstacle hit count, powerup and move budget', () => {
+    const imported = PHOTO_LEVELS.filter(level => level.importedLevel);
+    assert.equal(imported.length, 20);
+    const layouts = new Set();
+    const colors = { r: 1, g: 2, b: 3, y: 5 };
+    const specials = { hro: 'stripe', vro: 'stripe', tnt: 'bomb', lb: 'color_bomb' };
+    for (const level of imported) {
+        const id = String(level.importedLevel).padStart(2, '0');
+        const source = JSON.parse(readFileSync(new URL(`../reference/match3-levels/alperen-garip/original/level_${id}.json`, import.meta.url)));
+        const board = JSON.parse(readFileSync(new URL(`../public/${photoBoardPath(level)}`, import.meta.url)));
+        assert.equal(board.maxMoves, source.move_count);
+        assert.equal(board.gridSize, Math.max(9, source.grid_width, source.grid_height));
+        assert.equal(board.gridLayout.flat().filter(cell => cell !== null).length, source.grid.length);
+        const { top, left } = board.source;
+        let obstacles = 0, powerups = 0;
+        source.grid.forEach((code, index) => {
+            const row = top + Math.floor(index / source.grid_width), col = left + index % source.grid_width;
+            assert.equal(board.gridLayout[row][col], colors[code] || 0);
+            const hits = code === 'v' ? 2 : ['bo', 's'].includes(code) ? 1 : 0;
+            assert.equal(board.stoneHealthLayout[row][col], hits);
+            assert.equal(board.blockerLayout[row][col], hits ? 2 : 0);
+            if (hits) obstacles++;
+            if (specials[code]) {
+                powerups++;
+                assert.ok(board.initialPowerups.some(p => p.row === row && p.col === col && p.type === specials[code]));
+            }
+        });
+        assert.equal(board.objectives[0].count, obstacles);
+        assert.equal(board.initialPowerups.length, powerups);
+        const cloned = copyClassicPhotoBoard(board);
+        assert.deepEqual(cloned.initialPowerups, board.initialPowerups);
+        assert.deepEqual(cloned.stoneHealthLayout, board.stoneHealthLayout);
+        layouts.add(JSON.stringify([board.gridLayout, board.blockerLayout, board.initialPowerups]));
+    }
+    assert.equal(layouts.size, 20);
 });
 
 test('30 new levels each unlock new art while the original 54 keep their photos', () => {

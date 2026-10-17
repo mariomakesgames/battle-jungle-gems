@@ -1,4 +1,5 @@
 import { bindText, createLanguageSelector } from '../ui/LocalizedUI';
+import { isDebugMode } from '../utils/DebugMode';
 // src/scenes/TitleScene.js
 import Phaser from 'phaser';
 
@@ -52,6 +53,10 @@ export class TitleScene extends Phaser.Scene {
         modeButton(675, 0x43304f, 'beautyMode', 'beauty-entry', () => this.scene.start('BaddieMapScene'));
         modeButton(768, 0x243e63, 'onlineDuel', 'online-duel-entry', () => this.scene.start('OnlineLobbyScene'));
         modeButton(835, 0x174b50, 'aiDuel', 'ai-duel-entry', () => this.scene.start('AIDuelScene'));
+        if (isDebugMode()) {
+            bindText(this.add.text(gameWidth / 2, 990, '', { fontSize: '17px', color: '#ffe286' })
+                .setOrigin(0.5).setName('debug-mode-label'), 'debugMode', {}, 540);
+        }
         this.events.once('shutdown', () => this.scale.off('resize', this.handleResize, this));
 
         // Lắng nghe sự kiện resize để vẽ lại background nếu xoay màn hình
