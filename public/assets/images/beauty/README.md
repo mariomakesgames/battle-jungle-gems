@@ -1,7 +1,7 @@
 # Portrait collection
 
-The active Portrait mode now uses 11 downloaded Pixabay AI images in
-[`portraits/`](portraits/README.md), across 54 challenges based on classic levels.
+The active Portrait mode now uses 41 downloaded Pixabay AI images in
+[`portraits/`](portraits/README.md), across 84 challenges based on classic levels.
 The thirty generated portraits listed below are retained as legacy assets and
 are no longer referenced by the game.
 

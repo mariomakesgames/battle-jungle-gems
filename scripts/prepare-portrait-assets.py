@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[1] / 'public/assets/images/beauty'
 OUTPUT = ROOT / 'portraits'
 OUTPUT.mkdir(exist_ok=True)
 assets = []
-for folder in ['glamour', 'glamour-02']:
+for folder in ['glamour', 'glamour-02', 'glamour-03']:
     source = ROOT / 'downloads' / folder
     for entry in json.loads((source / 'sources.json').read_text(encoding='utf-8'))['assets']:
         ident = entry['file'].split('-')[-1].split('_')[0]

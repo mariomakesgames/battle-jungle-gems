@@ -5,13 +5,13 @@ const fs = require('node:fs');
 const path = require('node:path');
 const URL = process.env.JUNGLE_GEMS_URL || 'http://127.0.0.1:4173/';
 const SAVE = 'jungle-gems-photo-collection-v1';
-const portraits = ['8059755', '8363683', '9013533', '8790150', '8105566', '8400104', '8682657', '8933700', '9504564', '8584916', '8682687'];
 const ready = () => window.game?.scene.isActive('PhotoChallengeScene') &&
     window.game.scene.getScene('PhotoChallengeScene').board &&
     !window.game.scene.getScene('PhotoChallengeScene').board.boardBusy &&
     !window.game.scene.getScene('PhotoChallengeScene').run.pending;
 
 (async () => {
+    const { PHOTO_LEVELS, PORTRAITS } = await import('../src/beauty/PhotoRules.js');
     const browser = await chromium.launch({ channel: 'chrome', headless: true });
     const errors = [], failures = [];
     try {
@@ -20,7 +20,7 @@ const ready = () => window.game?.scene.isActive('PhotoChallengeScene') &&
         page.on('response', response => { if (response.status() >= 400) failures.push(response.url()); });
         const requests = [];
         page.on('request', request => requests.push(request.url()));
-        await page.addInitScript(key => localStorage.setItem(key, JSON.stringify({ completed: 53 })), SAVE);
+        await page.addInitScript(key => localStorage.setItem(key, JSON.stringify({ completed: 83 })), SAVE);
         await page.goto(URL);
         await page.waitForFunction(() => window.game?.scene.isActive('TitleScene'));
         async function click(scene, name) {
@@ -40,10 +40,10 @@ const ready = () => window.game?.scene.isActive('PhotoChallengeScene') &&
         }
         await click('TitleScene', 'beauty-entry');
         await page.waitForFunction(() => window.game.scene.getScene('BaddieMapScene').ready);
-        assert.equal(await page.evaluate(() => window.game.scene.getScene('BaddieMapScene').nodes.length), 54);
+        assert.equal(await page.evaluate(() => window.game.scene.getScene('BaddieMapScene').nodes.length), 84);
         assert.equal(requests.filter(url => url.includes('/beauty/')).length, 0);
         const beforeCampaign = await page.evaluate(() => JSON.stringify(Object.fromEntries(Object.entries(localStorage).filter(([key]) => key.startsWith('phaser_game_')))));
-        for (let index = 0; index < 54; index++) {
+        for (let index = 0; index < PHOTO_LEVELS.length; index++) {
             await page.evaluate(index => {
                 for (const scene of window.game.scene.getScenes(true)) window.game.scene.stop(scene.sys.settings.key);
                 window.game.scene.start('PhotoChallengeScene', { index });
@@ -64,26 +64,27 @@ const ready = () => window.game?.scene.isActive('PhotoChallengeScene') &&
             assert.equal(actual.moves, expected.maxMoves);
             assert.deepEqual(actual.objectives, expected.objectives.map(goal => goal.target === 'blocker'
                 ? { ...goal, count: actual.blockers.filter(type => type === goal.type).length } : goal));
-            assert.equal(actual.texture, `beauty_pixabay_${portraits[index % 11]}`);
+            assert.equal(actual.texture, `beauty_pixabay_${PHOTO_LEVELS[index].portrait}`);
             assert.equal(actual.width, 640); assert.equal(actual.height, 800);
             assert.equal(actual.covered, true);
         }
-        assert.equal(requests.filter(url => url.includes('/beauty/')).length, 11);
+        assert.equal(requests.filter(url => url.includes('/beauty/')).length, PORTRAITS.length);
         assert.equal(requests.filter(url => /\/levels\/level_/.test(url)).length, 9);
-        console.log('PASS: 54 boards, classic budgets/goals, 11 cached portraits and 9 cached level JSONs');
+        console.log('PASS: 84 boards, classic budgets/goals, 41 cached portraits and 9 cached level JSONs');
 
-        // Play a new collection from the first level using real drag input.
+        // Continue a completed 54-level collection and win a new level with real drag input.
         await page.evaluate(() => { window.game.scene.getScene('PhotoChallengeScene').scene.start('BaddieMapScene'); });
         await page.waitForFunction(() => window.game.scene.getScene('BaddieMapScene').ready);
-        // A fresh browser context provides an empty collection.
         const fresh = await browser.newPage({ viewport: { width: 576, height: 1024 } });
         fresh.on('pageerror', error => errors.push(String(error)));
+        await fresh.addInitScript(key => localStorage.setItem(key, JSON.stringify({ completed: 54 })), SAVE);
         await fresh.goto(URL);
         await fresh.waitForFunction(() => window.game?.scene.isActive('TitleScene'));
         await fresh.evaluate(() => window.game.scene.getScene('TitleScene').children.getByName('beauty-entry').emit('pointerdown'));
         await fresh.waitForFunction(() => window.game.scene.getScene('BaddieMapScene').ready);
         await fresh.evaluate(() => window.game.scene.getScene('BaddieMapScene').children.getByName('baddie-continue').emit('pointerdown'));
         await fresh.waitForFunction(ready);
+        assert.equal(await fresh.evaluate(() => window.game.scene.getScene('PhotoChallengeScene').index), 54);
         for (let attempt = 0; attempt < 3; attempt++) {
             await fresh.evaluate(() => { const s = window.game.scene.getScene('PhotoChallengeScene'); s.time.timeScale = 5; s.tweens.timeScale = 5; });
             for (let turn = 0; turn < 20; turn++) {
@@ -114,11 +115,18 @@ const ready = () => window.game?.scene.isActive('PhotoChallengeScene') &&
         }
         assert.equal(await fresh.evaluate(() => window.game.scene.getScene('PhotoChallengeScene').run.won), true);
         assert.equal(await fresh.evaluate(() => window.game.scene.getScene('PhotoChallengeScene').children.list
-            .filter(item => item.list).flatMap(item => item.list).some(item => item.text === 'Portrait · Level 1')), true);
-        assert.equal(await fresh.evaluate(key => JSON.parse(localStorage.getItem(key)).completed, SAVE), 1);
+            .filter(item => item.list).flatMap(item => item.list).some(item => item.text === 'Portrait · Level 55')), true);
+        assert.equal(await fresh.evaluate(key => JSON.parse(localStorage.getItem(key)).completed, SAVE), 55);
         fs.mkdirSync(path.join(__dirname, '../tmp'), { recursive: true });
         await fresh.screenshot({ path: path.join(__dirname, '../tmp/portrait-win.png') });
-        console.log('PASS: real swaps complete the classic goal, reveal the new photo and save collection progress');
+        await fresh.evaluate(() => {
+            const s = window.game.scene.getScene('PhotoChallengeScene');
+            s.children.list.filter(item => item.list).flatMap(item => item.list).find(item => item.name === 'beauty-next').emit('pointerdown');
+        });
+        await fresh.waitForFunction(() => window.game.scene.getScene('PhotoChallengeScene').index === 55);
+        await fresh.waitForFunction(ready);
+        assert.equal(await fresh.evaluate(() => window.game.scene.getScene('PhotoChallengeScene').index), 55);
+        console.log('PASS: old 54-level save continues, real swaps win level 55, reveal new art and unlock level 56');
 
         const migrated = await browser.newPage();
         await migrated.addInitScript(key => localStorage.setItem(key, JSON.stringify({ completed: 30 })), SAVE);
@@ -131,16 +139,16 @@ const ready = () => window.game?.scene.isActive('PhotoChallengeScene') &&
         assert.equal(await migrated.evaluate(() => window.game.scene.getScene('PhotoChallengeScene').index), 30);
         await migrated.close();
         // The last level is reachable on the extended map.
-        await page.evaluate(() => { for (const s of window.game.scene.getScenes(true)) window.game.scene.stop(s.sys.settings.key); window.game.scene.start('BaddieMapScene', { focusIndex: 53 }); });
+        await page.evaluate(() => { for (const s of window.game.scene.getScenes(true)) window.game.scene.stop(s.sys.settings.key); window.game.scene.start('BaddieMapScene', { focusIndex: 83 }); });
         await page.waitForFunction(() => window.game.scene.getScene('BaddieMapScene').ready);
-        assert.equal(await page.evaluate(() => { const s = window.game.scene.getScene('BaddieMapScene'), y=s.nodes[53].y-s.cameras.main.scrollY; return y>=180 && y<1024; }), true);
+        assert.equal(await page.evaluate(() => { const s = window.game.scene.getScene('BaddieMapScene'), y=s.nodes[83].y-s.cameras.main.scrollY; return y>=180 && y<1024; }), true);
         await click('BaddieMapScene', 'baddie-gallery');
         await page.waitForFunction(() => window.game.scene.getScene('PhotoAlbumScene').ready);
-        assert.equal(await page.evaluate(() => window.game.scene.getScene('PhotoAlbumScene').index), 52);
+        assert.equal(await page.evaluate(() => window.game.scene.getScene('PhotoAlbumScene').index), 82);
         await click('PhotoAlbumScene', 'beauty-page-previous');
-        await page.waitForFunction(() => window.game.scene.getScene('PhotoAlbumScene').ready && window.game.scene.getScene('PhotoAlbumScene').index === 51);
+        await page.waitForFunction(() => window.game.scene.getScene('PhotoAlbumScene').ready && window.game.scene.getScene('PhotoAlbumScene').index === 81);
         await click('PhotoAlbumScene', 'beauty-page-next');
-        await page.waitForFunction(() => window.game.scene.getScene('PhotoAlbumScene').ready && window.game.scene.getScene('PhotoAlbumScene').index === 52);
+        await page.waitForFunction(() => window.game.scene.getScene('PhotoAlbumScene').ready && window.game.scene.getScene('PhotoAlbumScene').index === 82);
         await page.screenshot({ path: path.join(__dirname, '../tmp/portrait-gallery.png') });
         assert.equal(await page.evaluate(() => JSON.stringify(Object.fromEntries(Object.entries(localStorage).filter(([key]) => key.startsWith('phaser_game_'))))), beforeCampaign);
         assert.deepEqual(errors, []); assert.deepEqual(failures, []);

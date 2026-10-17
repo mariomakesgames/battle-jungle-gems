@@ -11,17 +11,26 @@ export const CLASSIC_PHOTO_TEMPLATES = [
     { moves: 35, objectives: [{ target: 'blocker', type: 'rope', count: 18 }, { target: 'blocker', type: 'stone', count: 12 }, { target: 'gem', type: 'yellow', count: 30 }] },
 ];
 
-export const PORTRAITS = [
+const ORIGINAL_PORTRAITS = [
     '8059755', '8363683', '9013533', '8790150', '8105566', '8400104',
     '8682657', '8933700', '9504564', '8584916', '8682687',
 ];
 
-// Six map chapters reuse all nine campaign boards. Portraits cycle independently
-// so a repeated board is paired with different art in the following chapter.
-export const PHOTO_LEVELS = Array.from({ length: 54 }, (_, index) => ({
+export const NEW_PORTRAITS = [
+    '8682647', '8272727', '8400107', '8664000', '8649045', '8689093',
+    '8180950', '8673376', '8229667', '8914183', '8101076', '8566075',
+    '8653458', '8814852', '8814854', '9023680', '8741978', '9966192',
+    '9331244', '8589710', '8669954', '9658273', '8371252', '8764204',
+    '8114807', '8205238', '10011345', '8326283', '9496536', '8510527',
+];
+export const PORTRAITS = [...ORIGINAL_PORTRAITS, ...NEW_PORTRAITS];
+
+// Preserve the first 54 levels' art so existing collections stay consistent.
+// Each additional level unlocks a different new portrait and reuses a classic board.
+export const PHOTO_LEVELS = Array.from({ length: 54 + NEW_PORTRAITS.length }, (_, index) => ({
     ...structuredClone(CLASSIC_PHOTO_TEMPLATES[index % CLASSIC_PHOTO_TEMPLATES.length]),
     id: `portrait-${index + 1}`,
-    portrait: PORTRAITS[index % PORTRAITS.length],
+    portrait: index < 54 ? ORIGINAL_PORTRAITS[index % ORIGINAL_PORTRAITS.length] : NEW_PORTRAITS[index - 54],
     title: 'beautyPortraitLevel',
     titleParams: { level: index + 1 },
     classicLevel: index % CLASSIC_PHOTO_TEMPLATES.length + 1,
