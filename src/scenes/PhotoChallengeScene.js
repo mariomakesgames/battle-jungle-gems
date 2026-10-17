@@ -60,7 +60,7 @@ export class PhotoChallengeScene extends AIDuelScene {
         }
         if (this.viewing) { this.showPhoto(true); return; }
 
-        this.makeLabel(288, 58, this.level.title, 30, {}, 290);
+        this.makeLabel(288, 58, this.level.title, 30, this.level.titleParams, 290);
         this.button(67, 58, 100, 'duelBack', () => this.leave(), 'beauty-exit');
         this.button(509, 58, 100, 'pause', () => this.showPause(), 'beauty-pause');
         this.scoreLabel = this.makeLabel(173, 102, this.level.classicLevel ? 'beautyCurrentScore' : 'beautyScore', 21, () => ({ score: this.run.score, target: this.level.target }), 285);
@@ -193,7 +193,7 @@ export class PhotoChallengeScene extends AIDuelScene {
         const panel = this.add.container(0, 0).setDepth(100);
         panel.add(this.add.rectangle(288, 512, 576, 1024, 0x101c30, 0.98).setInteractive());
         panel.add(this.makeLabel(288, 107, viewing ? 'beautyCollected' : 'beautyUnlocked', 34));
-        panel.add(this.makeLabel(288, 159, this.level.title, 24));
+        panel.add(this.makeLabel(288, 159, this.level.title, 24, this.level.titleParams));
         panel.add(this.add.rectangle(288, 429, 350, 434, 0x0b1323).setStrokeStyle(3, 0xe8bd70));
         panel.add(this.add.image(288, 429, photoKey(this.index)).setDisplaySize(336, 420).setName('beauty-full-photo'));
         const hasNext = this.index + 1 < PHOTO_LEVELS.length;

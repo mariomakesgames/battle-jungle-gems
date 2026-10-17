@@ -34,7 +34,7 @@ export class PhotoAlbumScene extends Phaser.Scene {
             this.button(288, 560, 260, 'restart', () => this.restart(this.index), 'beauty-gallery-retry');
             return;
         }
-        this.label(288, 145, PHOTO_LEVELS[this.index].title, 25);
+        this.label(288, 145, PHOTO_LEVELS[this.index].title, 25, PHOTO_LEVELS[this.index].titleParams);
         this.add.image(288, 482, photoKey(this.index)).setDisplaySize(400, 500).setName('beauty-gallery-photo');
         this.label(288, 784, 'beautyPage', 23, { page: this.index + 1, total: photoCollection.completed });
         this.previousPage = this.button(132, 856, 190, 'beautyPreviousPage', () => this.browse(-1), 'beauty-page-previous');

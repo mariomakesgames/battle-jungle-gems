@@ -65,7 +65,7 @@ export class BaddieMapScene extends Phaser.Scene {
                 this.nodes.push(node);
             }
         }
-        // Trim the unused upper part of the last chapter while keeping level 30 visible.
+        // Trim unused space above the final level of the last chapter.
         const minY = Math.max(0, this.nodes.at(-1).y - 230);
         this.cameras.main.setBounds(0, minY, 576, this.totalHeight - minY);
         this.focusLevel(this.focusIndex);

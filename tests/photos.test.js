@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, statSync, readFileSync } from 'node:fs';
-import { PHOTO_LEVELS, PhotoRun, PhotoCollection, PHOTO_SAVE_KEY, REVEAL_ORDER, photoPath, copyClassicPhotoBoard } from '../src/beauty/PhotoRules.js';
+import { PHOTO_LEVELS, PORTRAITS, PhotoRun, PhotoCollection, PHOTO_SAVE_KEY, REVEAL_ORDER, photoPath, photoKey, copyClassicPhotoBoard } from '../src/beauty/PhotoRules.js';
 
 test('invalid swaps cost no moves; cascades add score but spend only one move', () => {
-    const run = new PhotoRun(PHOTO_LEVELS[0]);
+    const run = new PhotoRun({ target: 900, moves: 24 });
     run.begin(); run.settle();
     assert.equal(run.movesLeft, 24);
     assert.equal(run.addScore(100), false);
@@ -57,13 +57,13 @@ test('collection unlocks sequentially, persists, rejects corrupt saves and works
     } finally { delete globalThis.localStorage; }
 });
 
-test('three- and ten-portrait saves continue through all thirty portraits without resetting collected art', () => {
+test('existing portrait saves continue through all 54 levels without resetting progress', () => {
     const values = new Map([[PHOTO_SAVE_KEY, JSON.stringify({ completed: 3 })]]);
     globalThis.localStorage = { getItem: key => values.get(key), setItem: (key, value) => values.set(key, value) };
     try {
-        assert.equal(PHOTO_LEVELS.length, 30);
-        assert.equal(new Set(PHOTO_LEVELS.map(level => level.id)).size, 30);
-        for (const saved of [3, 10]) {
+        assert.equal(PHOTO_LEVELS.length, 54);
+        assert.equal(new Set(PHOTO_LEVELS.map(level => level.id)).size, 54);
+        for (const saved of [3, 10, 30]) {
             values.set(PHOTO_SAVE_KEY, JSON.stringify({ completed: saved }));
             const collection = new PhotoCollection();
             for (let index = 0; index < saved; index++) assert.equal(collection.isCollected(index), true);
@@ -73,15 +73,15 @@ test('three- and ten-portrait saves continue through all thirty portraits withou
                 assert.equal(collection.collect(index), true);
                 assert.equal(new PhotoCollection().completed, index + 1);
             }
-            assert.equal(collection.canPlay(30), false);
-            assert.equal(collection.isCollected(29), true);
+            assert.equal(collection.canPlay(PHOTO_LEVELS.length), false);
+            assert.equal(collection.isCollected(PHOTO_LEVELS.length - 1), true);
         }
     } finally { delete globalThis.localStorage; }
 });
 
-test('twenty new challenges reuse actual classic goals, budgets and independently cloned layouts', () => {
-    const additions = PHOTO_LEVELS.slice(10);
-    assert.equal(additions.length, 20);
+test('all 54 challenges reuse actual classic goals, budgets and independently cloned layouts', () => {
+    const additions = PHOTO_LEVELS;
+    assert.equal(additions.length, 54);
     assert.deepEqual([...new Set(additions.map(level => level.classicLevel))].sort(), [1, 2, 3, 4, 5, 6, 7, 8, 9]);
     for (const level of additions) {
         const source = JSON.parse(readFileSync(new URL(`../public/assets/levels/level_${level.classicLevel}.json`, import.meta.url)));
@@ -97,6 +97,16 @@ test('twenty new challenges reuse actual classic goals, budgets and independentl
         assert.notEqual(source.gridLayout[0][0], 99);
         assert.notEqual(source.objectives[0].count, 99);
     }
+});
+
+test('new photos replace the old collection and repeated art shares a texture cache key', () => {
+    assert.equal(PORTRAITS.length, 11);
+    assert.equal(new Set(PHOTO_LEVELS.map((_, index) => photoPath(index))).size, 11);
+    assert.equal(photoKey(0), photoKey(11));
+    assert.equal(photoPath(0), photoPath(11));
+    assert.notEqual(PHOTO_LEVELS[0].classicLevel, PHOTO_LEVELS[11].classicLevel);
+    const manifest = JSON.parse(readFileSync(new URL('../public/assets/images/beauty/portraits/sources.json', import.meta.url)));
+    for (const id of PORTRAITS) assert.ok(manifest.assets.some(asset => asset.runtime_file === `${id}.webp` && asset.source.startsWith('https://pixabay.com/')));
 });
 
 test('classic goals govern reveals and last-move results, even after a large score or rope regrowth', () => {

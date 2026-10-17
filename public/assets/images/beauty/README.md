@@ -1,5 +1,10 @@
 # Portrait collection
 
+The active Portrait mode now uses 11 downloaded Pixabay AI images in
+[`portraits/`](portraits/README.md), across 54 challenges based on classic levels.
+The thirty generated portraits listed below are retained as legacy assets and
+are no longer referenced by the game.
+
 These thirty original, fully clothed adult fashion portraits were generated with
 OpenAI image generation for Jungle Gems. They depict fictional people and do not
 use photographs or likenesses of named real people.

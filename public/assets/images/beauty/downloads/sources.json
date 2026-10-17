@@ -1,0 +1,73 @@
+{
+  "downloaded_on": "2026-10-17",
+  "license": "Pixabay Content License",
+  "license_url": "https://pixabay.com/service/license-summary/",
+  "assets": [
+    {
+      "file": "pixabay-7521174.jpg",
+      "title": "深蓝幻想肖像",
+      "source": "https://pixabay.com/photos/woman-portrait-ai-generated-fantasy-7521174/",
+      "download_url": "https://cdn.pixabay.com/photo/2022/10/14/12/32/woman-7521174_1280.jpg",
+      "ai_generated": true,
+      "width": 1280,
+      "height": 1280,
+      "bytes": 220052,
+      "sha256": "496bb95376765d4ccdb54c2ec4f1bd6339702a56d2126082c2200583d88577eb"
+    },
+    {
+      "file": "pixabay-8581092.png",
+      "title": "古城礼服",
+      "source": "https://pixabay.com/illustrations/ai-generated-woman-dress-face-eyes-8581092/",
+      "download_url": "https://cdn.pixabay.com/photo/2024/02/18/12/19/ai-generated-8581092_1280.png",
+      "ai_generated": true,
+      "width": 720,
+      "height": 1280,
+      "bytes": 1454918,
+      "sha256": "100721a1536f81950cfaf5fe5b1ecde669e83a984ce6e0d12bf05ef9d7a62474"
+    },
+    {
+      "file": "pixabay-8625677.jpg",
+      "title": "花园幻想",
+      "source": "https://pixabay.com/illustrations/ai-generated-woman-dress-face-8625677/",
+      "download_url": "https://cdn.pixabay.com/photo/2024/03/10/23/32/ai-generated-8625677_1280.jpg",
+      "ai_generated": true,
+      "width": 853,
+      "height": 1280,
+      "bytes": 261831,
+      "sha256": "3d2d5de074d80d09884615f629c80ff4ca2e7b31ca8ed2484598d758ed011e51"
+    },
+    {
+      "file": "pixabay-8759806.jpg",
+      "title": "白色礼服",
+      "source": "https://pixabay.com/illustrations/ai-generated-woman-dress-female-8759806/",
+      "download_url": "https://cdn.pixabay.com/photo/2024/05/13/21/27/ai-generated-8759806_1280.jpg",
+      "ai_generated": true,
+      "width": 740,
+      "height": 1280,
+      "bytes": 191943,
+      "sha256": "e721425e505441c0aea5c9b05950bb7f42e960eac79ecda5bbc9b31a1396c1b4"
+    },
+    {
+      "file": "pixabay-8997808.jpg",
+      "title": "花帽插画",
+      "source": "https://pixabay.com/illustrations/ai-generated-woman-portrait-8997808/",
+      "download_url": "https://cdn.pixabay.com/photo/2024/08/25/22/50/ai-generated-8997808_1280.jpg",
+      "ai_generated": true,
+      "width": 964,
+      "height": 1280,
+      "bytes": 229464,
+      "sha256": "6b0b1da35172820a162dd4264e9e7d2892d45f8ab0107f88faefd4df468fb99f"
+    },
+    {
+      "file": "pixabay-9246764.jpg",
+      "title": "逆光写真",
+      "source": "https://pixabay.com/illustrations/ai-generated-woman-portrait-9246764/",
+      "download_url": "https://cdn.pixabay.com/photo/2024/12/05/14/52/ai-generated-9246764_1280.jpg",
+      "ai_generated": true,
+      "width": 1280,
+      "height": 717,
+      "bytes": 180016,
+      "sha256": "019f392adbada11586a5a5423ff0f16441dde68545899da2bef23737c0e2db7e"
+    }
+  ]
+}

@@ -11,36 +11,29 @@ export const CLASSIC_PHOTO_TEMPLATES = [
     { moves: 35, objectives: [{ target: 'blocker', type: 'rope', count: 18 }, { target: 'blocker', type: 'stone', count: 12 }, { target: 'gem', type: 'yellow', count: 30 }] },
 ];
 
-const NEW_PORTRAITS = [
-    'lake', 'lavender', 'desert', 'harbor', 'cafe', 'orchard', 'waterfall', 'library', 'rainbow', 'terrace',
-    'bamboo', 'rose', 'countryside', 'marina', 'moonlight', 'festival', 'cliff', 'bridge', 'island', 'spring',
+export const PORTRAITS = [
+    '8059755', '8363683', '9013533', '8790150', '8105566', '8400104',
+    '8682657', '8933700', '9504564', '8584916', '8682687',
 ];
 
-export const PHOTO_LEVELS = [
-    { id: 'garden', title: 'beautyGarden', target: 900, moves: 24 },
-    { id: 'sunset', title: 'beautySunset', target: 1400, moves: 24 },
-    { id: 'city', title: 'beautyCity', target: 1900, moves: 26 },
-    { id: 'coast', title: 'beautyCoast', target: 2200, moves: 27 },
-    { id: 'forest', title: 'beautyForest', target: 2500, moves: 28 },
-    { id: 'meadow', title: 'beautyMeadow', target: 2800, moves: 29 },
-    { id: 'autumn', title: 'beautyAutumn', target: 3100, moves: 30 },
-    { id: 'blossom', title: 'beautyBlossom', target: 3400, moves: 31 },
-    { id: 'snow', title: 'beautySnow', target: 3700, moves: 32 },
-    { id: 'starlight', title: 'beautyStarlight', target: 4000, moves: 34 },
-    ...NEW_PORTRAITS.map((id, index) => ({
-        ...CLASSIC_PHOTO_TEMPLATES[index % CLASSIC_PHOTO_TEMPLATES.length],
-        id, title: `beauty${id[0].toUpperCase()}${id.slice(1)}`,
-        classicLevel: index % CLASSIC_PHOTO_TEMPLATES.length + 1,
-    })),
-];
+// Six map chapters reuse all nine campaign boards. Portraits cycle independently
+// so a repeated board is paired with different art in the following chapter.
+export const PHOTO_LEVELS = Array.from({ length: 54 }, (_, index) => ({
+    ...structuredClone(CLASSIC_PHOTO_TEMPLATES[index % CLASSIC_PHOTO_TEMPLATES.length]),
+    id: `portrait-${index + 1}`,
+    portrait: PORTRAITS[index % PORTRAITS.length],
+    title: 'beautyPortraitLevel',
+    titleParams: { level: index + 1 },
+    classicLevel: index % CLASSIC_PHOTO_TEMPLATES.length + 1,
+}));
 export const classicPhotoKey = level => `photo_classic_${level.classicLevel}`;
 export function copyClassicPhotoBoard(source) {
     // Board loading normalizes blocker counts; never mutate campaign/cache data.
     const { gridLayout, blockerLayout, availableGems, objectives, maxMoves } = source;
     return structuredClone({ gridLayout, blockerLayout, availableGems, objectives, maxMoves });
 }
-export const photoKey = index => `beauty_${PHOTO_LEVELS[index].id}`;
-export const photoPath = index => `assets/images/beauty/${PHOTO_LEVELS[index].id}.webp`;
+export const photoKey = index => `beauty_pixabay_${PHOTO_LEVELS[index].portrait}`;
+export const photoPath = index => `assets/images/beauty/portraits/${PHOTO_LEVELS[index].portrait}.webp`;
 export const PHOTO_SAVE_KEY = 'jungle-gems-photo-collection-v1';
 
 // Keep collectible progression separate from campaign lives, coins and boosters.

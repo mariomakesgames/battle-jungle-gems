@@ -1,0 +1,67 @@
+{
+  "downloaded_on": "2026-10-17",
+  "license": "Pixabay Content License",
+  "license_url": "https://pixabay.com/service/license-summary/",
+  "assets": [
+    {
+      "file": "ai-generated-8059755_1280.jpg",
+      "title": "蓝色泳装夜景",
+      "creator": "FRIDAYUB",
+      "source": "https://pixabay.com/photos/ai-generated-woman-bikini-mature-8059755/",
+      "download_url": "https://cdn.pixabay.com/photo/2023/06/13/02/13/ai-generated-8059755_1280.jpg",
+      "ai_generated": true,
+      "width": 720,
+      "height": 1280,
+      "bytes": 109126,
+      "sha256": "8149d668a3743146946a7158e1fd945562189825c3b6b830a90c3f257f228982"
+    },
+    {
+      "file": "ai-generated-8682657_1280.png",
+      "title": "黑色蕾丝写真",
+      "creator": "RadiantMuse0",
+      "source": "https://pixabay.com/pt/illustrations/ai-gerado-mulher-bikini-praia-8682657/",
+      "download_url": "https://cdn.pixabay.com/photo/2024/04/08/04/57/ai-generated-8682657_1280.png",
+      "ai_generated": true,
+      "width": 853,
+      "height": 1280,
+      "bytes": 1100069,
+      "sha256": "1f2666d8565e0730d79bf1c5f71e6c173d68e827df928fe0de2ca9863000c9fa"
+    },
+    {
+      "file": "ai-generated-8933700_1280.jpg",
+      "title": "泳池红色比基尼",
+      "creator": "efes",
+      "source": "https://pixabay.com/illustrations/ai-generated-woman-pool-model-8933700/",
+      "download_url": "https://cdn.pixabay.com/photo/2024/07/31/05/48/ai-generated-8933700_1280.jpg",
+      "ai_generated": true,
+      "width": 1280,
+      "height": 960,
+      "bytes": 226188,
+      "sha256": "f9777140a067890b9bb47ed85c2324862071c5aae8159a96276ab0acd53f7d2b"
+    },
+    {
+      "file": "digital-art-8790150_1280.png",
+      "title": "黑色开衩吊带裙",
+      "creator": "Genix_Art",
+      "source": "https://pixabay.com/illustrations/digital-art-woman-model-black-dress-8790150/",
+      "download_url": "https://cdn.pixabay.com/photo/2024/05/27/06/01/digital-art-8790150_1280.png",
+      "ai_generated": true,
+      "width": 850,
+      "height": 1280,
+      "bytes": 916599,
+      "sha256": "d3c0d9435811b89571d7748dff247676ad912757ba3f0bbb0634e015c5548cd2"
+    },
+    {
+      "file": "woman-8105566_1280.jpg",
+      "title": "紫色泳装月夜",
+      "creator": "FRIDAYUB",
+      "source": "https://pixabay.com/illustrations/woman-bikini-adult-ai-generated-8105566/",
+      "download_url": "https://cdn.pixabay.com/photo/2023/07/04/07/12/woman-8105566_1280.jpg",
+      "ai_generated": true,
+      "width": 984,
+      "height": 1280,
+      "bytes": 180495,
+      "sha256": "14b28d46935262f3349f8608640b9040472453fbb63a0e2aada62498270ef574"
+    }
+  ]
+}
