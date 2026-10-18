@@ -1,3 +1,4 @@
+import { playGameSfx } from '../../managers/GameSfx.js'
 import { BaseBlocker } from './BaseBlocker'
 import Phaser from 'phaser'
 
@@ -9,6 +10,11 @@ export class RopeBlocker extends BaseBlocker {
 
   // Rope bị phá khi match chính viên gem ở vị trí này (damage trực tiếp)
   // Không override takeDamage khác hành vi mặc định
+
+  takeDamage() {
+    playGameSfx(this.scene, 'rope')
+    return super.takeDamage()
+  }
 
   spread(board, plannedSpawns) {
     const candidates = []

@@ -1,3 +1,4 @@
+import { playGameSfx } from '../managers/GameSfx.js';
 import Phaser from 'phaser';
 import { Board } from '../objects/Board';
 import { PowerupVFXManager } from '../objects/vfx/PowerupVFXManager';
@@ -113,7 +114,7 @@ export class AIDuelScene extends Phaser.Scene {
         const box = this.add.rectangle(x, y, width, 44, 0x713719).setStrokeStyle(2, 0xe8bd70)
             .setInteractive({ useHandCursor: true }).setDepth(60).setName(name);
         const label = this.makeLabel(x, y, key, 20, {}, width - 10).setDepth(61);
-        box.on('pointerdown', action);
+        box.on('pointerdown', () => { playGameSfx(this, 'ui'); action(); });
         if (parent) parent.add([box, label]);
         return box;
     }
@@ -221,6 +222,7 @@ export class AIDuelScene extends Phaser.Scene {
 
     showResult() {
         if (this.resultShown) return;
+        playGameSfx(this, this.duel.winner === 'ai' ? 'lose' : 'win');
         this.resultShown = true;
         this.add.rectangle(288, 512, 576, 1024, 0x08120d, 0.84).setDepth(50).setInteractive();
         this.makeLabel(288, 385, { player: 'duelWin', ai: 'duelLose', draw: 'duelDraw' }[this.duel.winner], 38).setDepth(60);

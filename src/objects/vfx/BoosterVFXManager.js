@@ -1,8 +1,7 @@
 // src/objects/vfx/BoosterVFXManager.js
 import Phaser from 'phaser'
 import { BOOSTER_TYPES } from '../../utils/constants'
-import AudioManager from '../../managers/AudioManager'
-import { SOUND_KEYS } from '../../utils/SoundAssets'
+import { playGameSfx } from '../../managers/GameSfx.js'
 
 export class BoosterVFXManager {
   constructor(scene, board) {
@@ -257,6 +256,7 @@ playHammerEffect(row, col, onComplete) {
    * @param {function} onComplete - Callback để gọi khi animation kết thúc
    */
   playRocketEffect(col, onComplete) {
+    playGameSfx(this.scene, 'rocket');
     // Vị trí X của cột được chọn
     const targetX = this.board.getCellPosition(0, col).x;
 
@@ -370,10 +370,7 @@ playHammerEffect(row, col, onComplete) {
                 // 4. Khi đã hút xong, lắc bình
 
                 // << [THÊM MỚI] PHÁT ÂM THANH SHAKE TẠI ĐÂY (tăng âm tối thiểu 1.5x) >>
-                const sfxVolume = AudioManager.getSoundVolume();
-                if (sfxVolume > 0 && this.scene.sound) {
-                  this.scene.sound.play(SOUND_KEYS.SHAKE, { volume: sfxVolume * 1.5 });
-                }
+                playGameSfx(this.scene, 'shuffle');
 
                 // --- HIỆU ỨNG BỌT NƯỚC ĐỒNG BỘ VỚI HƯỚNG LẮC ---
                 const bubbleY = boardCenterY - 40;

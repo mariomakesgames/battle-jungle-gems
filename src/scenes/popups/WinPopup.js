@@ -3,8 +3,7 @@ import { localizeButton, localizedLabel } from '../../ui/LocalizedUI';
 import Phaser from 'phaser';
 import { ObjectiveItem } from '../../ui/ObjectiveItem';
 import PlayerDataManager from '../../managers/PlayerDataManager';
-import AudioManager from '../../managers/AudioManager';
-import { SOUND_KEYS } from '../../utils/SoundAssets';
+import { playGameSfx } from '../../managers/GameSfx.js';
 
 export class WinPopup extends Phaser.Scene {
   constructor() {
@@ -44,10 +43,7 @@ export class WinPopup extends Phaser.Scene {
     if (this.scene.isActive('UIScene')) this.scene.pause('UIScene');
 
     // Phát âm thanh chiến thắng
-    const sfxVolume = AudioManager.getSoundVolume();
-    if (sfxVolume > 0 && this.cache.audio.exists(SOUND_KEYS.WIN_GAME)) {
-      this.sound.play(SOUND_KEYS.WIN_GAME, { volume: sfxVolume });
-    }
+    playGameSfx(this, 'win');
 
     // Overlay mờ
     const overlay = this.add.rectangle(0, 0, width, height, 0x000000, 0.7)

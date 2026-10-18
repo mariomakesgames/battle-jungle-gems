@@ -1,3 +1,4 @@
+import { playGameSfx } from '../../managers/GameSfx.js'
 import { BaseBlocker } from './BaseBlocker'
 
 export class StoneBlocker extends BaseBlocker {
@@ -9,6 +10,7 @@ export class StoneBlocker extends BaseBlocker {
 
   takeDamage() {
     this.health--
+    playGameSfx(this.scene, this.health <= 0 ? 'stone_break' : 'stone_hit')
     if (this.health <= 0) {
       this.destroy()
       return true

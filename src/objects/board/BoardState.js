@@ -1,8 +1,7 @@
 // src/objects/board/BoardState.js
 import Phaser from 'phaser'
 import { GEM_TYPES, SCORE_VALUES } from '../../utils/constants'
-import AudioManager from '../../managers/AudioManager'
-import { SOUND_KEYS } from '../../utils/SoundAssets'
+import { playGameSfx } from '../../managers/GameSfx.js'
 
 export class BoardState {
   initGrid() {
@@ -433,10 +432,7 @@ export class BoardState {
     this.scene.input.enabled = false
 
     // << [AUDIO] Phát âm thanh swap - kiểm tra volume từ Setting >>
-    const sfxVolume = AudioManager.getSoundVolume()
-    if (sfxVolume > 0 && this.scene && this.scene.sound) {
-      this.scene.sound.play(SOUND_KEYS.SWAP_GEM, { volume: sfxVolume })
-    }
+    playGameSfx(this.scene, 'swap')
 
     // Báo cho UI biết board đang bận xử lý
     if (this.scene && this.scene.game && this.scene.game.events) {
@@ -466,6 +462,7 @@ export class BoardState {
 
   // Hoán đổi trả lại khi không có match/power-up được kích hoạt
   swapBack(gem1, gem2) {
+    playGameSfx(this.scene, 'invalid')
     const gem1Sprite = gem1.sprite
     const gem2Sprite = gem2.sprite
     const gem1CurrentX = gem1Sprite.x
@@ -907,6 +904,7 @@ export class BoardState {
 
   // Biến đổi gem tại các vị trí đã chọn thành power-up sau khi hiệu ứng lắc hoàn tất
   createPowerupsAfterWiggle(powerupsToCreate) {
+    if (powerupsToCreate.length) playGameSfx(this.scene, 'special')
     powerupsToCreate.forEach(powerupInfo => {
       const row = powerupInfo.row
       const col = powerupInfo.col
@@ -1047,12 +1045,11 @@ export class BoardState {
 
   // << THAY THẾ TOÀN BỘ HÀM NÀY >>
   removeGemSprites(gemsToRemove) {
+    this.scene.events.emit('gemsCleared', Array.from(gemsToRemove || [])
+      .filter(gem => gem?.sprite?.active).map(gem => ({ x: gem.sprite.x, y: gem.sprite.y })));
     // << [AUDIO] Phát âm thanh khi ăn gem - chỉ phát 1 lần cho mỗi đợt match >>
     if (gemsToRemove && gemsToRemove.size > 0) {
-      const sfxVolume = AudioManager.getSoundVolume()
-      if (sfxVolume > 0 && this.scene && this.scene.sound) {
-        this.scene.sound.play(SOUND_KEYS.SPIN_COLLECT, { volume: sfxVolume })
-      }
+      playGameSfx(this.scene, 'match', { chain: this.chainLevel })
     }
 
     gemsToRemove.forEach(gemObject => {
@@ -1967,6 +1964,7 @@ applyGravityAndRefill() {
     if (!this.isMoveBasedLevel) return;
     
     this.movesRemaining--;
+    if ([5, 1].includes(this.movesRemaining)) playGameSfx(this.scene, 'low_moves');
     console.log('Move used. Moves remaining:', this.movesRemaining);
     
     // Emit sự kiện để UI cập nhật

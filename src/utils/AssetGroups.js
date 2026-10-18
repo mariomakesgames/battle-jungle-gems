@@ -1,3 +1,4 @@
+import { GAME_SFX_PATHS } from '../audio/SfxPalette.js';
 import { SOUND_PATHS, SOUND_KEYS } from './SoundAssets.js';
 
 // Assets are queued only when their screen is first opened. Shared keys use Phaser's cache.
@@ -131,7 +132,7 @@ export const ASSET_GROUPS = {
             ['star_off_pgb', 'assets/images/ui/star_off_pgb.png'],
             ['star_on_pgb', 'assets/images/ui/star_on_pgb.png'],
         ],
-        audio: SOUND_PATHS.filter(sound => ![SOUND_KEYS.SPIN_BACKGROUND_EFFECT, SOUND_KEYS.WIN_GAME, SOUND_KEYS.LOSE_GAME].includes(sound.key)),
+        audio: [...GAME_SFX_PATHS, ...SOUND_PATHS.filter(sound => ![SOUND_KEYS.SPIN_BACKGROUND_EFFECT, SOUND_KEYS.WIN_GAME, SOUND_KEYS.LOSE_GAME].includes(sound.key))],
     },
     settings: {
         images: [

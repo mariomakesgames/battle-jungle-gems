@@ -47,7 +47,7 @@ test('all languages translate gameplay labels and interpolate level numbers', ()
         for (const key of [...PHOTO_LEVELS.map(level => level.title), 'beautyPreviousPage', 'beautyNextPage', 'beautyPage']) {
             assert.notEqual(LanguageManager.t(key, { page: 4, total: 4 }), key);
         }
-        for (const key of ['beautyClassicLevelGoal', 'beautyCurrentScore', 'beautyGoalProgress', 'beautyClassicRules', 'beautyLevelError', 'beautyGoalRemaining',
+        for (const key of ['beautyClassicLevelGoal', 'beautyCurrentScore', 'beautyGoalProgress', 'beautyClassicRules', 'beautyBoosterTarget', 'beautyBoosterSecond', 'beautyLevelError', 'beautyGoalRemaining',
             ...['Red', 'Green', 'Blue', 'Purple', 'Yellow', 'Orange', 'Stone', 'Rope'].map(type => `beautyGoal${type}`)]) {
             assert.notEqual(LanguageManager.t(key), key);
         }

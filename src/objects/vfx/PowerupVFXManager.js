@@ -1,3 +1,4 @@
+import { playGameSfx, sfxEventForKey } from '../../managers/GameSfx.js';
 // src/objects/vfx/PowerupVFXManager.js
 
 import AudioManager from '../../managers/AudioManager';
@@ -12,6 +13,8 @@ export class PowerupVFXManager {
   // --- Helper để phát âm thanh: Thêm volumeScale và pitch ---
   // Mặc định tăng 1.5 lần so với âm gốc
   playSound(key, volumeScale = 1.5, pitch = 1.0) {
+    const event = sfxEventForKey(key);
+    if (event) return playGameSfx(this.scene, event, { strength: volumeScale / 1.5, rate: pitch });
     const sfxVolume = AudioManager.getSoundVolume();
     if (sfxVolume > 0 && this.scene.sound) {
       this.scene.sound.play(key, { 
@@ -297,16 +300,7 @@ export class PowerupVFXManager {
 
     const totalAnimationTime = duration + maxDelay;
 
-    // Âm thanh hút gem
-    const sfxVolume = AudioManager.getSoundVolume();
-    if (sfxVolume > 0 && this.scene.sound) {
-      for (let i = 0; i < 3; i++) {
-        const randomTime = Math.random() * (totalAnimationTime - 80);
-        this.scene.time.delayedCall(randomTime, () => {
-          this.scene.sound.play(SOUND_KEYS.SPIN_COLLECT, { volume: sfxVolume });
-        });
-      }
-    }
+    playGameSfx(this.scene, 'color');
 
     // Sau khi hút xong -> Thu nhỏ Color Bomb -> Mới gọi onComplete
     this.scene.time.delayedCall(totalAnimationTime, () => {
@@ -1447,18 +1441,7 @@ export class PowerupVFXManager {
     const totalAnimationTime = duration + maxDelay;
 
     // Âm thanh hút gem liên tục
-    const sfxVolume = AudioManager.getSoundVolume();
-    if (sfxVolume > 0 && this.scene.sound) {
-      for (let i = 0; i < 8; i++) { // Nhiều âm thanh hơn vì hút nhiều gem
-        const randomTime = Math.random() * (totalAnimationTime - 100);
-        this.scene.time.delayedCall(randomTime, () => {
-          this.scene.sound.play(SOUND_KEYS.SPIN_COLLECT, { 
-            volume: sfxVolume * 1.2,
-            pitch: 0.8 + Math.random() * 0.4 // Random pitch để tạo sự đa dạng
-          });
-        });
-      }
-    }
+    playGameSfx(this.scene, 'color');
 
     // Tạo vòng tròn sóng năng lượng lan ra
     this.createEnergyWaves(centerPos, totalAnimationTime);

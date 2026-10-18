@@ -7,7 +7,7 @@ export const LANGUAGES = [
 const messages = {
     'zh-CN': {
         debugMode: 'DEBUG · 所有关卡已开放', start: '开始游戏', classicMode: '玩经典模式', language: '语言', settings: '设置', pause: '暂停',
-        beautyPortraitLevel: '写真 · 第 {level} 关', beautyMode: 'Portrait 模式', baddieGalleryEmpty: '还没有收藏图片。先在地图通关吧！', baddieGallery: '图鉴', baddieLevels: '选关', baddieContinue: '继续第 {level} 关', baddieMapError: '地图加载失败，请重试。', beautyIntro: '消除宝石，逐步揭开写真。\n过关后收藏完整图片，再挑战下一张。',
+        beautyPortraitLevel: '写真 · 第 {level} 关', beautyMode: 'Baddie 模式', baddieGalleryEmpty: '还没有收藏图片。先在地图通关吧！', baddieGallery: '图鉴', baddieLevels: '选关', baddieContinue: '继续第 {level} 关', baddieMapError: '地图加载失败，请重试。', beautyIntro: '消除宝石，逐步揭开写真。\n过关后收藏完整图片，再挑战下一张。',
         beautyGarden: '林间晨光', beautySunset: '落日花园', beautyCity: '都市夜色',
         beautyCoast: '海岸微风', beautyForest: '绿林漫步', beautyMeadow: '花田午后', beautyAutumn: '金色秋日',
         beautyBlossom: '樱花时节', beautySnow: '冬日雪景', beautyStarlight: '星空之夜',
@@ -18,7 +18,7 @@ const messages = {
         beautyCountryside: '田野漫步', beautyMarina: '帆影轻舟', beautyMoonlight: '月色湖光', beautyFestival: '灯火庆典',
         beautyCliff: '崖岸远望', beautyBridge: '古桥光影', beautyIsland: '海岛之约', beautySpring: '春日花信',
         beautyCurrentScore: '得分 {score}', beautyClassicLevelGoal: '{goals} · {moves} 步', beautyGoalProgress: '{goals}',
-        beautyClassicRules: '完成全部目标，解锁完整图片。', beautyLevelError: '关卡加载失败，请重试。', beautyGoalRemaining: '剩 {count}',
+        beautyBoosterTarget: '点击或拖到棋盘，选择道具目标。', beautyBoosterSecond: '再选择一颗宝石进行交换。', beautyClassicRules: '完成全部目标，解锁完整图片。', beautyLevelError: '关卡加载失败，请重试。', beautyGoalRemaining: '剩 {count}',
         beautyGoalRed: '红宝石', beautyGoalGreen: '绿宝石', beautyGoalBlue: '蓝宝石', beautyGoalPurple: '紫宝石',
         beautyGoalYellow: '黄宝石', beautyGoalOrange: '橙宝石', beautyGoalStone: '石头', beautyGoalRope: '绳索',
         beautyLevelGoal: '目标 {score} 分 · {moves} 次有效交换', beautyCollected: '已收藏', beautyReady: '待挑战',
@@ -80,7 +80,7 @@ const messages = {
     },
     en: {
         debugMode: 'DEBUG · All levels unlocked', start: 'START', classicMode: 'Play Classic Mode', language: 'Language', settings: 'Settings', pause: 'Paused',
-        beautyPortraitLevel: 'Portrait · Level {level}', beautyMode: 'Portrait Mode', baddieGalleryEmpty: 'No portraits yet. Clear a level on the map!', baddieGallery: 'Gallery', baddieLevels: 'Levels', baddieContinue: 'Play level {level}', baddieMapError: 'Map failed to load. Please retry.', beautyIntro: 'Match gems to reveal each portrait.\nClear its goal to collect it and unlock the next.',
+        beautyPortraitLevel: 'Portrait · Level {level}', beautyMode: 'Baddie Mode', baddieGalleryEmpty: 'No portraits yet. Clear a level on the map!', baddieGallery: 'Gallery', baddieLevels: 'Levels', baddieContinue: 'Play level {level}', baddieMapError: 'Map failed to load. Please retry.', beautyIntro: 'Match gems to reveal each portrait.\nClear its goal to collect it and unlock the next.',
         beautyGarden: 'Morning in the garden', beautySunset: 'Golden-hour garden', beautyCity: 'City at twilight',
         beautyCoast: 'Ocean breeze', beautyForest: 'Woodland stroll', beautyMeadow: 'Wildflower afternoon', beautyAutumn: 'Golden autumn',
         beautyBlossom: 'Cherry blossom season', beautySnow: 'Winter wonderland', beautyStarlight: 'Under the stars',
@@ -91,7 +91,7 @@ const messages = {
         beautyCountryside: 'Countryside walk', beautyMarina: 'Sailing day', beautyMoonlight: 'Moonlit waters', beautyFestival: 'Lantern festival',
         beautyCliff: 'Coastal cliffs', beautyBridge: 'Across the bridge', beautyIsland: 'Island escape', beautySpring: 'Spring blossoms',
         beautyCurrentScore: 'Score {score}', beautyClassicLevelGoal: '{goals} · {moves} moves', beautyGoalProgress: '{goals}',
-        beautyClassicRules: 'Complete every goal to reveal the portrait.', beautyLevelError: 'Challenge failed to load. Please retry.', beautyGoalRemaining: '{count} left',
+        beautyBoosterTarget: 'Tap or drag onto the board to choose a target.', beautyBoosterSecond: 'Choose another gem to swap.', beautyClassicRules: 'Complete every goal to reveal the portrait.', beautyLevelError: 'Challenge failed to load. Please retry.', beautyGoalRemaining: '{count} left',
         beautyGoalRed: 'Red', beautyGoalGreen: 'Green', beautyGoalBlue: 'Blue', beautyGoalPurple: 'Purple',
         beautyGoalYellow: 'Yellow', beautyGoalOrange: 'Orange', beautyGoalStone: 'Stones', beautyGoalRope: 'Ropes',
         beautyLevelGoal: 'Goal: {score} points · {moves} valid swaps', beautyCollected: 'Collected', beautyReady: 'Ready to play',
@@ -153,7 +153,7 @@ const messages = {
     },
     vi: {
         debugMode: 'DEBUG · Mở tất cả màn chơi', start: 'BẮT ĐẦU', classicMode: 'Chơi chế độ cổ điển', language: 'Ngôn ngữ', settings: 'Cài đặt', pause: 'Tạm dừng',
-        beautyPortraitLevel: 'Chân dung · Màn {level}', beautyMode: 'Chế độ Portrait', baddieGalleryEmpty: 'Chưa có ảnh. Hãy hoàn thành màn trên bản đồ!', baddieGallery: 'Bộ sưu tập', baddieLevels: 'Màn chơi', baddieContinue: 'Chơi màn {level}', baddieMapError: 'Không tải được bản đồ. Hãy thử lại.', beautyIntro: 'Ghép ngọc để dần mở ảnh.\nĐạt mục tiêu để sưu tập và mở ảnh tiếp theo.',
+        beautyPortraitLevel: 'Chân dung · Màn {level}', beautyMode: 'Chế độ Baddie', baddieGalleryEmpty: 'Chưa có ảnh. Hãy hoàn thành màn trên bản đồ!', baddieGallery: 'Bộ sưu tập', baddieLevels: 'Màn chơi', baddieContinue: 'Chơi màn {level}', baddieMapError: 'Không tải được bản đồ. Hãy thử lại.', beautyIntro: 'Ghép ngọc để dần mở ảnh.\nĐạt mục tiêu để sưu tập và mở ảnh tiếp theo.',
         beautyGarden: 'Nắng sớm trong vườn', beautySunset: 'Khu vườn hoàng hôn', beautyCity: 'Thành phố về đêm',
         beautyCoast: 'Gió biển', beautyForest: 'Dạo bước trong rừng', beautyMeadow: 'Chiều bên đồng hoa', beautyAutumn: 'Mùa thu vàng',
         beautyBlossom: 'Mùa hoa anh đào', beautySnow: 'Khung cảnh mùa đông', beautyStarlight: 'Dưới trời sao',
@@ -164,7 +164,7 @@ const messages = {
         beautyCountryside: 'Dạo bước đồng quê', beautyMarina: 'Ngày bên bến thuyền', beautyMoonlight: 'Hồ dưới ánh trăng', beautyFestival: 'Lễ hội đèn lồng',
         beautyCliff: 'Vách đá ven biển', beautyBridge: 'Qua cầu cổ', beautyIsland: 'Hẹn trên đảo', beautySpring: 'Hoa mùa xuân',
         beautyCurrentScore: 'Điểm {score}', beautyClassicLevelGoal: '{goals} · {moves} lượt', beautyGoalProgress: '{goals}',
-        beautyClassicRules: 'Hoàn thành mọi mục tiêu để mở toàn bộ ảnh.', beautyLevelError: 'Không tải được màn chơi. Hãy thử lại.', beautyGoalRemaining: 'Còn {count}',
+        beautyBoosterTarget: 'Chạm hoặc kéo vào bàn để chọn mục tiêu.', beautyBoosterSecond: 'Chọn viên ngọc thứ hai để đổi.', beautyClassicRules: 'Hoàn thành mọi mục tiêu để mở toàn bộ ảnh.', beautyLevelError: 'Không tải được màn chơi. Hãy thử lại.', beautyGoalRemaining: 'Còn {count}',
         beautyGoalRed: 'Đỏ', beautyGoalGreen: 'Xanh lá', beautyGoalBlue: 'Xanh dương', beautyGoalPurple: 'Tím',
         beautyGoalYellow: 'Vàng', beautyGoalOrange: 'Cam', beautyGoalStone: 'Đá', beautyGoalRope: 'Dây',
         beautyLevelGoal: 'Mục tiêu {score} điểm · {moves} lần đổi hợp lệ', beautyCollected: 'Đã sưu tập', beautyReady: 'Sẵn sàng',

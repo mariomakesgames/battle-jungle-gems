@@ -105,6 +105,13 @@ export class PhotoRun {
         return true;
     }
 
+    beginBooster() {
+        if (this.finished || this.pending || this.movesLeft <= 0) return false;
+        // Booster effects participate in goals/cascades but never spend a move.
+        this.pending = { accepted: true, booster: true };
+        return true;
+    }
+
     accept() {
         if (!this.pending || this.pending.accepted) return false;
         this.pending.accepted = true;

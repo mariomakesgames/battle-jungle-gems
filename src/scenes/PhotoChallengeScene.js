@@ -1,3 +1,4 @@
+import { playGameSfx } from '../managers/GameSfx.js';
 import { AIDuelScene } from './AIDuelScene';
 import { Board } from '../objects/Board';
 import { PowerupVFXManager } from '../objects/vfx/PowerupVFXManager';
@@ -5,9 +6,11 @@ import { startAssetStream } from './AssetStreamScene';
 import { DUEL_COLORS } from '../ai/ChooseMove';
 import AudioManager from '../managers/AudioManager';
 import LanguageManager from '../i18n/LanguageManager';
-import { PHOTO_LEVELS, PhotoRun, photoCollection, canEnterPhotoLevel, photoKey, photoPath, REVEAL_ORDER, classicPhotoKey, photoBoardPath, copyClassicPhotoBoard } from '../beauty/PhotoRules';
+import { PHOTO_LEVELS, PhotoRun, photoCollection, canEnterPhotoLevel, photoKey, photoPath, classicPhotoKey, photoBoardPath, copyClassicPhotoBoard } from '../beauty/PhotoRules';
 import { bindPointerLifecycle } from '../input/BoardGesture';
 import { photoGoalsText } from '../ui/PhotoGoals';
+import { PhotoBoosters, queuePhotoBoosters } from '../beauty/PhotoBoosters';
+import { PhotoRevealVFX } from '../beauty/PhotoRevealVFX.js';
 
 const PHOTO = { x: 168, y: 126, width: 240, height: 300 };
 const GRID = { x: 72, y: 478, cell: 48, size: 432 };
@@ -29,10 +32,16 @@ export class PhotoChallengeScene extends AIDuelScene {
         this.run = new PhotoRun(this.level);
         this.coverTiles = [];
         this.blockerAssets = [];
+        this.activeBooster = null;
+        this.boosters = null;
+        this.boosterHelp = null;
+        this.revealVFX = null;
+        this.resultQueued = false;
     }
 
     preload() {
         if (!this.viewing) super.preload();
+        if (!this.viewing) queuePhotoBoosters(this);
         if (!this.viewing && this.hasAuthoredBoard) {
             const key = classicPhotoKey(this.level);
             if (!this.cache.json.exists(key)) this.load.json(key, photoBoardPath(this.level));
@@ -75,6 +84,7 @@ export class PhotoChallengeScene extends AIDuelScene {
             tile.revealed = false;
             return tile;
         });
+        this.revealVFX = new PhotoRevealVFX(this, this.coverTiles);
         this.add.rectangle(288, 442, 260, 10, 0x32455f);
         this.progressBar = this.add.rectangle(158, 442, 0, 10, 0xe8bd70).setOrigin(0, 0.5);
         this.progressLabel = this.makeLabel(288, 460, 'beautyRevealProgress', 18, () => ({ percent: Math.floor(this.run.progress * 100) }));
@@ -92,10 +102,14 @@ export class PhotoChallengeScene extends AIDuelScene {
         this.loadBoard();
         if (this.hasAuthoredBoard) {
             this.goalsLabel = this.makeLabel(288, 933, 'beautyGoalProgress', 19, () => ({ goals: photoGoalsText(this.run.objectives) }), 530);
-            this.makeLabel(288, 957, 'beautyClassicRules', 16, {}, 530);
+            this.boosterHelp = this.makeLabel(288, 957, 'beautyClassicRules', 16, {}, 530);
         } else this.makeLabel(288, 944, 'beautyRules', 18, {}, 530);
-        this.button(288, 990, 180, 'beautyHint', () => {
-            if (this.canPlayerAct()) this.board.showHint();
+        this.boosters = new PhotoBoosters(this);
+        this.button(500, 990, 120, 'beautyHint', () => {
+            if (this.canPlayerAct()) {
+                this.boosters.clear();
+                this.board.showHint();
+            }
         }, 'beauty-hint');
 
         this.events.on('swapAccepted', this.onAccepted, this);
@@ -122,6 +136,19 @@ export class PhotoChallengeScene extends AIDuelScene {
 
     canPlayerAct() { return !this.paused && !this.run.finished && !this.run.pending && !this.board.boardBusy; }
 
+    onDown(pointer) {
+        if (!this.activeBooster) super.onDown(pointer);
+    }
+
+    onUp(pointer) {
+        if (this.activeBooster) {
+            const cell = this.cellAt(pointer);
+            if (cell) this.boosters.target(cell.r, cell.c);
+            return;
+        }
+        super.onUp(pointer);
+    }
+
     loadBoard() {
         if (!this.hasAuthoredBoard) return super.loadBoard();
         const definition = copyClassicPhotoBoard(this.cache.json.get(classicPhotoKey(this.level)));
@@ -146,7 +173,10 @@ export class PhotoChallengeScene extends AIDuelScene {
         return true;
     }
 
-    onAccepted() { this.run.accept(); this.refresh(); }
+    onAccepted() {
+        if (this.run.accept() && [5, 1].includes(this.run.movesLeft)) playGameSfx(this, 'low_moves');
+        this.refresh();
+    }
     onScore(points) { if (this.run.addScore(points)) this.refresh(); }
 
     onObjectiveUpdated({ key, remaining }) {
@@ -161,19 +191,27 @@ export class PhotoChallengeScene extends AIDuelScene {
         this.run.settle();
         this.run.finished = true;
         this.refresh();
-        if (this.run.won) { photoCollection.collect(this.index); this.showPhoto(false); }
-        else this.showFailure();
+        this.queueResult();
     }
 
     onBusy(busy) {
         if (busy) this.cancelBoardGesture();
+        this.boosters?.refresh();
         if (busy || this.board.consecutiveShuffleFailures >= 3 || this.run.finished) return;
         this.run.settle();
         this.refresh();
         if (this.run.finished) {
+            this.queueResult();
+        }
+    }
+
+    queueResult() {
+        if (this.resultQueued) return;
+        this.resultQueued = true;
+        this.revealVFX.whenIdle(() => {
             if (this.run.won) { photoCollection.collect(this.index); this.showPhoto(false); }
             else this.showFailure();
-        }
+        });
     }
 
     refresh() {
@@ -183,17 +221,13 @@ export class PhotoChallengeScene extends AIDuelScene {
         this.movesLabel.setText(LanguageManager.t('beautyMoves', { count: this.run.movesLeft }));
         this.progressLabel.setText(LanguageManager.t('beautyRevealProgress', { percent: Math.floor(this.run.progress * 100) }));
         this.progressBar.width = 260 * this.run.progress;
-        const count = Math.floor(this.run.progress * this.coverTiles.length);
-        for (const index of REVEAL_ORDER.slice(0, count)) {
-            const tile = this.coverTiles[index];
-            if (tile.revealed) continue;
-            tile.revealed = true;
-            this.tweens.add({ targets: tile, alpha: 0, duration: 400, ease: 'Cubic.easeOut' });
-        }
+        this.boosters?.refresh();
+        this.revealVFX?.reveal(this.run.progress);
     }
 
     showPhoto(viewing) {
         if (this.resultShown) return;
+        if (!viewing) playGameSfx(this, 'win');
         this.resultShown = true;
         const panel = this.add.container(0, 0).setDepth(100);
         panel.add(this.add.rectangle(288, 512, 576, 1024, 0x101c30, 0.98).setInteractive());
@@ -213,6 +247,8 @@ export class PhotoChallengeScene extends AIDuelScene {
     }
 
     showFailure() {
+        if (this.resultShown) return;
+        playGameSfx(this, 'lose');
         this.resultShown = true;
         const panel = this.add.container(0, 0).setDepth(100);
         panel.add(this.add.rectangle(288, 512, 576, 1024, 0x101c30, 0.88).setInteractive());
@@ -223,7 +259,8 @@ export class PhotoChallengeScene extends AIDuelScene {
     }
 
     showPause() {
-        if (this.paused || this.run.finished || this.board.boardBusy) return;
+        if (this.paused || this.run.finished || this.board.boardBusy || this.run.pending) return;
+        this.boosters?.clear();
         super.showPause();
     }
 
@@ -232,6 +269,11 @@ export class PhotoChallengeScene extends AIDuelScene {
     leave() { this.scene.start(this.selectionScene, { ...this.navigationData(), focusIndex: this.index }); }
 
     cleanup() {
+        this.revealVFX?.destroy();
+        this.revealVFX = null;
+        this.boosters?.destroy();
+        this.boosters = null;
+        this.boosterHelp = null;
         // Scene instances are reused by Phaser; clear references to destroyed HUDs.
         this.scoreLabel = null;
         this.goalsLabel = null;

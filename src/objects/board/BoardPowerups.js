@@ -1,3 +1,4 @@
+import { playGameSfx, sfxEventForKey } from '../../managers/GameSfx.js';
 // src/objects/board/BoardPowerups.js
 import { GEM_TYPES } from '../../utils/constants'
 import { SOUND_KEYS } from '../../utils/SoundAssets' // <--- Import Sound Assets
@@ -27,6 +28,8 @@ export class BoardPowerups {
 
   // Hàm helper để phát âm thanh nhanh gọn
   playSound(key, volumeScale = 1.0) {
+    const event = sfxEventForKey(key);
+    if (event) return playGameSfx(this.scene, event, { strength: volumeScale });
     const sfxVolume = AudioManager.getSoundVolume()
     if (sfxVolume > 0 && this.scene && this.scene.sound) {
       this.scene.sound.play(key, { volume: sfxVolume * volumeScale })
@@ -351,6 +354,7 @@ export class BoardPowerups {
     if (!this.isValidCell(row, col)) return;
     const blocker = this.blockerGrid[row]?.[col];
     if (blocker) {
+      playGameSfx(this.scene, blocker.type === 'rope' ? 'rope' : 'stone_break');
       if (blocker.type) {
         this.updateObjectiveProgress('blocker', blocker.type);
       }
@@ -370,6 +374,7 @@ export class BoardPowerups {
     }
     const gem = this.grid[row]?.[col];
     if (gem && gem.sprite) {
+      this.scene.events.emit('gemsCleared', [{ x: gem.sprite.x, y: gem.sprite.y }]);
       const isPowerup = gem.value === GEM_TYPES.BOMB || gem.value === GEM_TYPES.STRIPE || gem.value === GEM_TYPES.COLOR_BOMB
       if (isPowerup) {
         const map = { [GEM_TYPES.BOMB]: 'bomb', [GEM_TYPES.STRIPE]: 'stripe', [GEM_TYPES.COLOR_BOMB]: 'color_bomb' }
@@ -399,6 +404,7 @@ export class BoardPowerups {
     this.boardBusy = true;
     this.scene.input.enabled = false;
     this.turnStats = { gemCounts: {}, powerups: [] };
+    playGameSfx(this.scene, 'hammer');
     this.forceDestroyCell(row, col);
     this.scene.time.delayedCall(250, () => {
         this.recalculateBlockerCounts();

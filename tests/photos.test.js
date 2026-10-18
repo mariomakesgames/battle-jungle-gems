@@ -34,6 +34,27 @@ test('the final valid move can still win; otherwise running out ends the attempt
     }
 });
 
+test('boosters count toward goals and cascades without spending moves or overlapping actions', () => {
+    const run = new PhotoRun({ moves: 2, objectives: [{ target: 'blocker', type: 'stone', count: 2 }] });
+    assert.equal(run.beginBooster(), true);
+    assert.equal(run.begin(), false);
+    assert.equal(run.beginBooster(), false);
+    assert.equal(run.accept(), false, 'The swap booster also emits swapAccepted');
+    assert.equal(run.movesLeft, 2);
+    assert.equal(run.addScore(100), true);
+    assert.equal(run.updateObjective('blocker_stone', 1), true);
+    run.settle();
+    assert.equal(run.progress, 0.5);
+    assert.equal(run.won, false);
+    run.beginBooster();
+    run.updateObjective('blocker_stone', 0);
+    run.settle();
+    assert.equal(run.won, true);
+    assert.equal(run.progress, 1);
+    assert.equal(run.movesLeft, 2);
+    assert.equal(run.beginBooster(), false);
+});
+
 test('collection unlocks sequentially, persists, rejects corrupt saves and works without storage', () => {
     const values = new Map();
     globalThis.localStorage = { getItem: key => values.get(key), setItem: (key, value) => values.set(key, value) };
