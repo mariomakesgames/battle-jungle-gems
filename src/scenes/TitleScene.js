@@ -40,10 +40,13 @@ export class TitleScene extends Phaser.Scene {
         });
 
         const modeButton = (y, color, key, name, action) => {
+            // Keep the other mode entries available to restore later.
+            const visible = name === 'beauty-entry';
             const button = this.add.rectangle(gameWidth / 2, y, 300, 46, color)
-                .setStrokeStyle(2, 0xe8bd70).setInteractive({ useHandCursor: true }).setName(name);
+                .setStrokeStyle(2, 0xe8bd70).setVisible(visible).setName(name);
+            if (visible) button.setInteractive({ useHandCursor: true });
             bindText(this.add.text(gameWidth / 2, y, '', { fontSize: '25px', color: '#fff5df' })
-                .setOrigin(0.5).setName(`${name}-label`), key, {}, 280);
+                .setOrigin(0.5).setVisible(visible).setName(`${name}-label`), key, {}, 280);
             button.on('pointerdown', action);
         };
         modeButton(613, 0x713719, 'classicMode', 'classic-mode-entry', () => {
