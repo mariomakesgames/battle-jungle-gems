@@ -1,6 +1,7 @@
 // src/scenes/BootScene.js
 import Phaser from 'phaser';
 import AudioManager from '../managers/AudioManager';
+import { queueBaddieTheme } from '../ui/BaddieTheme.js';
 
 export class BootScene extends Phaser.Scene {
     constructor() {
@@ -8,9 +9,10 @@ export class BootScene extends Phaser.Scene {
     }
 
     preload() {
+        queueBaddieTheme(this);
         // Tải những asset TỐI THIỂU cho màn hình loading
         // Ví dụ: ảnh nền của thanh loading và ảnh thanh loading sẽ được fill
-        this.load.image('preloading_background', 'assets/images/map/preloading.png');
+        this.load.image('preloading_background', 'assets/images/baddie/studio.webp');
         this.load.image('loading_logo', 'assets/images/map/logo.png');
         this.load.image('loading_progress_bar', 'assets/images/map/loading_progress_bar.png');
         this.load.image('loading_progress_bar_background', 'assets/images/map/loading_progress_bar_background.png');
@@ -21,7 +23,7 @@ export class BootScene extends Phaser.Scene {
         AudioManager.setGame(this.game);
         
         // --- THAY ĐỔI: Đợi Font tải xong mới vào màn Title ---
-        this.waitForFont('UTMCookies').then(() => {
+        Promise.all([this.waitForFont('UTMCookies'), this.waitForFont('NABILA')]).then(() => {
             this.scene.start('TitleScene');
         });
     }

@@ -4,7 +4,7 @@ import Phaser from 'phaser'
 
 export class RopeBlocker extends BaseBlocker {
   constructor(scene, x, y, row, col) {
-    super(scene, x, y, 'blocker_rope', 'rope', row, col)
+    super(scene, x, y, scene.blockerTexture?.('rope') || 'blocker_rope', 'rope', row, col)
     this.health = 1
   }
 

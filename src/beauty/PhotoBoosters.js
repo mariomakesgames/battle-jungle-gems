@@ -1,4 +1,6 @@
+import { fashionButton } from '../ui/FashionButton.js';
 import { playGameSfx } from '../managers/GameSfx.js';
+import { BADDIE } from '../ui/BaddieTheme.js';
 import PlayerDataManager from '../managers/PlayerDataManager';
 import LanguageManager from '../i18n/LanguageManager';
 import { BOOSTER_TYPES } from '../utils/constants';
@@ -27,12 +29,12 @@ export class PhotoBoosters {
         this.vfx = new BoosterVFXManager(scene, scene.board);
         TYPES.forEach((type, index) => {
             const x = 78 + index * 102;
-            const button = scene.add.rectangle(x, 990, 84, 56, 0x28394d)
-                .setStrokeStyle(2, 0xe8bd70).setInteractive({ useHandCursor: true })
+            const button = fashionButton(scene, x, 990, 84, 56)
+                .setStrokeStyle(1, BADDIE.gold).setInteractive({ useHandCursor: true })
                 .setName(`baddie-booster-${type}`);
-            const icon = scene.add.image(x - 7, 990, `booster_${type}`);
+            const icon = scene.add.image(x - 7, 990, `baddie_booster_${type}`);
             icon.setScale(Math.min(40 / icon.width, 40 / icon.height));
-            const count = scene.add.text(x + 23, 971, '', { fontSize: '17px', color: '#fff5df' })
+            const count = scene.add.text(x + 23, 977, '', { fontFamily: BADDIE.font, fontSize: '15px', color: '#f2b2c8' })
                 .setOrigin(0.5).setName(`baddie-booster-${type}-count`);
             button.on('pointerdown', () => this.select(type));
             this.buttons.push({ type, button, icon, count });
@@ -113,13 +115,15 @@ export class PhotoBoosters {
             const amount = this.inventory.getBoosterCount(type);
             const enabled = usable && amount > 0;
             button.input.enabled = enabled;
-            button.setStrokeStyle(2, type === this.selected ? 0xffff66 : 0xe8bd70);
+            button.setFillStyle(type === this.selected ? BADDIE.rose : BADDIE.raised);
+            button.setStrokeStyle(type === this.selected ? 2 : 1, type === this.selected ? BADDIE.pink : BADDIE.gold);
             button.setAlpha(enabled ? 1 : 0.4);
             icon.setAlpha(enabled ? 1 : 0.4);
             count.setText(String(amount)).setAlpha(enabled ? 1 : 0.4);
         }
         const key = this.first ? 'beautyBoosterSecond' : this.selected ? 'beautyBoosterTarget' : 'beautyClassicRules';
-        if (this.scene.boosterHelp) this.scene.boosterHelp.setText(LanguageManager.t(key));
+        if (this.scene.boosterHelp) this.scene.boosterHelp.setText(LanguageManager.t(key)).setVisible(!!this.selected);
+        this.scene.goalBadges?.setVisible(!this.selected);
     }
 
     destroy() {

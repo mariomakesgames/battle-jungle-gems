@@ -120,11 +120,12 @@ test('all 84 challenges use authored goals, budgets and independently cloned lay
     }
 });
 
-test('new photos replace the old collection and repeated art shares a texture cache key', () => {
-    assert.equal(PORTRAITS.length, 41);
-    assert.equal(new Set(PHOTO_LEVELS.map((_, index) => photoPath(index))).size, 41);
-    assert.equal(photoKey(0), photoKey(11));
-    assert.equal(photoPath(0), photoPath(11));
+test('every level has its own portrait, texture and recorded source', () => {
+    assert.equal(PORTRAITS.length, 84);
+    assert.equal(new Set(PHOTO_LEVELS.map((_, index) => photoPath(index))).size, 84);
+    assert.equal(new Set(PHOTO_LEVELS.map((_, index) => photoKey(index))).size, 84);
+    assert.notEqual(photoKey(0), photoKey(11));
+    assert.notEqual(photoPath(0), photoPath(11));
     assert.notEqual(classicPhotoKey(PHOTO_LEVELS[0]), classicPhotoKey(PHOTO_LEVELS[11]));
     const manifest = JSON.parse(readFileSync(new URL('../public/assets/images/beauty/portraits/sources.json', import.meta.url)));
     for (const id of PORTRAITS) assert.ok(manifest.assets.some(asset => asset.runtime_file === `${id}.webp` && asset.source.startsWith('https://pixabay.com/')));
@@ -132,7 +133,8 @@ test('new photos replace the old collection and repeated art shares a texture ca
 
 test('20 imported layouts preserve every source cell, obstacle hit count, powerup and move budget', () => {
     const imported = PHOTO_LEVELS.filter(level => level.importedLevel);
-    assert.equal(imported.length, 20);
+    assert.equal(imported.length, 75);
+    assert.equal(new Set(imported.map(level => level.importedLevel)).size, 20);
     const layouts = new Set();
     const colors = { r: 1, g: 2, b: 3, y: 5 };
     const specials = { hro: 'stripe', vro: 'stripe', tnt: 'bomb', lb: 'color_bomb' };
@@ -167,9 +169,13 @@ test('20 imported layouts preserve every source cell, obstacle hit count, poweru
     assert.equal(layouts.size, 20);
 });
 
-test('30 new levels each unlock new art while the original 54 keep their photos', () => {
+test('unique replacements keep the first 11 and last 30 level assignments and saved progression', () => {
     const original = ['8059755', '8363683', '9013533', '8790150', '8105566', '8400104', '8682657', '8933700', '9504564', '8584916', '8682687'];
-    for (let index = 0; index < 54; index++) assert.equal(PHOTO_LEVELS[index].portrait, original[index % original.length]);
+    for (let index = 0; index < 11; index++) assert.equal(PHOTO_LEVELS[index].portrait, original[index]);
+    const replacements = PHOTO_LEVELS.slice(11, 54);
+    assert.equal(replacements.length, 43);
+    assert.equal(new Set(replacements.map(level => level.portrait)).size, 43);
+    assert.ok(replacements.every(level => !original.includes(level.portrait) && !NEW_PORTRAITS.includes(level.portrait)));
     const additions = PHOTO_LEVELS.slice(54);
     assert.equal(additions.length, 30);
     assert.equal(new Set(additions.map(level => level.portrait)).size, 30);
@@ -210,4 +216,17 @@ test('reveal tiles cover the whole portrait exactly once and assets stay small',
         assert.ok(existsSync(path));
         assert.ok(statSync(path).size < 150000, 'Each portrait should be less than 150 KB');
     });
+});
+
+
+test('first nine challenges use the original campaign, followed by imported boards in order', () => {
+    for (let index = 0; index < 9; index++) {
+        assert.equal(PHOTO_LEVELS[index].classicLevel, index + 1);
+        assert.equal(PHOTO_LEVELS[index].importedLevel, undefined);
+        assert.equal(photoBoardPath(PHOTO_LEVELS[index]), `assets/levels/level_${index + 1}.json`);
+    }
+    for (let index = 9; index < PHOTO_LEVELS.length; index++) {
+        assert.equal(PHOTO_LEVELS[index].importedLevel, (index - 9) % 20 + 1);
+        assert.equal(PHOTO_LEVELS[index].classicLevel, undefined);
+    }
 });

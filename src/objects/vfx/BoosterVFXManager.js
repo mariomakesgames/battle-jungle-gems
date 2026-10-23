@@ -53,10 +53,10 @@ playHammerEffect(row, col, onComplete) {
     const initialAngle = -60; // Góc ban đầu, giơ lên từ bên trái
 
     // 3. TẠO SPRITE VỚI ORIGIN MỚI
-    const hammerSprite = this.scene.add.sprite(initialX, initialY, 'booster_hammer')
+    const hammerSprite = this.scene.add.sprite(initialX, initialY, this.scene.fashionTheme ? 'baddie_booster_hammer' : 'booster_hammer')
         .setAngle(initialAngle)
         .setOrigin(0.8, 0.8) // << THAY ĐỔI QUAN TRỌNG: Điểm xoay giờ ở gần ĐẦU BÚA
-        .setScale(1.2)      // Giữ nguyên scale hoặc chỉnh lại nếu cần
+        .setScale(this.scene.fashionTheme ? .32 : 1.2)      // Giữ nguyên scale hoặc chỉnh lại nếu cần
         .setDepth(10);
 
     // 4. CHUỖI ANIMATION ĐÃ ĐƯỢC CẬP NHẬT
@@ -273,9 +273,9 @@ playHammerEffect(row, col, onComplete) {
     // << KẾT THÚC THAY ĐỔI >>
 
     // Tạo MỘT tên lửa duy nhất
-    const rocketSprite = this.scene.add.sprite(targetX, startY, 'booster_rocket')
+    const rocketSprite = this.scene.add.sprite(targetX, startY, this.scene.fashionTheme ? 'baddie_booster_rocket' : 'booster_rocket')
         .setAngle(0) // << SỬA LỖI: -90 độ là hướng thẳng lên trên
-        .setScale(1.2) // Tăng kích thước lên một chút cho rõ hơn
+        .setScale(this.scene.fashionTheme ? .32 : 1.2) // Tăng kích thước lên một chút cho rõ hơn
         .setDepth(10);
 
     // Có thể thêm particle trail (vệt khói) đi theo tên lửa ở đây nếu muốn
@@ -343,8 +343,8 @@ playHammerEffect(row, col, onComplete) {
     });
     
     // 2. Bình rượu bay vào
-    const shufflePot = this.scene.add.sprite(boardCenterX, this.scene.scale.height + 100, 'booster_shuffle')
-      .setScale(1.2)
+    const shufflePot = this.scene.add.sprite(boardCenterX, this.scene.scale.height + 100, this.scene.fashionTheme ? 'baddie_booster_shuffle' : 'booster_shuffle')
+      .setScale(this.scene.fashionTheme ? .32 : 1.2)
       .setDepth(15);
 
     this.scene.tweens.add({

@@ -1,4 +1,6 @@
+import { fashionButton } from '../ui/FashionButton.js';
 import { playGameSfx } from '../managers/GameSfx.js';
+import { BADDIE, fashionCard, gameLettering } from '../ui/BaddieTheme.js';
 import Phaser from 'phaser';
 import { Board } from '../objects/Board';
 import { PowerupVFXManager } from '../objects/vfx/PowerupVFXManager';
@@ -30,12 +32,12 @@ export class AIDuelScene extends Phaser.Scene {
     }
 
     preload() {
-        this.add.image(288, 512, 'preloading_background').setDisplaySize(576, 1024);
+        const loadingBackground = this.add.image(288, 512, 'preloading_background').setDisplaySize(576, 1024);
         const loading = bindText(this.add.text(288, 512, '', { fontSize: '28px' }).setOrigin(0.5),
             'loading', () => ({ percent: Math.round(this.load.progress * 100) }));
         const onProgress = progress => loading.setText(LanguageManager.t('loading', { percent: Math.round(progress * 100) }));
         this.load.on('progress', onProgress);
-        this.events.once('create', () => { this.load.off('progress', onProgress); loading.destroy(); });
+        this.events.once('create', () => { this.load.off('progress', onProgress); loading.destroy(); loadingBackground.destroy(); });
         queueAssetGroup(this, 'gameplay');
         for (const color of [...DUEL_COLORS, 'bomb', 'stripe', 'color_bomb', 'color_bomb_op']) {
             const key = `gem_${color}`;
@@ -106,14 +108,17 @@ export class AIDuelScene extends Phaser.Scene {
     }
 
     makeLabel(x, y, key, size, params = {}, width = 500) {
-        return bindText(this.add.text(x, y, '', { fontSize: `${size}px`, color: '#fff5df', align: 'center' })
+        const label = bindText(this.add.text(x, y, '', { fontSize: `${size}px`, color: this.fashionTheme ? BADDIE.text : '#fff5df', align: 'center' })
             .setOrigin(0.5).setDepth(30), key, params, width);
+        if (this.fashionTheme) gameLettering(label, size >= 24);
+        return label;
     }
 
     button(x, y, width, key, action, name, parent = null) {
-        const box = this.add.rectangle(x, y, width, 44, 0x713719).setStrokeStyle(2, 0xe8bd70)
+        const box = (this.fashionTheme ? fashionButton(this, x, y, width, name === 'beauty-hint' ? 56 : 52, width >= 300 || key === 'continue' || key === 'beautyReplay') : this.add.rectangle(x, y, width, 44, 0x713719).setStrokeStyle(1, 0xe8bd70))
             .setInteractive({ useHandCursor: true }).setDepth(60).setName(name);
         const label = this.makeLabel(x, y, key, 20, {}, width - 10).setDepth(61);
+        box.setData('label', label);
         box.on('pointerdown', () => { playGameSfx(this, 'ui'); action(); });
         if (parent) parent.add([box, label]);
         return box;
@@ -239,7 +244,8 @@ export class AIDuelScene extends Phaser.Scene {
         this.tweens.pauseAll();
         this.music?.pause();
         this.pausePanel = this.add.container(0, 0).setDepth(100);
-        this.pausePanel.add(this.add.rectangle(288, 512, 576, 1024, 0x08120d, 0.88).setInteractive());
+        this.pausePanel.add(this.add.rectangle(288, 512, 576, 1024, this.fashionTheme ? BADDIE.ink : 0x08120d, 0.94).setInteractive());
+        if (this.fashionTheme) this.pausePanel.add(fashionCard(this, 288, 500, 380, 330, 24));
         this.pausePanel.add(this.makeLabel(288, 405, 'pause', 36));
         this.button(288, 510, 260, 'continue', () => this.resumePause(), 'duel-resume', this.pausePanel);
         this.button(288, 590, 260, 'duelBack', () => this.leave(), 'duel-pause-exit', this.pausePanel);

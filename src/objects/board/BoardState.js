@@ -383,7 +383,7 @@ export class BoardState {
     const x = this.offsetX + col * this.cellSize + this.cellSize / 2
     const y = startY !== undefined ? startY : this.offsetY + row * this.cellSize + this.cellSize / 2
     console.log(`Creating gem ${gemType} at row:${row}, col:${col}, x:${x}, y:${y}`)
-    const gemTextureKey = `gem_${gemType}`
+    const gemTextureKey = this.scene.pieceTexture?.(gemType) || `gem_${gemType}`
     
     const gem = this.gemLayer.add(
       this.scene.make.image({ x, y, key: gemTextureKey, add: false })

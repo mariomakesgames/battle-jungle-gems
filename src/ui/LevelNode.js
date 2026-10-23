@@ -34,18 +34,19 @@ export class LevelNode extends Phaser.GameObjects.Container {
     
     createLevelNode() {
         // Chọn ảnh nền cho nút dựa vào trạng thái khóa/mở
-        const buttonTexture = this.isLocked ? 'level_lock' : 'level_unlock';
+        const buttonTexture = this.scene.fashionTheme
+            ? (this.isLocked ? 'baddie_node_lock' : 'baddie_node_unlock') : (this.isLocked ? 'level_lock' : 'level_unlock');
         
         // Tạo button chính
         this.button = this.scene.add.image(0, 0, buttonTexture)
-            .setScale(0.4);
+            .setScale(this.scene.fashionTheme ? .85 : 0.4);
         
         this.add(this.button);
         
         // Hiển thị số level (cho cả level khóa và mở)
         // KHÔNG set cứng tọa độ ở đây nữa, set 0,0 tạm
         this.levelText = this.scene.add.text(0, 0, String(this.levelId), {
-            font: '28px NABILA',
+            font: this.scene.fashionTheme ? 'bold 30px Arial' : '28px NABILA',
             fill: '#ffffff',
             stroke: '#000000', // Thêm viền đen để nổi bật hơn
             strokeThickness: 3,
@@ -56,6 +57,7 @@ export class LevelNode extends Phaser.GameObjects.Container {
         
         // Gọi hàm cập nhật vị trí ngay khi khởi tạo
         this.updateTextPosition(this.levelId);
+        if (this.scene.fashionTheme) this.levelText.setPosition(0, 0).setStroke('#3b1830', 0);
         
         // Nếu level đã mở, hiển thị các ngôi sao và thêm tương tác
         if (!this.isLocked) {
@@ -91,11 +93,11 @@ export class LevelNode extends Phaser.GameObjects.Container {
     
     addButtonEvents() {
         this.button.on('pointerover', () => {
-            this.button.setScale(0.42);
+            this.button.setScale(this.scene.fashionTheme ? .9 : 0.42);
         });
         
         this.button.on('pointerout', () => {
-            this.button.setScale(0.4);
+            this.button.setScale(this.scene.fashionTheme ? .85 : 0.4);
         });
         
         if (this.onSelect) {
@@ -173,7 +175,7 @@ export class LevelNode extends Phaser.GameObjects.Container {
                 // 2. Sau khi lắc xong -> Đổi texture và cập nhật trạng thái
                 
                 // Hiệu ứng scale nhẹ lúc đổi hình
-                const originalScale = 0.4;
+                const originalScale = this.scene.fashionTheme ? .85 : 0.4;
                 this.scene.tweens.add({
                     targets: this.button,
                     scale: originalScale * 1.2, // Phóng to lên xíu
@@ -182,7 +184,7 @@ export class LevelNode extends Phaser.GameObjects.Container {
                     onYoyo: () => {
                         // Tại đỉnh điểm của phóng to, ta đổi ảnh
                         this.isLocked = false;
-                        this.button.setTexture('level_unlock');
+                        this.button.setTexture(this.scene.fashionTheme ? 'baddie_node_unlock' : 'level_unlock');
                         this.button.setScale(originalScale); // Reset về scale ban đầu
                         
                         // Thêm tương tác

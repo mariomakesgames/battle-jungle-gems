@@ -1,4 +1,6 @@
+import { fashionButton } from './FashionButton.js';
 import LanguageManager, { LANGUAGES } from '../i18n/LanguageManager';
+import { BADDIE, fashionCard } from './BaddieTheme.js';
 
 // Refresh individual labels without restarting scenes or losing a running level.
 export function bindText(text, key, params = {}, maxWidth = 0) {
@@ -28,15 +30,16 @@ export function localizeButton(scene, image, key) {
 }
 
 export function createLanguageSelector(scene, y = 920) {
+    const fashion = scene.fashionTheme;
     const center = scene.scale.width / 2;
     const depth = 50;
-    scene.add.rectangle(center, y, 440, 90, 0x312017, 0.96)
-        .setStrokeStyle(2, 0xe8bd70).setDepth(depth);
+    if (fashion) fashionCard(scene, center, y, 440, 90, 18).setDepth(depth);
+    else scene.add.rectangle(center, y, 440, 90, 0x312017, .96).setStrokeStyle(1, 0xe8bd70, .6).setDepth(depth);
     bindText(scene.add.text(center, y - 25, '', { fontSize: '20px', color: '#fff5df' })
-        .setOrigin(0.5).setDepth(depth + 1), 'language');
+        .setOrigin(0.5).setDepth(depth + 1), 'language').setFontFamily(fashion ? BADDIE.font : 'UTMCookies, Arial, sans-serif');
     const buttons = LANGUAGES.map((item, index) => {
         const x = center + (index - 1) * 140;
-        const bg = scene.add.rectangle(x, y + 14, 132, 36, 0x713719)
+        const bg = (fashion ? fashionButton(scene, x, y + 14, 132, 40) : scene.add.rectangle(x, y + 14, 132, 36, 0x713719))
             .setInteractive({ useHandCursor: true }).setDepth(depth + 1)
             .setName(`language-${item.code}`);
         const label = scene.add.text(x, y + 14, item.label, {
@@ -47,8 +50,8 @@ export function createLanguageSelector(scene, y = 920) {
     });
     const refresh = () => buttons.forEach(({ item, bg, label }) => {
         const selected = item.code === LanguageManager.language;
-        bg.setFillStyle(selected ? 0x986125 : 0x713719).setStrokeStyle(selected ? 2 : 1, 0xffdc91);
-        label.setColor(selected ? '#fff2ab' : '#ffffff');
+        bg.setFillStyle(fashion ? (selected ? BADDIE.rose : BADDIE.raised) : (selected ? 0x986125 : 0x713719)).setStrokeStyle(selected ? 2 : 1, fashion ? BADDIE.gold : 0xffdc91);
+        label.setColor(selected ? '#fff0dc' : '#ffffff');
     });
     const unsubscribe = LanguageManager.subscribe(refresh);
     scene.events.once('shutdown', unsubscribe);

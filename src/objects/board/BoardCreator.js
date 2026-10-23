@@ -7,8 +7,9 @@ import { RopeBlocker } from '../blockers/RopeBlocker'
 export class BoardCreator {
   createSelectionFrame() {
     const frame = this.scene.add.graphics()
-    frame.lineStyle(4, 0xFFD700, 1)
-    frame.strokeRect(0, 0, this.cellSize, this.cellSize)
+    frame.lineStyle(3, this.scene.fashionTheme ? 0xf2b2c8 : 0xFFD700, 1)
+    if (this.scene.fashionTheme) frame.strokeRoundedRect(2, 2, this.cellSize - 4, this.cellSize - 4, 8)
+    else frame.strokeRect(0, 0, this.cellSize, this.cellSize)
     frame.setDepth(5)
     frame.setVisible(false)
     return frame
@@ -18,7 +19,7 @@ export class BoardCreator {
   createCellAt(row, col) {
     const x = this.offsetX + col * this.cellSize + this.cellSize / 2
     const y = this.offsetY + row * this.cellSize + this.cellSize / 2
-    const cell = this.scene.add.image(x, y, 'cell')
+    const cell = this.scene.add.image(x, y, this.scene.fashionTheme ? 'baddie_cell' : 'cell')
       .setDisplaySize(this.cellSize * 0.95, this.cellSize * 0.95)
       .setDepth(1) // Depth 1: Nền cell nằm dưới gem (depth 2)
     cell.setData('row', row)
@@ -54,7 +55,7 @@ export class BoardCreator {
     const x = this.offsetX + col * this.cellSize + this.cellSize / 2
     const y = startY !== undefined ? startY : this.offsetY + row * this.cellSize + this.cellSize / 2
     console.log(`Creating gem ${gemType} at row:${row}, col:${col}, x:${x}, y:${y}`)
-    const gemTextureKey = `gem_${gemType}`
+    const gemTextureKey = this.scene.pieceTexture?.(gemType) || `gem_${gemType}`
     
     // === SỬA DÒNG NÀY ===
     // const gem = this.scene.add.image(x, y, gemTextureKey)

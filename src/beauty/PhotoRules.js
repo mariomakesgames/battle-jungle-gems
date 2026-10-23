@@ -26,17 +26,28 @@ export const NEW_PORTRAITS = [
     '9331244', '8589710', '8669954', '9658273', '8371252', '8764204',
     '8114807', '8205238', '10011345', '8326283', '9496536', '8510527',
 ];
-export const PORTRAITS = [...ORIGINAL_PORTRAITS, ...NEW_PORTRAITS];
+export const ADDITIONAL_PORTRAITS = [
+    '8800180', '8059037', '8451033', '8059324', '7844318', '6960104',
+    '7844332', '6960088', '6960096', '6960105', '7844321', '7071758',
+    '8333303', '8615413', '8639296', '1838592', '1845277', '8451037',
+    '9482048', '8921099', '7647119', '7844320', '7844315', '8691066',
+    '8979478', '8577729', '8822135', '8407085', '8637787', '9000788',
+    '8383995', '8383993', '8551343', '6182740', '7275061', '6182731',
+    '8451035', '6182747', '7275065', '8400135', '8400136', '8400137',
+    '8400147',
+];
+export const PORTRAITS = [...ORIGINAL_PORTRAITS, ...ADDITIONAL_PORTRAITS, ...NEW_PORTRAITS];
 
-// Preserve the first 54 levels' art so existing collections stay consistent.
-// The first 20 challenges use imported layouts; later challenges retain classic boards.
+// Start with the original author's nine campaign boards, then use the imported
+// collection in order. Repeat that collection for the remaining photo challenges.
+// Photo IDs and image assignments stay stable for existing collections.
 export const PHOTO_LEVELS = Array.from({ length: 54 + NEW_PORTRAITS.length }, (_, index) => ({
-    ...(IMPORTED_PHOTO_LEVELS[index] || {
-        ...structuredClone(CLASSIC_PHOTO_TEMPLATES[index % CLASSIC_PHOTO_TEMPLATES.length]),
-        classicLevel: index % CLASSIC_PHOTO_TEMPLATES.length + 1,
-    }),
+    ...(index < CLASSIC_PHOTO_TEMPLATES.length ? {
+        ...structuredClone(CLASSIC_PHOTO_TEMPLATES[index]),
+        classicLevel: index + 1,
+    } : structuredClone(IMPORTED_PHOTO_LEVELS[(index - CLASSIC_PHOTO_TEMPLATES.length) % IMPORTED_PHOTO_LEVELS.length])),
     id: `portrait-${index + 1}`,
-    portrait: index < 54 ? ORIGINAL_PORTRAITS[index % ORIGINAL_PORTRAITS.length] : NEW_PORTRAITS[index - 54],
+    portrait: PORTRAITS[index],
     title: 'beautyPortraitLevel',
     titleParams: { level: index + 1 },
 }));

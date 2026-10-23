@@ -231,7 +231,7 @@ export class PowerupVFXManager {
         }
 
         // Đổi texture và lắc mạnh trước khi hút
-        colorBombSprite.setTexture('gem_color_bomb_op');
+        colorBombSprite.setTexture(this.scene.pieceTexture?.('color_bomb_op') || 'gem_color_bomb_op');
         
         this.scene.tweens.add({
           targets: colorBombSprite,
@@ -625,7 +625,7 @@ export class PowerupVFXManager {
       },
       onComplete: () => {
         // ĐỔI TEXTURE SANG color_bomb_op VÀ LẮC LƯ
-        colorBombSprite.setTexture('gem_color_bomb_op');
+        colorBombSprite.setTexture(this.scene.pieceTexture?.('color_bomb_op') || 'gem_color_bomb_op');
         
         this.scene.tweens.add({
           targets: colorBombSprite,
@@ -720,7 +720,7 @@ export class PowerupVFXManager {
       if (delay > maxSpitDelay) maxSpitDelay = delay
 
       gem.sprite.setPosition(centerPos.x, centerPos.y)
-      gem.sprite.setTexture('gem_stripe')
+      gem.sprite.setTexture(this.scene.pieceTexture?.('stripe') || 'gem_stripe')
       gem.sprite.setAlpha(1)
       gem.sprite.setScale(oldPos.scale * 0.5)
       this.scene.tweens.add({
@@ -1011,7 +1011,7 @@ export class PowerupVFXManager {
     // 2. Gem tâm biến hình thành Big Stripe (chậm rãi)
     const layerMask6 = this.disableGemLayerMask();
     
-    // [FIX LỖI] Đã xóa dòng sprite1_tam.setTexture('gem_stripe') ở đây
+    // [FIX LỖI] Đã xóa dòng sprite1_tam.setTexture(this.scene.pieceTexture?.('stripe') || 'gem_stripe') ở đây
     // để tránh bị đổi hình trước khi va chạm.
 
     this.scene.tweens.add({
@@ -1022,7 +1022,7 @@ export class PowerupVFXManager {
         ease: 'Back.easeOut',
         onStart: () => {
             // [FIX LỖI] Chỉ đổi texture TẠI THỜI ĐIỂM BẮT ĐẦU PHÓNG TO (sau delay)
-            sprite1_tam.setTexture('gem_stripe'); 
+            sprite1_tam.setTexture(this.scene.pieceTexture?.('stripe') || 'gem_stripe');
             
             sprite1_tam.setDepth(50);
             this.scene.game.events.emit('screenShake', { duration: 400, intensity: 0.012 });
@@ -1218,7 +1218,7 @@ export class PowerupVFXManager {
       },
       onComplete: () => {
         // ĐỔI TEXTURE SANG color_bomb_op VÀ LẮC LƯ
-        colorBombSprite.setTexture('gem_color_bomb_op');
+        colorBombSprite.setTexture(this.scene.pieceTexture?.('color_bomb_op') || 'gem_color_bomb_op');
         
         this.scene.tweens.add({
           targets: colorBombSprite,
@@ -1366,7 +1366,7 @@ export class PowerupVFXManager {
           },
           onComplete: () => {
             // 3. Đổi sang color_bomb_op và lắc lư mạnh
-            sprite1.setTexture('gem_color_bomb_op');
+            sprite1.setTexture(this.scene.pieceTexture?.('color_bomb_op') || 'gem_color_bomb_op');
             
             this.scene.tweens.add({
               targets: sprite1,
@@ -1521,7 +1521,7 @@ export class PowerupVFXManager {
       const delay = Math.random() * 500;
       if (delay > maxSpitDelay) maxSpitDelay = delay;
       gem.sprite.setPosition(centerPos.x, centerPos.y);
-      gem.sprite.setTexture('gem_bomb');
+      gem.sprite.setTexture(this.scene.pieceTexture?.('bomb') || 'gem_bomb');
       gem.sprite.setAlpha(1);
       gem.sprite.setScale(oldPos.scale * 0.5);
       this.scene.tweens.add({

@@ -16,7 +16,7 @@ export class BoardPowerups {
   transformIntoPowerup(gemObject, powerupType) {
     gemObject.type = 'gem'
     gemObject.value = powerupType
-    gemObject.sprite.setTexture(`gem_${powerupType}`)
+    gemObject.sprite.setTexture(this.scene.pieceTexture?.(powerupType) || `gem_${powerupType}`)
     gemObject.sprite.setData('type', powerupType)
     console.log(`Transformed gem into ${powerupType} power-up`)
 

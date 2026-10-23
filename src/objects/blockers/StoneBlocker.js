@@ -3,7 +3,7 @@ import { BaseBlocker } from './BaseBlocker'
 
 export class StoneBlocker extends BaseBlocker {
   constructor(scene, x, y, row, col, health = 2) {
-    const textureKey = `blocker_stone_${health}`
+    const textureKey = scene.blockerTexture?.(`stone_${health}`) || `blocker_stone_${health}`
     super(scene, x, y, textureKey, 'stone', row, col)
     this.health = health
   }
@@ -15,7 +15,7 @@ export class StoneBlocker extends BaseBlocker {
       this.destroy()
       return true
     } else {
-      this.setTexture(`blocker_stone_${this.health}`)
+      this.setTexture(this.scene.blockerTexture?.(`stone_${this.health}`) || `blocker_stone_${this.health}`)
       return false
     }
   }

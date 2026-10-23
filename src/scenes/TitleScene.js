@@ -1,86 +1,51 @@
+import { fashionButton } from '../ui/FashionButton.js';
+import Phaser from 'phaser';
 import { bindText, createLanguageSelector } from '../ui/LocalizedUI';
 import { isDebugMode } from '../utils/DebugMode';
-// src/scenes/TitleScene.js
-import Phaser from 'phaser';
+import { photoKey, photoPath } from '../beauty/PhotoRules.js';
+import { gameLettering, BADDIE, fashionBackground } from '../ui/BaddieTheme.js';
 
 export class TitleScene extends Phaser.Scene {
-    constructor() {
-        super('TitleScene');
-        this.background = null;
+    constructor() { super('TitleScene'); }
+
+    preload() {
+        for (const index of [11, 28]) {
+            if (!this.textures.exists(photoKey(index))) this.load.image(photoKey(index), photoPath(index));
+        }
     }
 
     create() {
-        createLanguageSelector(this, 920);
-        const gameWidth = this.scale.gameSize.width;
-        const gameHeight = this.scale.gameSize.height;
+        this.fashionTheme = true;
+        fashionBackground(this, .06);
+        this.add.image(64, 65, 'baddie_brand').setDisplaySize(40, 40);
+        this.add.text(96, 65, 'B A D D I E   C L U B', { fontFamily: BADDIE.body, fontSize: '18px', color: '#e1c4b2' }).setOrigin(0, .5);
+        this.add.text(43, 115, 'Baddie', { fontFamily: BADDIE.heading, fontSize: '82px', color: '#ffe5c1', stroke: '#4a253b', strokeThickness: 5, shadow: { offsetX: 0, offsetY: 5, color: '#08050e', blur: 6, fill: true } });
+        this.label(49, 230, 'baddieTagline', 18, 470).setOrigin(0, .5);
 
-        // 1. Background (Sử dụng logic resize giống PreloaderScene)
-        this.background = this.add.image(0, 0, 'preloading_background');
-        this.resizeBackground(gameWidth, gameHeight);
+        const left = this.add.container(139, 458).setAngle(-5);
+        left.add(this.add.rectangle(0, 0, 196, 259, BADDIE.panel).setStrokeStyle(2, BADDIE.gold));
+        left.add(this.add.image(0, -8, photoKey(28)).setDisplaySize(182, 228));
+        left.add(this.add.text(0, 119, 'THE COLLECTION', { fontFamily: BADDIE.body, fontSize: '11px', color: '#dcb98c', letterSpacing: 2 }).setOrigin(.5));
+        const main = this.add.container(354, 433).setAngle(3);
+        main.add(this.add.rectangle(0, 0, 282, 370, BADDIE.panel).setStrokeStyle(2, BADDIE.gold));
+        main.add(this.add.image(0, -9, photoKey(11)).setDisplaySize(266, 332));
+        main.add(this.add.text(0, 170, 'BADDIE  /  01', { fontFamily: BADDIE.body, fontSize: '12px', color: '#dcb98c', letterSpacing: 3 }).setOrigin(.5));
+        this.tweens.add({ targets: main, y: 443, duration: 2400, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
 
-        // 2. Logo (Vị trí và hiệu ứng GIỐNG HỆT PreloaderScene)
-        // Logo ở giữa, lệch lên trên
-        const logo = this.add.image(gameWidth / 2, gameHeight / 2 - 310, 'loading_logo').setOrigin(0.5);
-        // Scale logo để không vượt quá 40% bề rộng màn hình (giống PreloaderScene)
-        const maxLogoWidth = gameWidth * 0.4;
-        if (logo.width > 0 && logo.width > maxLogoWidth) {
-            const logoScale = 1;
-            logo.setScale(logoScale);
-        }
 
-        // Hiệu ứng lướt lên xuống nhẹ nhàng cho logo (GIỐNG PreloaderScene)
-        this.tweens.add({
-            targets: logo,
-            y: '+=10',
-            duration: 2000,
-            delay: 500,
-            ease: 'Sine.easeInOut',
-            yoyo: true,
-            repeat: -1
-        });
+        this.label(288, 662, 'baddiePlayline', 17, 340);
 
-        const modeButton = (y, color, key, name, action) => {
-            // Keep the other mode entries available to restore later.
-            const visible = name === 'beauty-entry';
-            const button = this.add.rectangle(gameWidth / 2, y, 300, 46, color)
-                .setStrokeStyle(2, 0xe8bd70).setVisible(visible).setName(name);
-            if (visible) button.setInteractive({ useHandCursor: true });
-            bindText(this.add.text(gameWidth / 2, y, '', { fontSize: '25px', color: '#fff5df' })
-                .setOrigin(0.5).setVisible(visible).setName(`${name}-label`), key, {}, 280);
-            button.on('pointerdown', action);
-        };
-        modeButton(613, 0x713719, 'classicMode', 'classic-mode-entry', () => {
-            if (!this.scale.isFullscreen && this.scale.fullscreen.available) this.scale.startFullscreen();
-            this.scene.start('PreloaderScene');
-        });
-        modeButton(675, 0x43304f, 'beautyMode', 'beauty-entry', () => this.scene.start('BaddieMapScene'));
-        modeButton(768, 0x243e63, 'onlineDuel', 'online-duel-entry', () => this.scene.start('OnlineLobbyScene'));
-        modeButton(835, 0x174b50, 'aiDuel', 'ai-duel-entry', () => this.scene.start('AIDuelScene'));
-        if (isDebugMode()) {
-            bindText(this.add.text(gameWidth / 2, 990, '', { fontSize: '17px', color: '#ffe286' })
-                .setOrigin(0.5).setName('debug-mode-label'), 'debugMode', {}, 540);
-        }
-        this.events.once('shutdown', () => this.scale.off('resize', this.handleResize, this));
-
-        // Lắng nghe sự kiện resize để vẽ lại background nếu xoay màn hình
-        this.scale.on('resize', this.handleResize, this);
+        const button = fashionButton(this, 288, 738, 470, 72, true).setName('beauty-entry');
+        this.label(273, 738, 'beautyMode', 28, 370).setName('beauty-entry-label');
+        this.add.text(493, 738, '›', { fontFamily: BADDIE.heading, fontSize: '40px', color: '#fff3e3' }).setOrigin(.5);
+        button.on('pointerdown', () => this.scene.start('BaddieMapScene'));
+        this.label(288, 806, 'baddieCollectionHint', 17, 470);
+        createLanguageSelector(this, 905);
+        if (isDebugMode()) this.label(288, 992, 'debugMode', 12, 540).setColor(BADDIE.muted).setName('debug-mode-label');
     }
 
-    // Hàm xử lý khi resize cửa sổ (Đồng bộ với logic của Preloader)
-    handleResize(gameSize) {
-        this.resizeBackground(gameSize.width, gameSize.height);
-        
-        // Cập nhật lại vị trí các phần tử nếu cần thiết (ở đây ví dụ background là quan trọng nhất)
-        // Các phần tử khác như Logo/Text đang dùng tỉ lệ tương đối trong create(), 
-        // nếu muốn responsive hoàn hảo khi xoay ngang/dọc thì nên tách logic vẽ UI ra hàm riêng và gọi lại ở đây.
-    }
-
-    // Hàm scale background full màn hình (copy logic từ PreloaderScene)
-    resizeBackground(gameWidth, gameHeight) {
-        if (!this.background) return;
-        this.background.setPosition(gameWidth / 2, gameHeight / 2);
-        // Chọn tỉ lệ scale lớn hơn giữa chiều rộng và chiều cao để phủ kín (cover)
-        const scale = Math.max(gameWidth / this.background.width, gameHeight / this.background.height);
-        this.background.setScale(scale);
+    label(x, y, key, size, width) {
+        return gameLettering(bindText(this.add.text(x, y, '', { fontSize: `${size}px`, color: BADDIE.text, align: 'center' })
+            .setOrigin(.5), key, {}, width).setFontFamily(BADDIE.font));
     }
 }
